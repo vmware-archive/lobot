@@ -1,0 +1,3 @@
+module Lobot
+  # Your code goes here...
+end
