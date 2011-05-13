@@ -6,11 +6,11 @@ Gem::Specification.new do |s|
   s.name        = "lobot"
   s.version     = Lobot::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
+  s.authors     = ["Matthew Kocher & Lee Edwards"]
+  s.email       = ["pair@pivotallabs.com"]
   s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.summary     = %q{Lobot provides generators of chef recipes to set up CI easily.}
+  s.description = %q{Description coming soon}
 
   s.rubyforge_project = "lobot"
 
