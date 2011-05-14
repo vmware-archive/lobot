@@ -61,12 +61,12 @@ template "/service/postgres/run" do
   mode 0755
 end
 
-file "/etc/ld.so.conf.d" do
-  content "/etc/ld.so.conf.d"
+file "/etc/ld.so.conf.d/postgres-64.conf" do
+  content "/usr/local/pgsql/lib"
 end
 
 execute "add postgres to ldconf" do
-  command "ldconfig"
+  command "/sbin/ldconfig"
 end
 
 ruby_block "wait for postgres to come up" do

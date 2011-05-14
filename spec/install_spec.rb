@@ -11,7 +11,7 @@ describe Lobot::InstallGenerator do
   end
   
   it "creates ci.yml" do
-    assert_file "ci.yml", /app_name/
+    assert_file "config/ci.yml", /app_name/
   end
   
   it "creates ci.rake" do
@@ -40,8 +40,12 @@ describe Lobot::InstallGenerator do
     end
   end
   
-  it "creates ci.rb" do
-    assert_file "config/deploy/ci.rb", /task :ci_setup do/
+  it "creates config/deploy/ci.rb" do
+    assert_file "config/deploy/ci.rb", /role :ci, ci_server/
+  end
+
+  it "creates config/capistrano/ci.rb" do
+    assert_file "config/capistrano/ci.rb", /task :ci_setup do/
   end
   
   it "creates soloistrc" do

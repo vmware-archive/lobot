@@ -63,4 +63,20 @@ namespace :ci do
     exec "ssh #{aws_conf['app_user']}@#{aws_conf['ci_server']['public_ip']}"
   end
   
+  desc "Get build status"
+  task :status do
+    require 'nokogiri'
+    ci_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    ci_conf = YAML.load_file(ci_conf_location)
+    
+    hudson_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['ci_server']['public_ip']}/rssAll`
+    latest_build = Nokogiri::XML.parse(hudson_rss_feed.downcase).css('feed entry:first').first
+    status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
+    if status
+      p "Great Success"
+    else
+      p "Someone needs to fix the build"
+    end
+    status ? exit(0) : exit(1)
+  end
 end

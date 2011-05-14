@@ -6,7 +6,8 @@ module Lobot
       template 'ci.yml', 'config/ci.yml'
       template 'ci.rake', 'lib/tasks/ci.rake'
       template 'bootstrap_server.sh', 'script/bootstrap_server.sh'
-      template 'ci.rb', 'config/deploy/ci.rb'
+      template 'deploy-ci.rb', 'config/deploy/ci.rb'
+      template 'capistrano-ci.rb', 'config/capistrano/ci.rb'
       template 'soloistrc', 'soloistrc'
     end
     
