@@ -28,7 +28,7 @@ rpm -q epel-release-5-4.noarch || rpm -Uvh http://download.fedora.redhat.com/pub
 yum -y install git
 
 # rvm prereqs
-yum install -y gcc-c++ patch readline readline-devel zlib zlib-devel libyaml-devel libffi-devel openssl-devel iconv-devel java
+yum install -y gcc-c++ patch readline readline-devel zlib zlib-devel libffi-devel openssl-devel iconv-devel java
 
 # passwordless sudo
 sudo_string='ALL            ALL = (ALL) NOPASSWD: ALL'

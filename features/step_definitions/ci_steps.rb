@@ -1,8 +1,9 @@
+
 def system!(str)
   raise "Command Failed: #{str}" unless system(str)
 end
 
-Given /^I the temp directory is clean$/ do
+Given /^the temp directory is clean$/ do
   system!("rm -rf /tmp/lobot-test")
   system!("mkdir -p /tmp/lobot-test")
 end
@@ -12,17 +13,25 @@ Given /^I am in the temp directory$/ do
 end
 
 When /^I create a new Rails project using a Rails template$/ do
-  system!("git clone git@github.com:pivotalprivate/rails3-templates.git")
+  system!("git clone git@github.com:pivotalprivate/rails3-templates.git /tmp/lobot-test/rails3-templates")
   system!("ls -la")
-  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m rails3-templates/main.rb")
+  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m /tmp/lobot-test/rails3-templates/main.rb")
+end
+
+When /^I vendor Lobot$/ do
+  lobot_dir = File.expand_path('../../', File.dirname(__FILE__))
+  system! "cd #{lobot_dir} && rake build"
+  system! "mkdir -p testapp/vendor/cache/"
+  system! "cp #{lobot_dir}/pkg/lobot-#{Lobot::VERSION}.gem testapp/vendor/cache/"
 end
 
 When /^I put Lobot in the Gemfile$/ do
   lobot_path = File.expand_path('../../', File.dirname(__FILE__))
-  system!(%{echo "gem 'lobot', :path => '#{lobot_path}'" >> testapp/Gemfile})
+  system!(%{echo "gem 'lobot'" >> testapp/Gemfile})
 end
 
 When /^I run bundle install$/ do
+  system("cd testapp && gem uninstall lobot")
   system!("cd testapp && bundle install")
   system!('cd testapp && bundle exec gem list | grep lobot')
 end
@@ -45,6 +54,7 @@ When /^I enter my info into the ci\.yml file$/ do
   'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
   'id_rsa' => secrets['id_rsa']
   )
+  # ci_yml.merge!( 'ci_server' => {'public_ip' => 'ec2-204-236-254-123.compute-1.amazonaws.com'} )
   File.open(ci_conf_location, "w") do |f|
     YAML.dump(ci_yml, f)
   end
@@ -54,6 +64,7 @@ When /^I push to git$/ do
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
   system! "cd testapp && git add ."
   system! "cd testapp && git commit -m'initial commit'"
+  system "cd testapp && git remote rm origin"
   system! "cd testapp && git remote add origin git@github.com:pivotalprivate/ci-smoke.git"
   system! "cd testapp && git push --force -u origin master"
 end
@@ -70,7 +81,7 @@ When /^I deploy$/ do
   system! "cd testapp && cap ci chef"
 end
 
-Then /^CI IS GREEN$/ do
+Then /^CI is green$/ do
   Timeout::timeout(300) do
     until system("cd testapp && rake ci:status")
       sleep 5
