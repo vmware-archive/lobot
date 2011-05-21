@@ -37,7 +37,7 @@ namespace :ci do
       :key_name => 'ci'
     )
     server.wait_for { ready? }
-    sleep 5 # Server ready? seems to mean 'almost ready'.  Sleep value is arbitrary at the moment
+    sleep 10 # Server ready? seems to mean 'almost ready'.  Sleep value is arbitrary at the moment
         
     p server
     p "Server is ready"

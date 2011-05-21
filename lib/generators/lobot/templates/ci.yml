@@ -14,5 +14,5 @@ ci_server:
 build_command: ./cruise_build.sh
 id_rsa: |-
   -----BEGIN RSA PRIVATE KEY-----
-  SSH KEY GOES WITH ACCESS TO GITHUB GOES HERE
+  SSH KEY WITH ACCESS TO GITHUB GOES HERE
   -----END RSA PRIVATE KEY-----
