@@ -40,7 +40,7 @@ set -e
 export APP_USER=$1
 
 mkdir -p /home/$APP_USER/rvm/src
-curl -Lsf http://github.com/wayneeseguin/rvm/tarball/156d0b42feba4922ad04 | tar xvz -C/home/$APP_USER/rvm/src --strip 1
+curl -Lskf http://github.com/wayneeseguin/rvm/tarball/156d0b42feba4922ad04 | tar xvz -C/home/$APP_USER/rvm/src --strip 1
 cd "/home/$APP_USER/rvm/src" && ./install
 
 rvm_include_string='[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"'
