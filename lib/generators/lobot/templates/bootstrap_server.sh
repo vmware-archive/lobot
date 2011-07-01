@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 env | grep -q "APP_USER=" || echo "Please set APP_USER environment variable"
-echo "app user at the beginning: $APP_USER"
 
 # perl -e 'print crypt("password", "salt"),"\n"'
 getent passwd $APP_USER >/dev/null 2>&1 || useradd $APP_USER -p sa3tHJ3/KuYvI
@@ -53,7 +52,6 @@ rvm_gemset_create_on_use_flag=1
 RVMRC_CONTENTS
 BOOTSTRAP_AS_USER
 
-echo "app user at the end: $APP_USER"
 chmod a+x /home/$APP_USER/bootstrap_as_user.sh
 su - $APP_USER /home/$APP_USER/bootstrap_as_user.sh $APP_USER
 rm /home/$APP_USER/bootstrap_as_user.sh

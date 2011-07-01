@@ -10,7 +10,9 @@ run_unless_marker_file_exists("imagemagick_6_6_5") do
   end
 
   execute "download imagemagick" do
-    command "curl -Lsf ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-6.6.5-10.tar.gz| tar xvz -C#{src_dir} --strip 1"
+    # using an older version because the URL for the current version dies when a new version comes out.
+    # http://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
+    command "curl -Lsf ftp://ftp.imagemagick.org/pub/ImageMagick/legacy/ImageMagick-6.6.5-10.tar.gz | tar xvz -C#{src_dir} --strip 1"
   end
 
   execute "configure imagemagick" do

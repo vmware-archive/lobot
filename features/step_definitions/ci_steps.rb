@@ -13,9 +13,7 @@ Given /^I am in the temp directory$/ do
 end
 
 When /^I create a new Rails project using a Rails template$/ do
-  system!("git clone git@github.com:pivotalprivate/rails3-templates.git /tmp/lobot-test/rails3-templates")
-  system!("ls -la")
-  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m /tmp/lobot-test/rails3-templates/main.rb")
+  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m https://github.com/pivotal/guiderails/raw/master/main.rb")
 end
 
 When /^I vendor Lobot$/ do

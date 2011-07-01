@@ -7,10 +7,10 @@ user "nginx"
   "pcre" =>       "6.6-6.el5_6.1",
   "pcre-devel" => "6.6-6.el5_6.1"
 }.each do |package_name, version_string|
-  ['i386', 'x86_64'].each do |arch_string|
+  ['x86_64'].each do |arch_string|
     package package_name do
       action :install
-      version "#{version_string}.#{arch_string}"
+      version "#{version_string}"
     end
   end
 end
