@@ -40,14 +40,17 @@ Edit config/ci.yml
       aws_access_key_id: # The Access Key for your Amazon AWS account
       aws_secret_access_key: The Secret Access Key for your Amazon AWS account
       provider: AWS # leave this one alone
-    ci_server: 
-      public_ip: # this will be populated automatically
-    build_command: ./ci_build.sh # the name of your CI build script in your repository
-    id_rsa: |-
+    server: 
+      name: run 'rake ci:server_start to populate'
+      instance_id: run 'rake ci:server_start to populate'
+    build_command: ./cruise_build.sh
+    ec2_server_access: 
+      id_rsa_path: ~/.ssh/id_rsa
+    id_rsa_for_github_access: |-
       -----BEGIN RSA PRIVATE KEY-----
       SSH KEY WITH ACCESS TO GITHUB GOES HERE
       -----END RSA PRIVATE KEY-----
-
+      
 For security, you can add ci.yml to your .gitignore file and store a ci.yml.example without authentication credentials in your repository
 
 ## Dependencies

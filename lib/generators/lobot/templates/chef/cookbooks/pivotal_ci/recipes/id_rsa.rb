@@ -1,9 +1,9 @@
 username = ENV['SUDO_USER'].strip
 
 file "/home/#{username}/.ssh/id_rsa" do
-  content CI_CONFIG['id_rsa']
+  content CI_CONFIG['id_rsa_for_github_access']
   mode 0600
-  only_if { CI_CONFIG['id_rsa'] }
+  only_if { CI_CONFIG['id_rsa_for_github_access'] }
   owner username
 end
 

@@ -9,10 +9,13 @@ credentials:
   aws_access_key_id: AWS_ACCESS_KEY
   aws_secret_access_key: AWS_SECRET
   provider: AWS # leave this one
-ci_server: 
-  public_ip: run 'rake ci:server_start to populate'
+server: 
+  name: run 'rake ci:server_start to populate'
+  instance_id: run 'rake ci:server_start to populate'
 build_command: ./cruise_build.sh
-id_rsa: |-
+ec2_server_access: 
+  id_rsa_path: ~/.ssh/id_rsa
+id_rsa_for_github_access: |-
   -----BEGIN RSA PRIVATE KEY-----
   SSH KEY WITH ACCESS TO GITHUB GOES HERE
   -----END RSA PRIVATE KEY-----

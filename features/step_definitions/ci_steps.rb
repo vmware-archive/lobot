@@ -50,9 +50,9 @@ When /^I enter my info into the ci\.yml file$/ do
   'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
   'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
   'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
-  'id_rsa' => secrets['id_rsa']
+  'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
   )
-  # ci_yml.merge!( 'ci_server' => {'public_ip' => ''} ) # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
+  # ci_yml['server']['name]  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
   File.open(ci_conf_location, "w") do |f|
     YAML.dump(ci_yml, f)
   end
