@@ -5,7 +5,7 @@ describe Lobot::InstallGenerator do
   destination File.expand_path("../tmp", __FILE__)
   # arguments %w(something)
 
-  before(:all) do
+  before(:each) do
     prepare_destination
     run_generator
   end
@@ -24,8 +24,10 @@ describe Lobot::InstallGenerator do
   
   context "Capfile exists" do
     it "appends a load path to the Capfile" do
-      system("touch #{destination_root}/Capfile")
-      assert_file "Capfile", /load 'config\/capistrano\/ci'/
+      prepare_destination
+      system("echo 'line 2' > #{destination_root}/Capfile")
+      run_generator
+      assert_file "Capfile", "load 'config/capistrano/ci'\nline 2\n"
     end
     
   end

@@ -13,7 +13,7 @@ module Lobot
     
     def add_load_path_to_capfile
       template 'Capfile', 'Capfile' unless File.exists?("#{destination_root}/Capfile")
-      prepend_to_file 'Capfile', "load 'config/capistrano/ci'"
+      prepend_to_file 'Capfile', "load 'config/capistrano/ci'\n"
     end
     
     def create_chef_cookbooks
