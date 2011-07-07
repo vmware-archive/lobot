@@ -3,7 +3,7 @@
 env | grep -q "APP_USER=" || echo "Please set APP_USER environment variable"
 
 # perl -e 'print crypt("password", "salt"),"\n"'
-getent passwd $APP_USER >/dev/null 2>&1 || useradd $APP_USER -p sa3tHJ3/KuYvI
+getent passwd $APP_USER >/dev/null 2>&1 || useradd $APP_USER -p DEADBEEFSCRYPTEDPASSWORD #sa3tHJ3/KuYvI would be password
 
 # copy root's authorized keys to APP_USER
 mkdir -p  /home/$APP_USER/.ssh
