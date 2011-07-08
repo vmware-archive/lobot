@@ -50,6 +50,7 @@ When /^I enter my info into the ci\.yml file$/ do
   'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
   'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
   'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
+  'ec2_server_access' => {'key_pair_name' => 'lobot_cucumber_key_pair', 'id_rsa_path' => '~/.ssh/id_rsa'},
   'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
   )
   # ci_yml['server']['name]  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
@@ -72,6 +73,15 @@ When /^I run the server setup$/ do
 end
 
 When /^I bootstrap$/ do
+  server_is_available = false
+  iterations = 0
+  until server_is_available
+    server_is_available = system("cd testapp && cap ci check_for_server_availability")
+    puts "Sleeping for 3 seconds"
+    sleep 3
+    iterations += 1
+    raise "server is not available" if iterations > 10
+  end
   system! "cd testapp && cap ci bootstrap"
 end
 

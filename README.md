@@ -13,17 +13,21 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 * chef recipes for configuring a Centos server to run Jenkins and build Rails projects.
 
 all you'll need to do is:
-rails g lobot:install; edit config/ci.yml; rake ci:server_start && cap ci bootstrap && cap ci chef
+
+    rails g lobot:install
+    edit config/ci.yml
+    rake ci:server_start && cap ci bootstrap && cap ci chef
 
 ## Install
 
 Add lobot to your Gemfile
-`gem "lobot"`
+
+    gem "lobot"
 
 ## Generate
 Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to copy the template files into your project.
 
-`rails g lobot:install`
+    rails g lobot:install
 
 ## Setup
 
@@ -45,6 +49,7 @@ Edit config/ci.yml
       instance_id: run 'rake ci:server_start to populate'
     build_command: ./cruise_build.sh
     ec2_server_access: 
+      key_pair_name: myapp_ci
       id_rsa_path: ~/.ssh/id_rsa
     id_rsa_for_github_access: |-
       -----BEGIN RSA PRIVATE KEY-----

@@ -15,6 +15,13 @@ task :ci_setup do
   default_run_options[:pty] = true
 end
 
+desc "check for server availability - run this task in a loop to see if the slice is ready to connect to"
+task :check_for_server_availability do
+  ci_setup
+  set :user, "root"
+  run "echo Server is available"
+end
+
 desc "bootstrap"
 task :bootstrap do
   ci_setup

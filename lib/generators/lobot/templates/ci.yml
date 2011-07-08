@@ -6,14 +6,17 @@ basic_auth:
 - username: BASIC_AUTH_LOGIN_NAME
   password: BASIC_AUTH_PASSWORD
 credentials: 
-  aws_access_key_id: AWS_ACCESS_KEY
+  aws_access_key_id: AWS_ACCESS_KEY #https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key
   aws_secret_access_key: AWS_SECRET
   provider: AWS # leave this one
 server: 
-  name: run 'rake ci:server_start to populate'
-  instance_id: run 'rake ci:server_start to populate'
+  flavor_id: m1.large
+  security_group: ci_servers
+  name:    # run 'rake ci:server_start to populate'
+  instance_id:  # run 'rake ci:server_start to populate'
 build_command: ./cruise_build.sh
-ec2_server_access: 
+ec2_server_access:
+  key_pair_name: NAME_OF_YOUR_KEY_PAIR # like myapp_ci
   id_rsa_path: ~/.ssh/id_rsa
 id_rsa_for_github_access: |-
   -----BEGIN RSA PRIVATE KEY-----
