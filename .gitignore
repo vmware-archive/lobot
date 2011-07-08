@@ -3,3 +3,5 @@
 Gemfile.lock
 pkg/*
 features/config/secrets.yml
+.idea
+spec/tmp
