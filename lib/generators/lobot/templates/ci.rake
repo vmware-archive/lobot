@@ -73,7 +73,7 @@ namespace :ci do
   task :ssh do
     aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
     aws_conf = YAML.load_file(aws_conf_location)
-    exec "ssh #{aws_conf['app_user']}@#{aws_conf['server']['name']}"
+    exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{aws_conf['server']['name']}"
   end
   
   desc "Get build status"

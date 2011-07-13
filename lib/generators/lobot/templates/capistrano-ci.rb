@@ -11,6 +11,7 @@ task :ci_setup do
   set :app_name, ci_conf['app_name']
   set(:app_dir) { "/var/#{stage}/#{app_name}" }
   set :user, ci_conf['app_user']
+  ssh_options[:keys] = [ci_conf['ec2_server_access']['id_rsa_path']]
   default_run_options[:pty] = true
 end
 
