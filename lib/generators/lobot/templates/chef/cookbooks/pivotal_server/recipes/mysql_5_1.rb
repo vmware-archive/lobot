@@ -19,33 +19,33 @@ end
 user "mysql"
 
 run_unless_marker_file_exists("mysql_5_1") do
-  # execute "download mysql src" do
-  #   command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz |  tar xvz -C#{src_dir} --strip 1"
-  # end
-  # 
-  # execute "configure" do
-  #   command "./configure --prefix=/usr/local/mysql"
-  #   cwd src_dir
-  # end
-  # 
-  # execute "make" do
-  #   command "make"
-  #   cwd src_dir
-  # end
-  # 
-  # execute "make install" do
-  #   command "make install"
-  #   cwd src_dir
-  # end
-  # 
-  # execute "mysql owns #{install_dir}" do
-  #   command "chown -R mysql #{install_dir}"
-  # end
-  # 
-  # execute "install db" do
-  #   command "#{install_dir}/bin/mysql_install_db --user=mysql"
-  #   cwd install_dir
-  # end
+  execute "download mysql src" do
+    command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz |  tar xvz -C#{src_dir} --strip 1"
+  end
+  
+  execute "configure" do
+    command "./configure --prefix=/usr/local/mysql"
+    cwd src_dir
+  end
+  
+  execute "make" do
+    command "make"
+    cwd src_dir
+  end
+  
+  execute "make install" do
+    command "make install"
+    cwd src_dir
+  end
+  
+  execute "mysql owns #{install_dir}" do
+    command "chown -R mysql #{install_dir}"
+  end
+  
+  execute "install db" do
+    command "#{install_dir}/bin/mysql_install_db --user=mysql"
+    cwd install_dir
+  end
 end
 
 execute "create daemontools directory" do
