@@ -60,7 +60,8 @@ namespace :ci do
     server = aws_connection.servers.create(
       :image_id => 'ami-d4de25bd',
       :flavor_id =>  server_config['flavor_id'] || 'm1.large',
-      :key_name => ec2_key_pair_name
+      :key_name => ec2_key_pair_name,
+      :groups => [security_group_name]
     )
     server.wait_for { ready? }
     sleep 15 # Server ready? seems to mean 'almost ready'.  Sleep value is arbitrary at the moment
