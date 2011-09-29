@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
   
-  s.add_dependency('fog', '0.9.0')
+  s.add_dependency('fog', '>=0.9.0')
   s.add_dependency('capistrano')
   s.add_dependency('capistrano-ext')
   s.add_dependency('rvm')
