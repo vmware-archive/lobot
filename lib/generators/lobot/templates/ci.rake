@@ -3,6 +3,7 @@ namespace :ci do
   task :server_start do
     require 'fog'
     require 'yaml'
+    require 'socket'
 
     aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
     aws_conf = YAML.load_file(aws_conf_location)
@@ -64,8 +65,21 @@ namespace :ci do
       :groups => [security_group_name]
     )
     server.wait_for { ready? }
-    sleep 15 # Server ready? seems to mean 'almost ready'.  Sleep value is arbitrary at the moment
-        
+    
+    socket = false
+    Timeout::timeout(120) do
+      p "Server booted, waiting for SSH."
+      until socket
+        begin
+          socket = TCPSocket.open(server.dns_name, 22)        
+        rescue Errno::ECONNREFUSED
+          STDOUT << "."
+          STDOUT.flush
+          sleep 1
+        end
+      end
+    end
+
     p server
     puts "Server is ready"
     

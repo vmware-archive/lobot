@@ -28,8 +28,13 @@ When /^I put Lobot in the Gemfile$/ do
   system!(%{echo "gem 'lobot'" >> testapp/Gemfile})
 end
 
+When /^I add a gem with an https:\/\/github.com source$/ do
+  system!(%{echo "gem 'greyhawkweather', :git => 'https://github.com/verdammelt/Greyhawk-Weather.git'" >> testapp/Gemfile})
+end
+
 When /^I run bundle install$/ do
   system("cd testapp && gem uninstall lobot")
+  system("cd testapp && gem install bundler")
   system!("cd testapp && bundle install")
   system!('cd testapp && bundle exec gem list | grep lobot')
 end
@@ -73,15 +78,6 @@ When /^I run the server setup$/ do
 end
 
 When /^I bootstrap$/ do
-  server_is_available = false
-  iterations = 0
-  until server_is_available
-    server_is_available = system("cd testapp && cap ci check_for_server_availability")
-    puts "Sleeping for 3 seconds"
-    sleep 3
-    iterations += 1
-    raise "server is not available" if iterations > 10
-  end
   system! "cd testapp && cap ci bootstrap"
 end
 

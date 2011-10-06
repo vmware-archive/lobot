@@ -8,6 +8,7 @@ Feature: CI
     When I create a new Rails project using a Rails template
     And I vendor Lobot
     And I put Lobot in the Gemfile
+    And I add a gem with an https://github.com source
     And I run bundle install
     And I run the Lobot generator
     And I enter my info into the ci.yml file
