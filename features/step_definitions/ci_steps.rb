@@ -64,7 +64,15 @@ When /^I enter my info into the ci\.yml file$/ do
   end
 end
 
+When /^I change my ruby version$/ do
+  system! "cd testapp && echo 'rvm use ruby-1.8.7-p299@lobot' > .rvmrc"
+end
+
+
 When /^I push to git$/ do
+  lobot_dir = File.expand_path('../../', File.dirname(__FILE__))
+  system! "rm testapp/vendor/cache/*"
+  system! "cp #{lobot_dir}/pkg/lobot-#{Lobot::VERSION}.gem testapp/vendor/cache/"
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
   system! "cd testapp && git add ."
   system! "cd testapp && git commit -m'initial commit'"

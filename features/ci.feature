@@ -12,6 +12,7 @@ Feature: CI
     And I run bundle install
     And I run the Lobot generator
     And I enter my info into the ci.yml file
+    And I change my ruby version
     And I push to git
     And I run the server setup
     And I bootstrap
