@@ -35,3 +35,11 @@ run_unless_marker_file_exists("imagemagick_6_6_5") do
     cwd src_dir
   end
 end
+
+file "/etc/ld.so.conf.d/imagemagick.conf" do
+  content "/usr/local/lib"
+end
+
+execute "add imagemagick to ldconf" do
+  command "/sbin/ldconfig"
+end

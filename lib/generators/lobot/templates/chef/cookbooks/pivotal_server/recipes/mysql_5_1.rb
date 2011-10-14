@@ -18,13 +18,13 @@ end
 
 user "mysql"
 
-run_unless_marker_file_exists("mysql_5_1") do
+run_unless_marker_file_exists("mysql_5_1_with_innodb") do
   execute "download mysql src" do
     command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz |  tar xvz -C#{src_dir} --strip 1"
   end
   
   execute "configure" do
-    command "./configure --prefix=/usr/local/mysql"
+    command "./configure --prefix=/usr/local/mysql  --with-plugins=innobase,myisam"
     cwd src_dir
   end
   
@@ -46,6 +46,20 @@ run_unless_marker_file_exists("mysql_5_1") do
     command "#{install_dir}/bin/mysql_install_db --user=mysql"
     cwd install_dir
   end
+end
+
+file "/etc/ld.so.conf.d/mysql-64.conf" do
+  content "/usr/local/mysql/lib/mysql/"
+end
+
+execute "add mysql to ldconf" do
+  command "/sbin/ldconfig"
+end
+
+template "/etc/my.cnf" do
+  source "my-conf.erb"
+  owner "mysql"
+  mode "0644"
 end
 
 execute "create daemontools directory" do
@@ -87,4 +101,8 @@ end
 
 execute "grant user all rights (this maybe isn't a great idea)" do
   command "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"GRANT ALL on *.* to '#{mysql_user_name}'@'localhost'\""
+end
+
+execute "insert time zone info" do
+  command "#{install_dir}/bin/mysql_tzinfo_to_sql /usr/share/zoneinfo | #{install_dir}/bin/mysql -uroot -p#{mysql_root_password} mysql"
 end
