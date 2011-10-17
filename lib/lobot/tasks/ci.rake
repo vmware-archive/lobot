@@ -5,7 +5,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     aws_credentials = aws_conf['credentials']
     ec2_server_access = aws_conf['ec2_server_access']
@@ -106,7 +106,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     aws_credentials = aws_conf['credentials']
     server_config = aws_conf['server']
@@ -126,7 +126,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     aws_credentials = aws_conf['credentials']
     server_config = aws_conf['server']
@@ -146,7 +146,7 @@ namespace :ci do
   
   desc "open the CI interface in a browser"
   task :open do
-    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
     exec "open http://#{server_config['elastic_ip']}"
@@ -154,7 +154,7 @@ namespace :ci do
   
   desc "ssh to CI"
   task :ssh do
-    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
     exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']}"
@@ -163,11 +163,11 @@ namespace :ci do
   desc "Get build status"
   task :status do
     require 'nokogiri'
-    ci_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
-    ci_conf = YAML.load_file(ci_conf_location)
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+    ci_conf = YAML.load_file(aws_conf_location)
     
-    hudson_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
-    latest_build = Nokogiri::XML.parse(hudson_rss_feed.downcase).css('feed entry:first').first
+    jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
+    latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
     status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
     if status
       p "Great Success"
