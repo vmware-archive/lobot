@@ -1,6 +1,8 @@
 cookbook_paths:
 - ./chef/cookbooks/
 recipes:
+# - pivotal_server::mysql_5_5
+- pivotal_server::postgres
 - pivotal_ci::default
 env_variable_switches:
   APP_NAME:
