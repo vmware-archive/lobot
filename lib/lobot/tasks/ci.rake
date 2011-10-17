@@ -64,14 +64,23 @@ namespace :ci do
       :key_name => ec2_key_pair_name,
       :groups => [security_group_name]
     )
+    
+    unless aws_conf['server']['elastic_ip'] =~ /\d.\.\d.\.\d.\.\d./
+      elastic_ip = aws_connection.addresses.create
+      aws_conf['server']['elastic_ip'] = elastic_ip.public_ip
+      puts "Allocated elastic IP address #{aws_conf['server']['elastic_ip']}"
+    end
+    
     server.wait_for { ready? }
+    
+    aws_connection.associate_address(server.id, aws_conf['server']['elastic_ip'])
     
     socket = false
     Timeout::timeout(120) do
       p "Server booted, waiting for SSH."
       until socket
         begin
-          socket = TCPSocket.open(server.dns_name, 22)        
+          socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
         rescue Errno::ECONNREFUSED
           STDOUT << "."
           STDOUT.flush
@@ -83,12 +92,56 @@ namespace :ci do
     p server
     puts "Server is ready"
     
-    p "Writing server public IP (#{server.dns_name}) to ci.yml"
-    aws_conf["server"].merge!("name" => server.dns_name, "instance_id" => server.id)
+    p "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
+    aws_conf["server"].merge!("instance_id" => server.id)
     
     f = File.open(aws_conf_location, "w")
     f.write(aws_conf.to_yaml)
     f.close
+  end
+  
+  desc "stop(suspend) the CI Server"
+  task :stop do
+    require 'fog'
+    require 'yaml'
+    require 'socket'
+
+    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf = YAML.load_file(aws_conf_location)
+    aws_credentials = aws_conf['credentials']
+    server_config = aws_conf['server']
+
+    aws_connection = Fog::Compute.new(
+      :provider => aws_credentials['provider'],
+      :aws_access_key_id => aws_credentials['aws_access_key_id'],
+      :aws_secret_access_key => aws_credentials['aws_secret_access_key']
+    )
+    
+    aws_connection.servers.new(:id => server_config['instance_id']).stop
+  end
+  
+  desc "start(resume) the CI Server"
+  task :start do
+    require 'fog'
+    require 'yaml'
+    require 'socket'
+
+    aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
+    aws_conf = YAML.load_file(aws_conf_location)
+    aws_credentials = aws_conf['credentials']
+    server_config = aws_conf['server']
+
+    aws_connection = Fog::Compute.new(
+      :provider => aws_credentials['provider'],
+      :aws_access_key_id => aws_credentials['aws_access_key_id'],
+      :aws_secret_access_key => aws_credentials['aws_secret_access_key']
+    )
+    
+    server = aws_connection.servers.new(:id => server_config['instance_id'])
+    # server.start
+    server.wait_for { ready? }
+    
+    aws_connection.associate_address(server_config['instance_id'], server_config['elastic_ip']) if server_config['elastic_ip']
   end
   
   desc "open the CI interface in a browser"
@@ -96,7 +149,7 @@ namespace :ci do
     aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
-    exec "open http://#{server_config['name']}"
+    exec "open http://#{server_config['elastic_ip']}"
   end
   
   desc "ssh to CI"
@@ -104,7 +157,7 @@ namespace :ci do
     aws_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
-    exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['name']}"
+    exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']}"
   end
   
   desc "Get build status"
@@ -113,7 +166,7 @@ namespace :ci do
     ci_conf_location = File.expand_path('../../../config/ci.yml', __FILE__)
     ci_conf = YAML.load_file(ci_conf_location)
     
-    hudson_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['name']}/rssAll`
+    hudson_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
     latest_build = Nokogiri::XML.parse(hudson_rss_feed.downcase).css('feed entry:first').first
     status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
     if status

@@ -18,3 +18,11 @@ Feature: CI
     And I bootstrap
     And I deploy
     Then CI is green
+
+  Scenario: Installing Lobot on a rails3 project
+    When I create a new Rails project using a Rails template
+    And I vendor Lobot
+    And I put Lobot in the Gemfile
+    And I run bundle install
+    And I run the Lobot generator
+    Then rake reports ci tasks as being available

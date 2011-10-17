@@ -4,7 +4,6 @@ module Lobot
     
     def create_ci_files
       template 'ci.yml', 'config/ci.yml'
-      template 'ci.rake', 'lib/tasks/ci.rake'
       template 'bootstrap_server.sh', 'script/bootstrap_server.sh'
       template 'deploy-ci.rb', 'config/deploy/ci.rb'
       template 'capistrano-ci.rb', 'config/capistrano/ci.rb'

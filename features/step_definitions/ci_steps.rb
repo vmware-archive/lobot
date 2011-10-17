@@ -100,3 +100,7 @@ Then /^CI is green$/ do
     end
   end
 end
+
+Then /^rake reports ci tasks as being available$/ do
+  `cd testapp && rake -T`.should include("ci:start")
+end
