@@ -138,7 +138,7 @@ namespace :ci do
     )
     
     server = aws_connection.servers.new(:id => server_config['instance_id'])
-    # server.start
+    server.start
     server.wait_for { ready? }
     
     aws_connection.associate_address(server_config['instance_id'], server_config['elastic_ip']) if server_config['elastic_ip']
