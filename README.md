@@ -80,6 +80,12 @@ Upload the contents of your chef/cookbooks/ directory, upload the soloistrc, and
 
     cap ci chef
 
+## Add your new CI instance to [cimonitor](http://github.com/pivotal/cimonitor) and CCMenu
+
+Lobot can generate the config for you, just run:
+
+    rake ci:info
+
 ## Dependencies
 
 * fog

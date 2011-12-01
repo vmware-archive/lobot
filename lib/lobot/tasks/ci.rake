@@ -35,7 +35,7 @@ namespace :ci do
 
       unless is_in_security_group
         puts "Allowing port #{port} into '#{security_group_name}' security group"
-        security_group.authorize_port_range(port..port) 
+        security_group.authorize_port_range(port..port)
       end
     end
 
@@ -53,10 +53,10 @@ namespace :ci do
         :public_key => File.read(File.expand_path("#{public_key_local_path}"))
       ).save
     end
-    
+
     number_of_servers = aws_connection.servers.select{ |server| server.state == 'running' }.length
     puts "you have #{number_of_servers} server(s) already running in this account" if number_of_servers > 0
-    
+
     puts "Launching server... (this costs money until you stop it)"
     server = aws_connection.servers.create(
       :image_id => 'ami-d4de25bd',
@@ -64,17 +64,17 @@ namespace :ci do
       :key_name => ec2_key_pair_name,
       :groups => [security_group_name]
     )
-    
+
     unless aws_conf['server']['elastic_ip'] =~ /\d.\.\d.\.\d.\.\d./
       elastic_ip = aws_connection.addresses.create
       aws_conf['server']['elastic_ip'] = elastic_ip.public_ip
       puts "Allocated elastic IP address #{aws_conf['server']['elastic_ip']}"
     end
-    
+
     server.wait_for { ready? }
-    
+
     aws_connection.associate_address(server.id, aws_conf['server']['elastic_ip'])
-    
+
     socket = false
     Timeout::timeout(120) do
       p "Server booted, waiting for SSH."
@@ -91,15 +91,15 @@ namespace :ci do
 
     p server
     puts "Server is ready"
-    
+
     p "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
     aws_conf["server"].merge!("instance_id" => server.id)
-    
+
     f = File.open(aws_conf_location, "w")
     f.write(aws_conf.to_yaml)
     f.close
   end
-  
+
   desc "stop(suspend) the CI Server"
   task :stop do
     require 'fog'
@@ -116,10 +116,10 @@ namespace :ci do
       :aws_access_key_id => aws_credentials['aws_access_key_id'],
       :aws_secret_access_key => aws_credentials['aws_secret_access_key']
     )
-    
+
     aws_connection.servers.new(:id => server_config['instance_id']).stop
   end
-  
+
   desc "start(resume) the CI Server"
   task :start do
     require 'fog'
@@ -136,14 +136,14 @@ namespace :ci do
       :aws_access_key_id => aws_credentials['aws_access_key_id'],
       :aws_secret_access_key => aws_credentials['aws_secret_access_key']
     )
-    
+
     server = aws_connection.servers.new(:id => server_config['instance_id'])
     server.start
     server.wait_for { ready? }
-    
+
     aws_connection.associate_address(server_config['instance_id'], server_config['elastic_ip']) if server_config['elastic_ip']
   end
-  
+
   desc "open the CI interface in a browser"
   task :open do
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
@@ -151,7 +151,7 @@ namespace :ci do
     server_config = aws_conf['server']
     exec "open http://#{server_config['elastic_ip']}"
   end
-  
+
   desc "ssh to CI"
   task :ssh do
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
@@ -159,13 +159,13 @@ namespace :ci do
     server_config = aws_conf['server']
     exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']}"
   end
-  
+
   desc "Get build status"
   task :status do
     require 'nokogiri'
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     ci_conf = YAML.load_file(aws_conf_location)
-    
+
     jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
     latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
     status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
@@ -175,5 +175,25 @@ namespace :ci do
       p "Someone needs to fix the build"
     end
     status ? exit(0) : exit(1)
+  end
+
+  desc "Print cimonitor and ccmenu setup information"
+  task :info do
+    ci_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+    ci_conf = YAML.load_file(ci_conf_location)
+
+    puts "CI Monitor Config:"
+    puts "\tURL:\t\thttp://#{ci_conf['server']['elastic_ip']}/job/#{ci_conf['app_name']}/rssAll"
+    puts "\tProject Type:\tHudson/Jenkins"
+    puts "\tFeed Username:\t#{ci_conf['basic_auth'][0]['username']}"
+    puts "\tFeed Password:\t#{ci_conf['basic_auth'][0]['password']}"
+    puts "\t-- Lobot Setup --"
+    puts "\tEC2 Instance ID:\t#{ci_conf['server']['instance_id']}"
+    puts "\tEC2 Elastic IP Address:\t#{ci_conf['server']['elastic_ip']}"
+    puts "\tEC2 Access Key ID:\t#{ci_conf['credentials']['aws_access_key_id']}"
+    puts "\tEC2 Secret Access Key :\t#{ci_conf['credentials']['aws_secret_access_key']}"
+    puts ""
+    puts "CC Menu Config:"
+    puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
   end
 end
