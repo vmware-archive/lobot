@@ -29,7 +29,7 @@ The name is the server's machine name - either ip address or DNS name.  Usually 
 #  instance_id:
 The instance_id is also saved, in order to facilitate stopping and starting instances.  Stopping" is AWS's term for shutting down an instance temporarily - when it is started, it will use the same EBS volume and continue where it left off.  However, it will receive a new ip address and DNS name.
 
-# build_command: ./cruise_build.sh
+# build_command: ./script/ci_build.sh
 The build command is the shell script that Jenkins will execute to run your build.  While you could put this script is the Jenkins configuration, it's clearer to have it in a script directly checked into your project.
 
 # ec2_server_access: 

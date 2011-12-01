@@ -51,7 +51,7 @@ Edit config/ci.yml
     server: 
       name: run 'rake ci:server_start to populate'
       instance_id: run 'rake ci:server_start to populate'
-    build_command: ./cruise_build.sh
+    build_command: ./script/ci_build.sh
     ec2_server_access: 
       key_pair_name: myapp_ci
       id_rsa_path: ~/.ssh/id_rsa

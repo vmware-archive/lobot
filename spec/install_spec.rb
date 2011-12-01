@@ -14,12 +14,17 @@ describe Lobot::InstallGenerator do
     assert_file "config/ci.yml", /app_name/
   end
   
-  it "creates ci.rake" do
-    assert_file "lib/tasks/ci.rake", /namespace :ci do/
-  end
-  
   it "create bootstrap_server.sh" do
     assert_file "script/bootstrap_server.sh", /bin\/bash/
+  end
+  
+  it "creates a ci_build.sh file" do
+    assert_file "script/ci_build.sh"
+  end
+  
+  it "appends ci task to Rakefile" do
+    rakefile_contents = File.read("#{destination_root}/lib/tasks/ci.rake")
+    rakefile_contents.should include("task :build")
   end
   
   context "Capfile exists" do
@@ -29,7 +34,6 @@ describe Lobot::InstallGenerator do
       run_generator
       assert_file "Capfile", "load 'config/capistrano/ci'\nline 2\n"
     end
-    
   end
   
   context "Capfile doesn't exist" do
@@ -64,5 +68,4 @@ describe Lobot::InstallGenerator do
       end
     end
   end
-  
 end
