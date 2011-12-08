@@ -7,7 +7,6 @@ task :ci_setup do
   
   raise "rvm_ruby_string not set - are you using RVM" unless ENV['rvm_ruby_string']
   set :rvm_ruby_string, ENV['rvm_ruby_string']
-  set :rvm_type, :user
   set :app_name, ci_conf['app_name']
   set(:app_dir) { "/var/#{stage}/#{app_name}" }
   set :user, ci_conf['app_user']
@@ -18,7 +17,7 @@ end
 desc "check for server availability - run this task in a loop to see if the slice is ready to connect to"
 task :check_for_server_availability do
   ci_setup
-  set :user, "root"
+  set :user, "ubuntu"
   run "echo Server is available"
 end
 
@@ -26,11 +25,11 @@ desc "bootstrap"
 task :bootstrap do
   ci_setup
   app_user = user
-  set :user, "root"
+  set :user, "ubuntu"
   set :default_shell, "/bin/bash"
-  upload "script/bootstrap_server.sh", "/root/bootstrap_server.sh"
-  run "chmod a+x /root/bootstrap_server.sh"
-  run "APP_USER=#{app_user} /root/bootstrap_server.sh"
+  upload "script/bootstrap_server.sh", "/home/ubuntu/bootstrap_server.sh"
+  run "chmod a+x /home/ubuntu/bootstrap_server.sh"
+  run "APP_USER=#{app_user} /home/ubuntu/bootstrap_server.sh"
 end
 
 desc "setup and run chef"

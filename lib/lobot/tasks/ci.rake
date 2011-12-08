@@ -59,7 +59,7 @@ namespace :ci do
 
     puts "Launching server... (this costs money until you stop it)"
     server = aws_connection.servers.create(
-      :image_id => 'ami-d4de25bd',
+      :image_id => 'ami-e358958a',
       :flavor_id =>  server_config['flavor_id'] || 'm1.large',
       :key_name => ec2_key_pair_name,
       :groups => [security_group_name]
