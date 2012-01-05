@@ -81,7 +81,7 @@ namespace :ci do
       until socket
         begin
           socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
-        rescue Errno::ECONNREFUSED
+        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT
           STDOUT << "."
           STDOUT.flush
           sleep 1
@@ -195,5 +195,19 @@ namespace :ci do
     puts ""
     puts "CC Menu Config:"
     puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
+  end
+  
+  desc "Run a command with a virtual frame buffer"
+  task :headlessly, :command do |task, args|
+    exit_code = nil
+    # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
+    Headless.ly(:display => 42) do |headless|
+      begin
+        exit_code = system(args[:command])
+      ensure
+        headless.destroy
+      end
+    end
+    exit exit_code
   end
 end
