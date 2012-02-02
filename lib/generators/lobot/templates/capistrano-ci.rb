@@ -55,7 +55,7 @@ task :upload_cookbooks do
   run "sudo mkdir -p #{app_dir}"
   run "sudo chown -R #{user} #{app_dir}"
   run "rm #{app_dir}/soloistrc || true"
-  run "rm -r #{app_dir}/chef || true"
+  run "rm -rf #{app_dir}/chef"
   upload("soloistrc", "#{app_dir}/soloistrc")
   upload("config/ci.yml", "#{app_dir}/ci.yml")
   upload("chef/", "#{app_dir}/chef/", :via => :scp, :recursive => true)
@@ -64,5 +64,5 @@ end
 desc "Run soloist"
 task :run_soloist do
   ci_setup
-  run "cd #{app_dir} && PATH=/usr/sbin:$PATH APP_NAME=#{fetch(:app_name)} APP_DIR=#{fetch(:app_dir)} LOG_LEVEL=debug soloist"
+  run "cd #{app_dir} && ROLES=$CAPISTRANO:HOSTROLES$ PATH=/usr/sbin:$PATH APP_NAME=#{fetch(:app_name)} APP_DIR=#{fetch(:app_dir)} LOG_LEVEL=debug soloist"
 end
