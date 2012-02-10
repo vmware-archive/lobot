@@ -23,7 +23,7 @@ user "postgres"
 
 run_unless_marker_file_exists("postgres_9_0_4") do
   execute "download postgres src" do
-    command "mkdir -p #{src_dir} && curl -Lsf http://ftp.postgresql.org/pub/source/v9.0.4/postgresql-9.0.4.tar.bz2 |  tar xvj -C#{src_dir} --strip 1"
+    command "mkdir -p #{src_dir} && curl -Lsf http://ftp.postgresql.org/pub/source/v9.1.2/postgresql-9.1.2.tar.bz2 |  tar xvj -C#{src_dir} --strip 1"
   end
   
   execute "config" do
