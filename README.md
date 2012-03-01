@@ -26,7 +26,7 @@ Read on for an explanation of what each one of these steps does.
 
 Add lobot to your Gemfile, in the development group:
 
-    gem "lobot", :group => :development
+    gem "lobot", :group => :development, :git => 'https://github.com/pivotal/lobot.git'
 
 ## Generate
 Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to copy the template files into your project.
