@@ -21,7 +21,7 @@ perl -p -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh
 /etc/init.d/sshd reload
 
 # install epel
-rpm -q epel-release-5-4.noarch || rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm
+rpm -q epel-release-5-4.noarch || rpm -Uvh http://mirrors.kernel.org/fedora-epel/5/x86_64/epel-release-5-4.noarch.rpm
 
 # install git
 yum -y install git
