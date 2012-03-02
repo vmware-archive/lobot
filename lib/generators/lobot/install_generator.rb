@@ -9,6 +9,7 @@ module Lobot
       template 'capistrano-ci.rb', 'config/capistrano/ci.rb'
       template 'soloistrc', 'soloistrc'
       template 'ci_build.sh', 'script/ci_build.sh'
+      system "chmod a+x #{destination_root}/script/ci_build.sh"
     end
     
     def add_load_path_to_capfile

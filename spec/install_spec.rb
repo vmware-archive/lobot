@@ -22,9 +22,8 @@ describe Lobot::InstallGenerator do
     assert_file "script/ci_build.sh"
   end
   
-  it "appends ci task to Rakefile" do
-    rakefile_contents = File.read("#{destination_root}/lib/tasks/ci.rake")
-    rakefile_contents.should include("task :build")
+  it "makes ci_build.sh executable" do
+    system("test -x #{destination_root}/script/ci_build.sh").should == true
   end
   
   context "Capfile exists" do
