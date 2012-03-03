@@ -21,7 +21,7 @@ user "mysql"
 
 run_unless_marker_file_exists("mysql_5_5_11") do
   execute "download mysql src" do
-    command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.5/mysql-5.5.14.tar.gz |  tar xvz -C#{src_dir} --strip 1"
+    command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.5/mysql-5.5.20.tar.gz |  tar xvz -C#{src_dir} --strip 1"
   end
 
   execute "cmake" do
