@@ -14,6 +14,7 @@ server:
   security_group: ci_servers
   name:    # run 'rake ci:server_start to populate'
   instance_id:  # run 'rake ci:server_start to populate'
+  ssh_port: # default to 22, but override here
 build_command: ./script/ci_build.sh
 ec2_server_access:
   key_pair_name: NAME_OF_YOUR_KEY_PAIR # like myapp_ci
