@@ -13,6 +13,7 @@ Given /^I am in the temp directory$/ do
 end
 
 When /^I create a new Rails project using a Rails template$/ do
+  # mysql, postgres, rr, mocha, webrat saucelabs, cucumber capybara, haml
   system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m https://github.com/pivotal/guiderails/raw/master/main.rb")
 end
 
