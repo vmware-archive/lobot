@@ -46,7 +46,7 @@ describe Lobot::InstallGenerator do
   end
 
   it "creates config/deploy/ci.rb" do
-    assert_file "config/deploy/ci.rb", /role :ci, ci_server/
+    assert_file "config/deploy/ci.rb", /role :ci, "#\{ci_server\}:#\{ssh_port\}"/
   end
 
   it "creates config/capistrano/ci.rb" do
