@@ -16,16 +16,16 @@ http {
   sendfile        on;
   keepalive_timeout  65;
   tcp_nodelay        on;
- 
+
   upstream app_server {
     server 127.0.0.1:8080;
   }
- 
+
   server {
     root         /usr/local/nginx/html/;
- 
+
     try_files $uri @app_server;
- 
+
     location @app_server {
       proxy_set_header  X-Real-IP        $remote_addr;
       proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;

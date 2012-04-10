@@ -1,15 +1,15 @@
---- 
+---
 app_name: SHORT_APPLICATION_NAME
 app_user: APPLICATION_USER
 git_location: GIT CLONE URL
-basic_auth: 
+basic_auth:
 - username: BASIC_AUTH_LOGIN_NAME
   password: BASIC_AUTH_PASSWORD
-credentials: 
+credentials:
   aws_access_key_id: AWS_ACCESS_KEY #https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key
   aws_secret_access_key: AWS_SECRET
   provider: AWS # leave this one
-server: 
+server:
   flavor_id: m1.large
   security_group: ci_servers
   name:    # run 'rake ci:server_start to populate'

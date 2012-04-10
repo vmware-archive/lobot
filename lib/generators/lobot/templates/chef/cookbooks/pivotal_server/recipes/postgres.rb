@@ -25,26 +25,26 @@ run_unless_marker_file_exists("postgres_9_0_4") do
   execute "download postgres src" do
     command "mkdir -p #{src_dir} && curl -Lsf http://ftp.postgresql.org/pub/source/v9.1.2/postgresql-9.1.2.tar.bz2 |  tar xvj -C#{src_dir} --strip 1"
   end
-  
+
   execute "config" do
     command "./configure --disable-debug --enable-thread-safety --with-gssapi --with-krb5 --with-openssl --with-libxml --with-libxslt --with-perl --bindir=/usr/local/bin"
     cwd src_dir
   end
-  
+
   execute "make" do
     command "make"
     cwd src_dir
   end
-  
+
   execute "make install" do
     command "make install"
     cwd src_dir
   end
-  
+
   directory "#{install_dir}/data/" do
     owner "postgres"
   end
-  
+
   execute "init db" do
     command "initdb -E UTF8 #{install_dir}/data/"
     user "postgres"

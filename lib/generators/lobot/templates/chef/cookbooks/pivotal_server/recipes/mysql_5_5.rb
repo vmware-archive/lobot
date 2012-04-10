@@ -33,7 +33,7 @@ run_unless_marker_file_exists("mysql_5_5_11") do
     command "make install"
     cwd src_dir
   end
-  
+
   execute "mysql owns #{install_dir}/data" do
     command "chown -R mysql #{install_dir}/data"
   end
@@ -75,7 +75,7 @@ end
 execute "create app_user user" do
   command "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"CREATE USER '#{mysql_user_name}'@'localhost'\""
   not_if "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"SELECT * FROM user where User='#{mysql_user_name}' and Host = 'localhost'\" | grep -q #{mysql_user_name}"
-end 
+end
 
 execute "set password for app_user" do
   command "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"SET PASSWORD FOR '#{mysql_user_name}'@'localhost' = PASSWORD('#{mysql_user_password}')\""

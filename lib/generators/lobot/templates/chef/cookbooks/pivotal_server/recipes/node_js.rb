@@ -10,6 +10,6 @@ script "compile & install node" do
   code "./configure && make install"
   not_if "which node"
 end
-  
-   
-    
+
+
+

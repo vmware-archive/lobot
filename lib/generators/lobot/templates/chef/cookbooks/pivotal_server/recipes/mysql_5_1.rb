@@ -22,26 +22,26 @@ run_unless_marker_file_exists("mysql_5_1_with_innodb") do
   execute "download mysql src" do
     command "mkdir -p #{src_dir} && curl -Lsf http://mysql.he.net/Downloads/MySQL-5.1/mysql-5.1.57.tar.gz |  tar xvz -C#{src_dir} --strip 1"
   end
-  
+
   execute "configure" do
     command "./configure --prefix=/usr/local/mysql  --with-plugins=innobase,myisam"
     cwd src_dir
   end
-  
+
   execute "make" do
     command "make"
     cwd src_dir
   end
-  
+
   execute "make install" do
     command "make install"
     cwd src_dir
   end
-  
+
   execute "mysql owns #{install_dir}" do
     command "chown -R mysql #{install_dir}"
   end
-  
+
   execute "install db" do
     command "#{install_dir}/bin/mysql_install_db --user=mysql"
     cwd install_dir
@@ -93,7 +93,7 @@ end
 execute "create app_user user" do
   command "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"CREATE USER '#{mysql_user_name}'@'localhost'\""
   not_if "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"SELECT * FROM user where User='#{mysql_user_name}' and Host = 'localhost'\" | grep -q #{mysql_user_name}"
-end 
+end
 
 execute "set password for app_user" do
   command "#{install_dir}/bin/mysql -u root -p#{mysql_root_password} -D mysql -r -B -N -e \"SET PASSWORD FOR '#{mysql_user_name}'@'localhost' = PASSWORD('#{mysql_user_password}')\""

@@ -1,9 +1,9 @@
-Feature: CI 
+Feature: CI
 
   Background:
     Given the temp directory is clean
     Given I am in the temp directory
-  
+
   Scenario: Installing Lobot on a rails3 project
     When I create a new Rails project using a Rails template
     And I vendor Lobot
@@ -11,7 +11,7 @@ Feature: CI
     And I run bundle install
     And I run the Lobot generator
     Then rake reports ci tasks as being available
-  
+
   Scenario: Install CI on Amazon AWS using new Rails template
     When I create a new Rails project using a Rails template
     And I vendor Lobot

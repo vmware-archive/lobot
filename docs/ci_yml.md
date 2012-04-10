@@ -15,7 +15,7 @@ The basic auth field is an array of hashes containing the usernames and password
 # credentials:
 Currently Lobot only supports managing EC2 servers. To start a new instance, the rake task needs to be able to connect to ec2 and ask it to launch a server.
 ##  aws_access_key_id:
-The Access Key for your Amazon AWS account.  You can obtain it by visiting 
+The Access Key for your Amazon AWS account.  You can obtain it by visiting
 https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key
 ##  aws_secret_access_key: The Secret Access Key for your Amazon AWS account
 This will be available at the same URL.
@@ -32,7 +32,7 @@ The instance_id is also saved, in order to facilitate stopping and starting inst
 # build_command: ./script/ci_build.sh
 The build command is the shell script that Jenkins will execute to run your build.  While you could put this script is the Jenkins configuration, it's clearer to have it in a script directly checked into your project.
 
-# ec2_server_access: 
+# ec2_server_access:
 	key_pair_name: myapp_ci
 	id_rsa_path: ~/.ssh/id_rsa
 

@@ -197,7 +197,7 @@ namespace :ci do
     puts "CC Menu Config:"
     puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
   end
-  
+
   desc "Run a command with a virtual frame buffer"
   task :headlessly, :command do |task, args|
     exit_code = nil

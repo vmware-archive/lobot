@@ -9,23 +9,23 @@ describe Lobot::InstallGenerator do
     prepare_destination
     run_generator
   end
-  
+
   it "creates ci.yml" do
     assert_file "config/ci.yml", /app_name/
   end
-  
+
   it "create bootstrap_server.sh" do
     assert_file "script/bootstrap_server.sh", /bin\/bash/
   end
-  
+
   it "creates a ci_build.sh file" do
     assert_file "script/ci_build.sh"
   end
-  
+
   it "makes ci_build.sh executable" do
     system("test -x #{destination_root}/script/ci_build.sh").should == true
   end
-  
+
   context "Capfile exists" do
     it "appends a load path to the Capfile" do
       prepare_destination
@@ -34,17 +34,17 @@ describe Lobot::InstallGenerator do
       assert_file "Capfile", "load 'config/capistrano/ci'\nline 2\n"
     end
   end
-  
+
   context "Capfile doesn't exist" do
     it "create a Capfile" do
       assert_file "Capfile", /load 'config\/capistrano\/ci'/
     end
-    
+
     it "give you the capify (default) capfile, but commented out" do
       assert_file "Capfile", /# load 'deploy'/
     end
   end
-  
+
   it "creates config/deploy/ci.rb" do
     assert_file "config/deploy/ci.rb", /role :ci, ci_server/
   end
@@ -52,11 +52,11 @@ describe Lobot::InstallGenerator do
   it "creates config/capistrano/ci.rb" do
     assert_file "config/capistrano/ci.rb", /task :ci_setup do/
   end
-  
+
   it "creates soloistrc" do
     assert_file "soloistrc", /cookbook_paths/
   end
-  
+
   it "creates the chef directory" do
     destination_root.should have_structure do
       directory "chef" do

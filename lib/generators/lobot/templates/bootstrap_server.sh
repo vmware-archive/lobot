@@ -17,7 +17,7 @@ grep -sq "$authorized_keys_string" /home/$APP_USER/.ssh/authorized_keys || cat /
 
 
 ## enable ssh password auth
-perl -p -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config 
+perl -p -i -e 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
 /etc/init.d/sshd reload
 
 # install epel

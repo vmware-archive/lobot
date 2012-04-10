@@ -46,7 +46,7 @@ end
 
 When /^I enter my info into the ci\.yml file$/ do
   secrets = YAML.load_file(File.expand_path('../config/secrets.yml', File.dirname(__FILE__)))
-  
+
   ci_conf_location = 'testapp/config/ci.yml'
   ci_yml = YAML.load_file(ci_conf_location)
   ci_yml.merge!(
