@@ -77,7 +77,7 @@ When /^I push to git$/ do
   system! "cd testapp && git push --force -u origin master"
 end
 
-When /^I run the server setup$/ do
+When /^I start the server$/ do
   system! "cd testapp && rake ci:server_start"
 end
 
