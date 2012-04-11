@@ -194,12 +194,16 @@ namespace :ci do
     ci_conf = YAML.load_file(aws_conf_location)
 
     jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
-    latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
-    status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
-    if status
-      p "Great Success"
+    if latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
+      title = latest_build.css("title").first.content
     else
-      p "Someone needs to fix the build"
+      title = "not available yet"
+    end
+    status = !!(title =~ /success|stable|back to normal/)
+    if status
+      puts "Great Success (#{title})"
+    else
+      puts "Someone needs to fix the build (#{title})"
     end
     status ? exit(0) : exit(1)
   end
