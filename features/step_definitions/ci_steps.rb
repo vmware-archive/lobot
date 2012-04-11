@@ -7,9 +7,10 @@ Given /^I am in the temp directory$/ do
   Dir.chdir(LOBOT_TEMP_DIRECTORY)
 end
 
-When /^I create a new Rails project using a Rails template$/ do
-  # mysql, postgres, rr, mocha, webrat saucelabs, cucumber capybara, haml
-  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m https://github.com/pivotal/guiderails/raw/master/main.rb")
+When /^I create a new Rails project$/ do
+  system!("rvm ruby-1.9.3-p125 do rvm gemset create testapp")
+  system!("rails new testapp")
+  system!("cd testapp && echo 'rvm use ruby-1.9.3-p125@testapp' > .rvmrc")
 end
 
 When /^I vendor Lobot$/ do
@@ -69,16 +70,16 @@ When /^I enter my info into the ci\.yml file$/ do
   end
 end
 
-When /^I change my ruby version$/ do
-  system! "cd testapp && echo 'rvm use ruby-1.8.7-p299@lobot' > .rvmrc"
-end
-
-
 When /^I make changes to be committed$/ do
   lobot_dir = File.expand_path('../../', File.dirname(__FILE__))
   system! "rm testapp/vendor/cache/*"
   system! "cp #{lobot_dir}/pkg/lobot-#{Lobot::VERSION}.gem testapp/vendor/cache/"
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
+  ["headless", "rspec-rails", "jasmine"].each do |gem|
+    system!(%{echo "gem '#{gem}'" >> testapp/Gemfile})
+  end
+  system!("cd testapp && bundle install")
+  system!("cd testapp && bundle exec jasmine init .")
 end
 
 When /^I push to git$/ do
@@ -95,6 +96,8 @@ When /^I start the server$/ do
 end
 
 When /^I bootstrap$/ do
+  system!(%{echo "gem 'rvm-capistrano', :require => false" >> testapp/Gemfile})
+  system!("cd testapp && bundle install")
   system! "cd testapp && bundle exec cap ci bootstrap"
 end
 
