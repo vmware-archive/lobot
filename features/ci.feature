@@ -2,7 +2,7 @@ Feature: CI
 
   Background:
     Given the temp directory is clean
-    Given I am in the temp directory
+    And I am in the temp directory
 
   Scenario: Installing Lobot on a rails3 project
     When I create a new Rails project using a Rails template
