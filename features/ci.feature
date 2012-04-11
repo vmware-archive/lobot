@@ -12,6 +12,7 @@ Feature: CI
     And I run the Lobot generator
     Then rake reports ci tasks as being available
 
+  @aws
   Scenario: Install CI on Amazon AWS using new Rails template
     When I create a new Rails project using a Rails template
     And I vendor Lobot

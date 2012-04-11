@@ -6,3 +6,7 @@ def system!(str)
   system(str)
   raise "Command Failed: #{str} with exit code #{$?.exitstatus}" unless $?.success?
 end
+
+After '@aws' do
+  system! "cd #{LOBOT_TEMP_DIRECTORY}/testapp && rake ci:terminate"
+end
