@@ -100,6 +100,28 @@ namespace :ci do
     f.close
   end
 
+  desc "terminate the CI Server and release IP"
+  task :terminate do
+    puts "Terminating the CI Server and releasing IP..."
+    require 'fog'
+    require 'yaml'
+    require 'socket'
+
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+    aws_conf = YAML.load_file(aws_conf_location)
+    aws_credentials = aws_conf['credentials']
+    server_config = aws_conf['server']
+
+    aws_connection = Fog::Compute.new(
+      :provider => aws_credentials['provider'],
+      :aws_access_key_id => aws_credentials['aws_access_key_id'],
+      :aws_secret_access_key => aws_credentials['aws_secret_access_key']
+    )
+
+    aws_connection.release_address(aws_conf['server']['elastic_ip'])
+    aws_connection.servers.new(:id => server_config['instance_id']).destroy
+  end
+
   desc "stop(suspend) the CI Server"
   task :stop do
     require 'fog'
