@@ -93,7 +93,7 @@ namespace :ci do
     puts "Server is ready:"
     p server
 
-    p "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
+    puts "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
     aws_conf["server"].merge!("instance_id" => server.id)
 
     f = File.open(aws_conf_location, "w")
