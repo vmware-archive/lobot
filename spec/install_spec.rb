@@ -1,13 +1,18 @@
 require 'spec_helper'
+require "fileutils"
 
 describe Lobot::InstallGenerator do
   include GeneratorSpec::TestCase
   destination File.expand_path("../tmp", __FILE__)
   # arguments %w(something)
 
-  before(:each) do
+  before do
     prepare_destination
     run_generator
+  end
+
+  after :all do
+    FileUtils.rm_rf ::File.expand_path("../tmp", __FILE__)
   end
 
   it "creates ci.yml" do
