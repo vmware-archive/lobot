@@ -26,6 +26,7 @@ end
 
 When /^I add a gem with an https:\/\/github.com source$/ do
   system!(%{echo "gem 'greyhawkweather', :git => 'https://github.com/verdammelt/Greyhawk-Weather.git'" >> testapp/Gemfile})
+  system!("cd testapp && bundle install")
 end
 
 When /^I run bundle install$/ do
