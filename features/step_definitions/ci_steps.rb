@@ -49,7 +49,7 @@ When /^I enter my info into the ci\.yml file$/ do
   secrets = YAML.load_file(secrets_file)
   raise "Missing AWS secret access key" unless secrets["aws_secret_access_key"].to_s != ""
   raise "Missing AWS access key id" unless secrets["aws_access_key_id"].to_s != ""
-  raise "Missing github private key" unless secrets["id_rsa_for_github_access"].to_s != ""
+  raise "Missing github private key path" unless secrets["github_private_ssh_key_path"].to_s != ""
 
   raise "Missing private SSH key for AWS!" unless File.exist?(File.expand_path("~/.ssh/id_github_current"))
   ci_conf_location = 'testapp/config/ci.yml'
@@ -60,9 +60,9 @@ When /^I enter my info into the ci\.yml file$/ do
     'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
     'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
     'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
-    'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'}
+    'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'},
+    'github_private_ssh_key_path' => secrets["github_private_ssh_key_path"]
   )
-  ci_yml.delete("id_rsa_for_github_access")
   # ci_yml['server']['name']  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
   File.open(ci_conf_location, "w") do |f|
     f << ci_yml.to_yaml

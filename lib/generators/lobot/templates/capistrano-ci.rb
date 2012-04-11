@@ -60,6 +60,10 @@ task :upload_cookbooks do
   run "rm -rf #{app_dir}/chef"
   upload("soloistrc", "#{app_dir}/soloistrc")
   upload("config/ci.yml", "#{app_dir}/ci.yml")
+  ci_config = YAML.load_file("config/ci.yml")
+  if ci_config.has_key?("github_private_ssh_key_path")
+    upload(File.expand_path(ci_config["github_private_ssh_key_path"]), "/home/#{user}/.ssh/id_rsa", {:mode => "0600"})
+  end
   upload("chef/", "#{app_dir}/chef/", :via => :scp, :recursive => true)
 end
 

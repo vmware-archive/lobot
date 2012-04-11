@@ -38,10 +38,5 @@ The build command is the shell script that Jenkins will execute to run your buil
 
 The EC2 server access section is perhaps the most confusing field in the ci.yml file. This section tells Lobot what ssh keys to use to access the servers it spins up.  When you run rake ci:sever_start, Lobot first looks in your ec2 account to see if they key pair name you specified exists - if it doesn't, it uploads the specified #{id_rsa_path}.pub to amazon, and names it #{key_pair_name}.  It then launches the server, telling EC2 to use the key pair specified.
 
-# id_rsa_for_github_access
-id_rsa_for_github_access: |-
-  -----BEGIN RSA PRIVATE KEY-----
-  SSH KEY WITH ACCESS TO GITHUB GOES HERE
-  -----END RSA PRIVATE KEY-----
-
-This is the rsa key that jenkins will use when connecting to github. Note that it is indented as it's a multiline markdown string.
+# github_private_ssh_key_path: ~/.ssh/id_github_current
+This is the path to the ssh private key that jenkins will use when connecting to github.

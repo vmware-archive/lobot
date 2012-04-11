@@ -55,10 +55,7 @@ Edit config/ci.yml
     ec2_server_access:
       key_pair_name: myapp_ci
       id_rsa_path: ~/.ssh/id_rsa
-    id_rsa_for_github_access: |-
-      -----BEGIN RSA PRIVATE KEY-----
-      SSH KEY WITH ACCESS TO GITHUB GOES HERE
-      -----END RSA PRIVATE KEY-----
+    github_private_ssh_key_path: ~/.ssh/id_rsa
 
 For security, you can add ci.yml to your .gitignore file and store a ci.yml.example without authentication credentials in your repository
 
