@@ -40,17 +40,18 @@ namespace :ci do
     end
 
     ec2_key_pair_name = ec2_server_access['key_pair_name'] || "ci"
-    public_key_local_path = "#{ec2_server_access['id_rsa_path']}.pub"
+    public_key_local_path = File.expand_path("#{ec2_server_access['id_rsa_path']}.pub")
 
     current_key_pair = aws_connection.key_pairs.get(ec2_key_pair_name)
     if current_key_pair
       puts "Using existing '#{ec2_key_pair_name}' keypair"
     else
+      raise "Unable to upload keypair, missing #{public_key_local_path}!" unless File.exist?(public_key_local_path)
       puts "Creating '#{ec2_key_pair_name}' keypair, uploading #{public_key_local_path} to aws"
 
       aws_connection.key_pairs.new(
         :name => ec2_key_pair_name,
-        :public_key => File.read(File.expand_path("#{public_key_local_path}"))
+        :public_key => File.read("#{public_key_local_path}")
       ).save
     end
 
