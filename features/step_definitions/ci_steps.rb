@@ -58,12 +58,13 @@ When /^I enter my info into the ci\.yml file$/ do
     'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
     'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
     'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
-    'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'},
-    'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
+    'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'}
   )
+  ci_yml.delete("id_rsa_for_github_access")
   # ci_yml['server']['name']  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
   File.open(ci_conf_location, "w") do |f|
-    YAML.dump(ci_yml, f)
+    f << ci_yml.to_yaml
+    f << File.read(secrets_file)
   end
 end
 
