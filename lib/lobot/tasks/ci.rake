@@ -182,7 +182,9 @@ namespace :ci do
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
     ssh_port = server_config['ssh_port'] || 22
-    exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
+    cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
+    puts cmd
+    exec cmd
   end
 
   desc "Get build status"
