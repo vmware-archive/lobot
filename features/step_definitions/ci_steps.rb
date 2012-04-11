@@ -91,11 +91,11 @@ When /^I push to git$/ do
 end
 
 When /^I start the server$/ do
-  system! "cd testapp && rake ci:server_start"
+  system! "cd testapp && bundle exec rake ci:server_start"
 end
 
 When /^I bootstrap$/ do
-  system! "cd testapp && cap ci bootstrap"
+  system! "cd testapp && bundle exec cap ci bootstrap"
 end
 
 When /^I deploy$/ do
@@ -104,12 +104,12 @@ end
 
 Then /^CI is green$/ do
   Timeout::timeout(300) do
-    until system("cd testapp && rake ci:status")
+    until system("cd testapp && bundle exec rake ci:status")
       sleep 5
     end
   end
 end
 
 Then /^rake reports ci tasks as being available$/ do
-  `cd testapp && rake -T`.should include("ci:start")
+  `cd testapp && bundle exec rake -T`.should include("ci:start")
 end
