@@ -77,18 +77,20 @@ namespace :ci do
     aws_connection.associate_address(server.id, aws_conf['server']['elastic_ip'])
 
     socket = false
-    Timeout::timeout(120) do
-      p "Server booted, waiting for SSH."
+    Timeout.timeout(180) do
+      print "Server booted, waiting for SSH to come up on #{aws_conf['server']['elastic_ip']}: "
       until socket
         begin
-          socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
-        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT
-          STDOUT << "."
-          STDOUT.flush
-          sleep 1
+          Timeout.timeout(5) do
+            socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
+          end
+        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, Timeout::Error
         end
+        putc "."
+        sleep 1
       end
     end
+    puts ""
 
     puts "Server is ready:"
     p server
