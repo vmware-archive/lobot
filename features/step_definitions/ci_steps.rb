@@ -80,7 +80,7 @@ When /^I push to git$/ do
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
   system! "cd testapp && git add ."
   system! "cd testapp && git commit -m'initial commit'"
-  system "cd testapp && git remote rm origin"
+  system "cd testapp && git remote rm origin" # Ignore failures
   system! "cd testapp && git remote add origin git@github.com:pivotalprivate/ci-smoke.git"
   system! "cd testapp && git push --force -u origin master"
 end
