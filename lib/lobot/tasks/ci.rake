@@ -124,6 +124,7 @@ namespace :ci do
 
   desc "stop(suspend) the CI Server"
   task :stop do
+    puts "Stopping (suspending) the CI Server..."
     require 'fog'
     require 'yaml'
     require 'socket'
