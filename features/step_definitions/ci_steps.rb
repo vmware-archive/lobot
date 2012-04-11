@@ -74,11 +74,15 @@ When /^I change my ruby version$/ do
 end
 
 
-When /^I push to git$/ do
+When /^I make changes to be committed$/ do
   lobot_dir = File.expand_path('../../', File.dirname(__FILE__))
   system! "rm testapp/vendor/cache/*"
   system! "cp #{lobot_dir}/pkg/lobot-#{Lobot::VERSION}.gem testapp/vendor/cache/"
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
+end
+
+When /^I push to git$/ do
+  system! "cd testapp && git init"
   system! "cd testapp && git add ."
   system! "cd testapp && git commit -m'initial commit'"
   system "cd testapp && git remote rm origin" # Ignore failures

@@ -22,6 +22,7 @@ Feature: CI
     And I run the Lobot generator
     And I enter my info into the ci.yml file
     And I change my ruby version
+    And I make changes to be committed
     And I push to git
     And I start the server
     And I bootstrap
