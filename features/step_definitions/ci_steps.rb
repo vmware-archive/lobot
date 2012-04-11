@@ -41,8 +41,15 @@ When /^I run the Lobot generator$/ do
 end
 
 When /^I enter my info into the ci\.yml file$/ do
-  secrets = YAML.load_file(File.expand_path('../config/secrets.yml', File.dirname(__FILE__)))
+  hostname = `hostname`.strip
+  secrets_file = File.expand_path('../config/secrets.yml', File.dirname(__FILE__))
+  raise "Missing #{secrets_file}, needed for AWS test." unless File.exist?(secrets_file)
+  secrets = YAML.load_file(secrets_file)
+  raise "Missing AWS secret access key" unless secrets["aws_secret_access_key"].to_s != ""
+  raise "Missing AWS access key id" unless secrets["aws_access_key_id"].to_s != ""
+  raise "Missing github private key" unless secrets["id_rsa_for_github_access"].to_s != ""
 
+  raise "Missing private SSH key for AWS!" unless File.exist?(File.expand_path("~/.ssh/id_github_current"))
   ci_conf_location = 'testapp/config/ci.yml'
   ci_yml = YAML.load_file(ci_conf_location)
   ci_yml.merge!(
@@ -51,7 +58,7 @@ When /^I enter my info into the ci\.yml file$/ do
   'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
   'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
   'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
-  'ec2_server_access' => {'key_pair_name' => 'lobot_cucumber_key_pair', 'id_rsa_path' => '~/.ssh/id_rsa'},
+  'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'},
   'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
   )
   # ci_yml['server']['name']  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
