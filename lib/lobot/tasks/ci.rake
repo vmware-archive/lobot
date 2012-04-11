@@ -90,8 +90,8 @@ namespace :ci do
       end
     end
 
+    puts "Server is ready:"
     p server
-    puts "Server is ready"
 
     p "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
     aws_conf["server"].merge!("instance_id" => server.id)
