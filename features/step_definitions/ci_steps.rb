@@ -1,15 +1,10 @@
-
-def system!(str)
-  raise "Command Failed: #{str}" unless system(str)
-end
-
 Given /^the temp directory is clean$/ do
   system!("rm -rf /tmp/lobot-test")
   system!("mkdir -p /tmp/lobot-test")
 end
 
 Given /^I am in the temp directory$/ do
-  Dir.chdir('/tmp/lobot-test')
+  Dir.chdir(LOBOT_TEMP_DIRECTORY)
 end
 
 When /^I create a new Rails project using a Rails template$/ do
