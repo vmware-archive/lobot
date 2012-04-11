@@ -92,7 +92,7 @@ When /^I push to git$/ do
 end
 
 When /^I start the server$/ do
-  system! "cd testapp && bundle exec rake ci:server_start"
+  system! "cd testapp && bundle exec rake ci:server_start && touch .instance_started"
 end
 
 When /^I bootstrap$/ do
