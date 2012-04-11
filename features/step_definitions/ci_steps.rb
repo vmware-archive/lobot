@@ -54,7 +54,7 @@ When /^I enter my info into the ci\.yml file$/ do
   'ec2_server_access' => {'key_pair_name' => 'lobot_cucumber_key_pair', 'id_rsa_path' => '~/.ssh/id_rsa'},
   'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
   )
-  # ci_yml['server']['name]  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
+  # ci_yml['server']['name']  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
   File.open(ci_conf_location, "w") do |f|
     YAML.dump(ci_yml, f)
   end
