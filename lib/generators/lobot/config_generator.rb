@@ -82,12 +82,22 @@ module Lobot
 * separate from what you may already be using for github or other systems.
 * For a tutorial on this see: http://open.bsdcow.org/histerical/tutorials/ssh_pubkey_auth#1.2
       EOS
-      id_rsa_path = ask "Path to SSH Private Key for EC2 Access [#{config['ec2_server_access']['id_rsa_path']}]: "
-      config['ec2_server_access']['id_rsa_path'] = id_rsa_path if id_rsa_path != ""
+      while true do
+        id_rsa_path = ask "Path to SSH Private Key for EC2 Access [#{config['ec2_server_access']['id_rsa_path']}]: "
+        config['ec2_server_access']['id_rsa_path'] = id_rsa_path if id_rsa_path != ""
+        if config['ec2_server_access']['id_rsa_path'] != File.expand_path(config['ec2_server_access']['id_rsa_path'])
+          config['ec2_server_access']['id_rsa_path'] = File.expand_path(File.join(ENV['HOME'], '.ssh', config['ec2_server_access']['id_rsa_path']))
+        end
+        if File.exist?(config['ec2_server_access']['id_rsa_path']) && File.exist?("#{config['ec2_server_access']['id_rsa_path']}.pub")
+          break
+        else
+          say "Unable to find both #{config['ec2_server_access']['id_rsa_path']} and #{config['ec2_server_access']['id_rsa_path']}.pub"
+        end
+      end
 
       say <<-EOS
-* This is the label that identifies the SSH credentials that will be associated with your new EC2 instance
-* You may wish to name this after your project or hostname or local SSH key you just chose
+* This is an arbitrary label corresponding to the SSH credentials that you just selected
+* You may name this anything you like. For example: your project name, hostname or name of the SSH key you just chose
       EOS
       key_pair_name = ask "AWS EC2 Key Pair Name [#{config['ec2_server_access']['key_pair_name']}]: "
       config['ec2_server_access']['key_pair_name'] = key_pair_name if key_pair_name != ""
@@ -96,8 +106,20 @@ module Lobot
 * This needs to refer to an SSH Private Key that has been associated an account that has access to the git
 * repository you entered above. On github this will be listed here: https://github.com/settings/ssh
       EOS
-      github_private_ssh_key_path = ask "Path to SSH Private Key for Github [#{config['github_private_ssh_key_path']}]: "
-      config['github_private_ssh_key_path'] = github_private_ssh_key_path if github_private_ssh_key_path != ""
+      while true do
+        github_private_ssh_key_path = ask "Path to SSH Private Key for Github [#{config['github_private_ssh_key_path']}]: "
+        config['github_private_ssh_key_path'] = github_private_ssh_key_path if github_private_ssh_key_path != ""
+        if config['github_private_ssh_key_path'] != File.expand_path(config['github_private_ssh_key_path'])
+          config['github_private_ssh_key_path'] = File.expand_path(File.join(ENV['HOME'], '.ssh', config['github_private_ssh_key_path']))
+        end
+        if File.exist?(config['github_private_ssh_key_path'])
+          break
+        else
+          say "Unable to find #{config['github_private_ssh_key_path']}"
+        end
+      end
+
+
 
       config_ci = YAML.load_file(Rails.root.join("config/ci.yml")) rescue {}
       config_ci.merge!(config)
