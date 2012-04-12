@@ -62,11 +62,13 @@ Alternatively, manually edit config/ci.yml
 
 For security, you can add ci.yml to your .gitignore file and store a ci.yml.example without authentication credentials in your repository
 
+Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
+
 ## Modify the soloistrc if necessary
 
 Switch postgres to mysql, or add your own recipes for your own dependencies.
 
-## Let 'er rip
+## Starting your lobot instance
 
 Launch an instance, allocate and associates an elastic IP and updates ci.yml:
 
@@ -80,6 +82,20 @@ Upload the contents of your chef/cookbooks/ directory, upload the soloistrc, and
 
     cap ci chef
 
+## Troubleshooting
+
+Shell access for your instance
+
+    rake ci:ssh
+
+Terminating your instance and deallocating the elastic IP
+
+    rake ci:terminate
+
+Suspending your instance
+
+    rake ci:stop
+
 ## Add your new CI instance to [cimonitor](http://github.com/pivotal/cimonitor) and CCMenu
 
 Lobot can generate the config for you, just run:
@@ -92,10 +108,14 @@ Lobot can generate the config for you, just run:
 * capistrano
 * capistrano-ext
 * rvm (the gem - it configures capistrano to use RVM on the server)
+* nokogiri
 
 # Tests
 
-Lobot is tested using rspec, generator_spec and cucumber.  Cucumber provides a full integration test which can generate a rails application, push it to github, start a server and bring up CI for the generated project.  You'll need a git repository(which should not have any code you care about) and an AWS account to run the spec.  It costs about $0.50 and takes about half an hour.  It does not clean up after itself, so be sure to terminate the server when you're done, or it will cost substantially more than $0.50.  Use the secrets.yml.example to create a secrets.yml file with your accounts.
+Lobot is tested using rspec, generator_spec and cucumber.  Cucumber provides a full integration test which can generate a rails application, push it to github, start a server and bring up CI for the generated project.
+You'll need a git repository (which should not have any code you care about) and an AWS account to run the whole test suite.  It costs about $0.50 and takes about half an hour.
+It will attempt to terminate the server however you should verify this so you do not get charged additional money.
+Use the secrets.yml.example to create a secrets.yml file with your account information.
 
 # Contributing
 
