@@ -50,17 +50,40 @@ module Lobot
       config['basic_auth']['username'] = ci_username if ci_username != ""
 
       say "* The password you will use to access the Jenkins web interface"
-      ci_password = ask "Choose a CI password: "
-      config['basic_auth']['password'] = ci_password
+      while true do
+        ci_password = ask "Choose a CI password: "
+        config['basic_auth']['password'] = ci_password
+        if ci_password == ""
+          say "Password cannot be blank"
+        else
+          break
+        end
+      end
 
       say <<-EOS
 * See https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key
 * for access key id and secret access key
       EOS
-      aws_access_key_id = ask "AWS Access Key ID: "
-      config['credentials']['aws_access_key_id'] = aws_access_key_id
-      aws_secret_access_key = ask "AWS Secret Access Key: "
-      config['credentials']['aws_secret_access_key'] = aws_secret_access_key
+
+      while true do
+        aws_access_key_id = ask "AWS Access Key ID: "
+        config['credentials']['aws_access_key_id'] = aws_access_key_id
+        if aws_access_key_id == ""
+          say "AWS Access Key ID cannot be blank"
+        else
+          break
+        end
+      end
+
+      while true do
+        aws_secret_access_key = ask "AWS Secret Access Key: "
+        config['credentials']['aws_secret_access_key'] = aws_secret_access_key
+        if aws_secret_access_key == ""
+          say "AWS Secret Access Key cannot be blank"
+        else
+          break
+        end
+      end
 
       say <<-EOS
 * See http://aws.amazon.com/ec2/instance-types/ API name values (e.g. m1.large)
