@@ -14,9 +14,11 @@ module Lobot
         'app_name' => default_app_name,
         'app_user' => ENV['USER'],
         'git_location' => default_git_location,
-        'basic_auth' => {
-          'username' => "#{default_app_name}_ci",
-        },
+        'basic_auth' => [
+          {
+            'username' => "#{default_app_name}_ci"
+          }
+        ],
         'credentials' => {
           'provider' => "AWS"
         },
@@ -46,13 +48,13 @@ module Lobot
       config['git_location'] = git_location if git_location != ""
 
       say "* The username you will use to access the CI web interface"
-      ci_username = ask "CI Username [#{config['basic_auth']['username']}]: "
-      config['basic_auth']['username'] = ci_username if ci_username != ""
+      ci_username = ask "CI Username [#{config['basic_auth'][0]['username']}]: "
+      config['basic_auth'][0]['username'] = ci_username if ci_username != ""
 
       say "* The password you will use to access the Jenkins web interface"
       while true do
         ci_password = ask "Choose a CI password: "
-        config['basic_auth']['password'] = ci_password
+        config['basic_auth'][0]['password'] = ci_password
         if ci_password == ""
           say "Password cannot be blank"
         else
