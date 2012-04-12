@@ -128,7 +128,8 @@ module Lobot
         f << config_ci.to_yaml
       end
 
-      say "\n\nconfig/ci.yml configured. To launch your instance run rake ci:server_start"
+      say "\n\nconfig/ci.yml configured. To launch your instance run rake ci:server_start."
+      say "Be sure to push uncommitted changes made by the lobot:install process first."
     end
   end
 end

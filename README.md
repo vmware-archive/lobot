@@ -63,6 +63,8 @@ Alternatively, manually edit config/ci.yml
 For security, the lobot:install task added config/ci.yml to the .gitignore file since it includes sensitive AWS credentials and your CI users password.
 Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
 
+At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so jenkins can execute your build command.
+
 ## Modify the soloistrc if necessary
 
 Switch postgres to mysql, or add your own recipes for your own dependencies.
