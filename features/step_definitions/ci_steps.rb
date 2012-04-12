@@ -1,20 +1,16 @@
-
-def system!(str)
-  raise "Command Failed: #{str}" unless system(str)
-end
-
 Given /^the temp directory is clean$/ do
   system!("rm -rf /tmp/lobot-test")
   system!("mkdir -p /tmp/lobot-test")
 end
 
 Given /^I am in the temp directory$/ do
-  Dir.chdir('/tmp/lobot-test')
+  Dir.chdir(LOBOT_TEMP_DIRECTORY)
 end
 
-When /^I create a new Rails project using a Rails template$/ do
-  # mysql, postgres, rr, mocha, webrat saucelabs, cucumber capybara, haml
-  system!("echo -e '\nyes\nno\nno\nno\nno\nno\nno' | rails new testapp -m https://github.com/pivotal/guiderails/raw/master/main.rb")
+When /^I create a new Rails project$/ do
+  system!("rvm ruby-1.9.3-p125 do rvm gemset create testapp")
+  system!("rails new testapp")
+  system!("cd testapp && echo 'rvm use ruby-1.9.3-p125@testapp' > .rvmrc")
 end
 
 When /^I vendor Lobot$/ do
@@ -31,6 +27,7 @@ end
 
 When /^I add a gem with an https:\/\/github.com source$/ do
   system!(%{echo "gem 'greyhawkweather', :git => 'https://github.com/verdammelt/Greyhawk-Weather.git'" >> testapp/Gemfile})
+  system!("cd testapp && bundle install")
 end
 
 When /^I run bundle install$/ do
@@ -46,48 +43,62 @@ When /^I run the Lobot generator$/ do
 end
 
 When /^I enter my info into the ci\.yml file$/ do
-  secrets = YAML.load_file(File.expand_path('../config/secrets.yml', File.dirname(__FILE__)))
+  hostname = `hostname`.strip
+  secrets_file = File.expand_path('../config/secrets.yml', File.dirname(__FILE__))
+  raise "Missing #{secrets_file}, needed for AWS test." unless File.exist?(secrets_file)
+  secrets = YAML.load_file(secrets_file)
+  raise "Missing AWS secret access key" unless secrets["aws_secret_access_key"].to_s != ""
+  raise "Missing AWS access key id" unless secrets["aws_access_key_id"].to_s != ""
+  raise "Missing github private key path" unless secrets["github_private_ssh_key_path"].to_s != ""
 
+  raise "Missing private SSH key for AWS!" unless File.exist?(File.expand_path("~/.ssh/id_github_current"))
   ci_conf_location = 'testapp/config/ci.yml'
   ci_yml = YAML.load_file(ci_conf_location)
   ci_yml.merge!(
-  'app_name' => 'testapp',
-  'app_user' => 'testapp-user',
-  'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
-  'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
-  'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
-  'ec2_server_access' => {'key_pair_name' => 'lobot_cucumber_key_pair', 'id_rsa_path' => '~/.ssh/id_rsa'},
-  'id_rsa_for_github_access' => secrets['id_rsa_for_github_access']
+    'app_name' => 'testapp',
+    'app_user' => 'testapp-user',
+    'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
+    'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
+    'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
+    'ec2_server_access' => {'key_pair_name' => "lobot_cucumber_key_pair_#{hostname}", 'id_rsa_path' => '~/.ssh/id_github_current'},
+    'github_private_ssh_key_path' => secrets["github_private_ssh_key_path"]
   )
-  # ci_yml['server']['name]  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
+  # ci_yml['server']['name']  = '' # This can be used to merge in a server which is already running if you want to skip the setup steps while iterating on a test
   File.open(ci_conf_location, "w") do |f|
-    YAML.dump(ci_yml, f)
+    f << ci_yml.to_yaml
+    f << File.read(secrets_file)
   end
 end
 
-When /^I change my ruby version$/ do
-  system! "cd testapp && echo 'rvm use ruby-1.8.7-p299@lobot' > .rvmrc"
-end
-
-
-When /^I push to git$/ do
+When /^I make changes to be committed$/ do
   lobot_dir = File.expand_path('../../', File.dirname(__FILE__))
   system! "rm testapp/vendor/cache/*"
   system! "cp #{lobot_dir}/pkg/lobot-#{Lobot::VERSION}.gem testapp/vendor/cache/"
   system! "echo 'config/ci.yml' >> testapp/.gitignore"
+  ["headless", "rspec-rails", "jasmine"].each do |gem|
+    system!(%{echo "gem '#{gem}'" >> testapp/Gemfile})
+  end
+  system!("cd testapp && bundle install")
+  system!("cd testapp && bundle exec jasmine init .")
+end
+
+When /^I push to git$/ do
+  system! "cd testapp && git init"
   system! "cd testapp && git add ."
   system! "cd testapp && git commit -m'initial commit'"
-  system "cd testapp && git remote rm origin"
+  system "cd testapp && git remote rm origin" # Ignore failures
   system! "cd testapp && git remote add origin git@github.com:pivotalprivate/ci-smoke.git"
   system! "cd testapp && git push --force -u origin master"
 end
 
-When /^I run the server setup$/ do
-  system! "cd testapp && rake ci:server_start"
+When /^I start the server$/ do
+  system! "cd testapp && bundle exec rake ci:server_start"
 end
 
 When /^I bootstrap$/ do
-  system! "cd testapp && cap ci bootstrap"
+  system!(%{echo "gem 'rvm-capistrano', :require => false" >> testapp/Gemfile})
+  system!("cd testapp && bundle install")
+  system! "cd testapp && bundle exec cap ci bootstrap"
 end
 
 When /^I deploy$/ do
@@ -96,12 +107,12 @@ end
 
 Then /^CI is green$/ do
   Timeout::timeout(300) do
-    until system("cd testapp && rake ci:status")
+    until system("cd testapp && bundle exec rake ci:status")
       sleep 5
     end
   end
 end
 
 Then /^rake reports ci tasks as being available$/ do
-  `cd testapp && rake -T`.should include("ci:start")
+  `cd testapp && bundle exec rake -T`.should include("ci:start")
 end

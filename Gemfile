@@ -1,9 +1,6 @@
 source "http://rubygems.org"
 
-gem "rspec"
-gem "generator_spec"
-gem "rails"
-gem "cucumber"
+gem "rvm-capistrano", :group => :development, :require => false
 
 # Specify your gem's dependencies in lobot.gemspec
 gemspec

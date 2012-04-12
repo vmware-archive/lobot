@@ -40,17 +40,18 @@ namespace :ci do
     end
 
     ec2_key_pair_name = ec2_server_access['key_pair_name'] || "ci"
-    public_key_local_path = "#{ec2_server_access['id_rsa_path']}.pub"
+    public_key_local_path = File.expand_path("#{ec2_server_access['id_rsa_path']}.pub")
 
     current_key_pair = aws_connection.key_pairs.get(ec2_key_pair_name)
     if current_key_pair
       puts "Using existing '#{ec2_key_pair_name}' keypair"
     else
+      raise "Unable to upload keypair, missing #{public_key_local_path}!" unless File.exist?(public_key_local_path)
       puts "Creating '#{ec2_key_pair_name}' keypair, uploading #{public_key_local_path} to aws"
 
       aws_connection.key_pairs.new(
         :name => ec2_key_pair_name,
-        :public_key => File.read(File.expand_path("#{public_key_local_path}"))
+        :public_key => File.read("#{public_key_local_path}")
       ).save
     end
 
@@ -76,23 +77,25 @@ namespace :ci do
     aws_connection.associate_address(server.id, aws_conf['server']['elastic_ip'])
 
     socket = false
-    Timeout::timeout(120) do
-      p "Server booted, waiting for SSH."
+    Timeout.timeout(180) do
+      print "Server booted, waiting for SSH to come up on #{aws_conf['server']['elastic_ip']}: "
       until socket
         begin
-          socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
-        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT
-          STDOUT << "."
-          STDOUT.flush
-          sleep 1
+          Timeout.timeout(5) do
+            socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
+          end
+        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, Timeout::Error
         end
+        putc "."
+        sleep 1
       end
     end
+    puts ""
 
+    puts "Server is ready:"
     p server
-    puts "Server is ready"
 
-    p "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
+    puts "Writing server instance_id(#{server.id}) and elastic IP(#{aws_conf['server']['elastic_ip']}) to ci.yml"
     aws_conf["server"].merge!("instance_id" => server.id)
 
     f = File.open(aws_conf_location, "w")
@@ -100,8 +103,31 @@ namespace :ci do
     f.close
   end
 
+  desc "terminate the CI Server and release IP"
+  task :terminate do
+    puts "Terminating the CI Server and releasing IP..."
+    require 'fog'
+    require 'yaml'
+    require 'socket'
+
+    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+    aws_conf = YAML.load_file(aws_conf_location)
+    aws_credentials = aws_conf['credentials']
+    server_config = aws_conf['server']
+
+    aws_connection = Fog::Compute.new(
+      :provider => aws_credentials['provider'],
+      :aws_access_key_id => aws_credentials['aws_access_key_id'],
+      :aws_secret_access_key => aws_credentials['aws_secret_access_key']
+    )
+
+    aws_connection.release_address(aws_conf['server']['elastic_ip'])
+    aws_connection.servers.new(:id => server_config['instance_id']).destroy
+  end
+
   desc "stop(suspend) the CI Server"
   task :stop do
+    puts "Stopping (suspending) the CI Server..."
     require 'fog'
     require 'yaml'
     require 'socket'
@@ -158,7 +184,9 @@ namespace :ci do
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
     ssh_port = server_config['ssh_port'] || 22
-    exec "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
+    cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
+    puts cmd
+    exec cmd
   end
 
   desc "Get build status"
@@ -168,12 +196,16 @@ namespace :ci do
     ci_conf = YAML.load_file(aws_conf_location)
 
     jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
-    latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
-    status = !!(latest_build.css("title").first.content =~ /success|stable|back to normal/)
-    if status
-      p "Great Success"
+    if latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
+      title = latest_build.css("title").first.content
     else
-      p "Someone needs to fix the build"
+      title = "not available yet"
+    end
+    status = !!(title =~ /success|stable|back to normal/)
+    if status
+      puts "Great Success (#{title})"
+    else
+      puts "Someone needs to fix the build (#{title})"
     end
     status ? exit(0) : exit(1)
   end
