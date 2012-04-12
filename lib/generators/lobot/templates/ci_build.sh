@@ -19,4 +19,4 @@ RAILS_ENV=test rake db:version  > /dev/null || rake db:create
 
 RAILS_ENV=development rake db:migrate test:prepare
 
-rake ci:headlessly['rake spec'] && rake ci:headlessly['rake jasmine:ci']
+rake ci:headlessly['rake spec'] --trace && rake ci:headlessly['rake jasmine:ci'] --trace
