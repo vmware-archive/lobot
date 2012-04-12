@@ -7,10 +7,10 @@ Gem::Specification.new do |s|
   s.version     = Lobot::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Matthew Kocher & Lee Edwards"]
-  s.email       = ["pair@pivotallabs.com"]
+  s.email       = ["gems@pivotallabs.com"]
   s.homepage    = ""
-  s.summary     = %q{Lobot provides generators of chef recipes to set up CI easily.}
-  s.description = %q{Description coming soon}
+  s.summary     = %q{CI in the Cloud: Jenkins + EC2 = Lobot}
+  s.description = %q{Rails generators that make it easy to spin up a CI instance in the cloud.}
 
   s.rubyforge_project = "lobot"
 
