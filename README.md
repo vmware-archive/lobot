@@ -34,7 +34,7 @@ Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to
     rails g lobot:install
 
 ## Setup
-You can use a generator to interatively generate the config/ci.yml that includes some reasonable defaults and explanations
+You can use a generator to interactively generate the config/ci.yml that includes some reasonable defaults and explanations
 
     rails g lobot:config
 
