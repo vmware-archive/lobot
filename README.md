@@ -12,10 +12,10 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 * capistrano tasks for bootstrapping and deploying to an EC2 instance
 * chef recipes for configuring a Centos server to run Jenkins and build Rails projects.
 
-all you'll need to do is:
+all you'll need to do is run the following commands:
 
     rails g lobot:install
-    edit config/ci.yml
+    rails g lobot:config
     rake ci:server_start
     cap ci bootstrap
     cap ci chef
@@ -34,8 +34,11 @@ Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to
     rails g lobot:install
 
 ## Setup
+You can use a generator to interatively generate the config/ci.yml that includes some reasonable defaults and explanations
 
-Edit config/ci.yml
+    rails g lobot:config
+
+Alternatively, manually edit config/ci.yml
 
     ---
     app_name: # a short name for your application
