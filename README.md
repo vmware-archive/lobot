@@ -60,8 +60,7 @@ Alternatively, manually edit config/ci.yml
       id_rsa_path: ~/.ssh/id_rsa
     github_private_ssh_key_path: ~/.ssh/id_rsa
 
-For security, you can add ci.yml to your .gitignore file and store a ci.yml.example without authentication credentials in your repository
-
+For security, the lobot:install task added config/ci.yml to the .gitignore file since it includes sensitive AWS credentials and your CI users password.
 Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
 
 ## Modify the soloistrc if necessary

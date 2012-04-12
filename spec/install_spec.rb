@@ -15,6 +15,10 @@ describe Lobot::InstallGenerator do
     FileUtils.rm_rf ::File.expand_path("../tmp", __FILE__)
   end
 
+  it "creates .gitignore" do
+    assert_file ".gitignore", /config\/ci.yml/
+  end
+
   it "creates ci.yml" do
     assert_file "config/ci.yml", /app_name/
   end
