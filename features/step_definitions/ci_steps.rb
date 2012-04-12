@@ -96,7 +96,6 @@ When /^I start the server$/ do
 end
 
 When /^I bootstrap$/ do
-  system!(%{echo "gem 'rvm-capistrano', :require => false" >> testapp/Gemfile})
   system!("cd testapp && bundle install")
   system! "cd testapp && bundle exec cap ci bootstrap"
 end
