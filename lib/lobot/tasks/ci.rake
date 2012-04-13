@@ -215,19 +215,23 @@ namespace :ci do
     ci_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     ci_conf = YAML.load_file(ci_conf_location)
 
-    puts "CI Monitor Config:"
-    puts "\tURL:\t\thttp://#{ci_conf['server']['elastic_ip']}/job/#{ci_conf['app_name']}/rssAll"
-    puts "\tProject Type:\tHudson/Jenkins"
-    puts "\tFeed Username:\t#{ci_conf['basic_auth'][0]['username']}"
-    puts "\tFeed Password:\t#{ci_conf['basic_auth'][0]['password']}"
-    puts "\t-- Lobot Setup --"
-    puts "\tEC2 Instance ID:\t#{ci_conf['server']['instance_id']}"
-    puts "\tEC2 Elastic IP Address:\t#{ci_conf['server']['elastic_ip']}"
-    puts "\tEC2 Access Key ID:\t#{ci_conf['credentials']['aws_access_key_id']}"
-    puts "\tEC2 Secret Access Key :\t#{ci_conf['credentials']['aws_secret_access_key']}"
-    puts ""
-    puts "CC Menu Config:"
-    puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
+    if ci_conf['server']['elastic_ip']
+      puts "CI Monitor Config:"
+      puts "\tURL:\t\thttp://#{ci_conf['server']['elastic_ip']}/job/#{ci_conf['app_name']}/rssAll"
+      puts "\tProject Type:\tHudson/Jenkins"
+      puts "\tFeed Username:\t#{ci_conf['basic_auth'][0]['username']}"
+      puts "\tFeed Password:\t#{ci_conf['basic_auth'][0]['password']}"
+      puts "\t-- Lobot Setup --"
+      puts "\tEC2 Instance ID:\t#{ci_conf['server']['instance_id']}"
+      puts "\tEC2 Elastic IP Address:\t#{ci_conf['server']['elastic_ip']}"
+      puts "\tEC2 Access Key ID:\t#{ci_conf['credentials']['aws_access_key_id']}"
+      puts "\tEC2 Secret Access Key :\t#{ci_conf['credentials']['aws_secret_access_key']}"
+      puts ""
+      puts "CC Menu Config:"
+      puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
+    else
+      puts "EC2 instance information not available. Did you run rake ci:server_start?"
+    end
   end
 
   desc "Run a command with a virtual frame buffer"
