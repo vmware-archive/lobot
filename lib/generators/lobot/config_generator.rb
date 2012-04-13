@@ -23,6 +23,8 @@ module Lobot
           'provider' => "AWS"
         },
         'server' => {
+          'name' => nil,
+          'instance_id' => nil,
           'flavor_id' => "m1.large",
           'security_group' => "ci_servers",
           'ssh_port' => "22"
