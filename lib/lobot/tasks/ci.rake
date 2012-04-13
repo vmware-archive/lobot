@@ -236,11 +236,22 @@ namespace :ci do
 
   desc "Run a command with a virtual frame buffer"
   task :headlessly, :command do |task, args|
-    exit_code = nil
     # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
+    begin
+      Headless
+    rescue NameError
+      puts "Headless not available, did you add it to your Gemfile?"
+      exit 1
+    end
+    unless args[:command]
+      puts "Usage: rake ci:headlessly[command] <additional options>"
+      exit 1
+    end
+    exit_code = 1
     Headless.ly(:display => 42) do |headless|
       begin
-        exit_code = system(args[:command])
+        system(args[:command])
+        exit_code = $?.exitstatus
       ensure
         headless.destroy
       end
