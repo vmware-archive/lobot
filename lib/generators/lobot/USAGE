@@ -1,8 +1,15 @@
 Description:
-    Explain the generator
+    Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins for CI for your Rails app on Amazon EC2.
 
 Example:
-    rails generate install Thing
+    rails generate lobot:install
 
     This will create:
-        what/will/it/create
+        chef/ - chef cookbooks in a subfolder
+        config/ci.yml - a configuration file for lobot
+        script/ci_build.sh - a build script you can use to run your CI build
+        config/capistrano/ci.rb - a set of lobot specific Capistrano tasks
+
+    rails generate lobot:config
+
+    This will configure config/ci.yml for you
