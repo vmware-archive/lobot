@@ -2,17 +2,17 @@ Lobot: Your Chief Administrative Aide on Cloud City
 ============================
 
 ![Lobot](http://i.imgur.com/QAkd7.jpg)
-###A "one click" solution for deploying CI to EC2
+###Easily create your CI server on EC2
 
-Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to keep your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins for CI for your Rails app on Amazon EC2.
+Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins for CI for your Rails app on Amazon EC2.
 
 # What do I get?
 
-* rake tasks for starting a CI instance
-* capistrano tasks for bootstrapping and deploying to an EC2 instance
-* chef recipes for configuring a Centos server to run Jenkins and build Rails projects.
+* Rake tasks for creating, starting, stopping, or destroying your CI srever on EC2
+* Capistrano tasks for bootstrapping the Centos EC2 instance
+* Chef recipes for configuring the instance to run Jenkins and build Rails projects
 
-all you'll need to do is run the following commands:
+After you add lobot to your Gemfile, all you'll need to do is run the following commands:
 
     rails g lobot:install
     rails g lobot:config
@@ -63,7 +63,9 @@ Alternatively, manually edit config/ci.yml
 For security, the lobot:install task added config/ci.yml to the .gitignore file since it includes sensitive AWS credentials and your CI users password.
 Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
 
-At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so jenkins can execute your build command.
+## Commit and push your changes
+
+At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so Jenkins can execute your build command.
 
 ## Modify the soloistrc if necessary
 
@@ -83,7 +85,7 @@ Switch postgres to mysql, or add your own recipes for your own dependencies.
 
     cap ci chef
 
-Your lobot instance should now be up and running. You will be able to access your CI server at: http://<your instance address>/ with the username and password you chose during configuration.
+Your lobot instance should now be up and running. You will be able to access your CI server at: http://&lt;your instance address&gt;/ with the username and password you chose during configuration.
 For more information about Jenkins CI, see http://jenkins-ci.org/
 
 ## Troubleshooting
