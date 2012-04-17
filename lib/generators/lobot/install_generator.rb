@@ -1,6 +1,7 @@
 module Lobot
   class InstallGenerator < Rails::Generators::Base
     source_root File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
+    argument :build_server, :type => :string, :default => "Jenkins"
 
     def create_ci_files
       template 'ci.yml', 'config/ci.yml'
@@ -28,6 +29,14 @@ module Lobot
 
     def create_chef_cookbooks
       directory 'chef', 'chef'
+    end
+
+    def add_ci_recipe_to_default
+      server_name = build_server.downcase
+      server_name = "jenkins" if build_server.blank?
+
+      # append jenkins or teamcity recipe based on the user's choice
+      append_to_file "chef/cookbooks/pivotal_ci/recipes/default.rb", %Q{include_recipe "pivotal_ci::#{server_name}"}
     end
 
   end

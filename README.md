@@ -4,7 +4,7 @@ Lobot: Your Chief Administrative Aide on Cloud City
 ![Lobot](http://i.imgur.com/QAkd7.jpg)
 ###Easily create your CI server on EC2
 
-Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins for CI for your Rails app on Amazon EC2.
+Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins or TeamCity for CI for your Rails app on Amazon EC2.
 
 # What do I get?
 
@@ -14,7 +14,7 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 
 After you add lobot to your Gemfile, all you'll need to do is run the following commands:
 
-    rails g lobot:install
+    rails g lobot:install [jenkins|teamcity]
     rails g lobot:config
     rake ci:server_start
     cap ci bootstrap
@@ -31,7 +31,14 @@ Add lobot to your Gemfile, in the development group:
 ## Generate
 Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to copy the template files into your project.
 
-    rails g lobot:install
+### For Jenkins:
+
+    rails g lobot:install jenkins
+
+### For TeamCity:
+Lobot only creates your EC2 instance and installs the build server. Configuration for TeamCity still needs to be done manually.
+
+    rails g lobot:install teamcity
 
 ## Setup
 You can use a generator to interactively generate the config/ci.yml that includes some reasonable defaults and explanations
