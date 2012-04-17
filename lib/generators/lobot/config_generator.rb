@@ -95,7 +95,7 @@ module Lobot
 * For a tutorial on this see: http://open.bsdcow.org/histerical/tutorials/ssh_pubkey_auth#1.2
       EOS
       while true do
-        id_rsa_path = ask("Path to SSH Private Key for EC2 Access [#{config['ec2_server_access']['id_rsa_path']}]:", :bold)
+        id_rsa_path = ask("SSH Private Key for EC2 Access [#{config['ec2_server_access']['id_rsa_path'].split('/').last}]:", :bold)
         config['ec2_server_access']['id_rsa_path'] = id_rsa_path if id_rsa_path != ""
         if config['ec2_server_access']['id_rsa_path'] != File.expand_path(config['ec2_server_access']['id_rsa_path'])
           config['ec2_server_access']['id_rsa_path'] = File.expand_path(File.join(ENV['HOME'], '.ssh', config['ec2_server_access']['id_rsa_path']))
@@ -113,7 +113,7 @@ module Lobot
 * repository you entered above. On github this will be listed here: https://github.com/settings/ssh
       EOS
       while true do
-        github_private_ssh_key_path = ask("Path to SSH Private Key for Github [#{config['github_private_ssh_key_path']}]:", :bold)
+        github_private_ssh_key_path = ask("SSH Private Key for Github [#{config['github_private_ssh_key_path'].split('/').last}]:", :bold)
         config['github_private_ssh_key_path'] = github_private_ssh_key_path if github_private_ssh_key_path != ""
         if config['github_private_ssh_key_path'] != File.expand_path(config['github_private_ssh_key_path'])
           config['github_private_ssh_key_path'] = File.expand_path(File.join(ENV['HOME'], '.ssh', config['github_private_ssh_key_path']))
@@ -134,8 +134,8 @@ module Lobot
 
       say "\n\nconfig/ci.yml configured:\n#{File.read(Rails.root.join('config/ci.yml'))}\n"
       say "You can edit this file to change any additional defaults."
-      say "Before continuing, be sure to push uncommitted changes to your git repository.", :red
-      say "For next steps, see README.md"
+      say "Before continuing, be sure to push uncommitted changes to your git repository.", :green
+      say "For next steps, see the lobot README.md"
     end
   end
 end
