@@ -19,7 +19,7 @@ execute "download git plugin" do
   user username
 end
 
-execute "make projec#t dir" do
+execute "make project dir" do
   command "mkdir -p /home/#{username}/.jenkins/jobs/#{ENV['APP_NAME']}"
   user username
 end

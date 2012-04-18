@@ -37,8 +37,8 @@ When /^I run bundle install$/ do
   system!('cd testapp && bundle exec gem list | grep lobot')
 end
 
-When /^I run the Lobot generator$/ do
-  system!('cd testapp && rails generate lobot:install')
+When /^I run the Lobot generator for "([^"]*)"$/ do |build_server_name|
+  system!("cd testapp && rails generate lobot:install #{build_server_name}")
   system!('ls testapp | grep -s soloistrc')
 end
 
@@ -115,3 +115,15 @@ end
 Then /^rake reports ci tasks as being available$/ do
   `cd testapp && bundle exec rake -T`.should include("ci:start")
 end
+
+Then /^TeamCity is installed$/ do
+  ci_conf_location = 'testapp/config/ci.yml'
+  ci_yml = YAML.load_file(ci_conf_location)
+
+  Timeout::timeout(400) do
+    until system("wget http://#{ci_yml['server']['elastic_ip']}:8111")
+      sleep 5
+    end
+  end
+end
+
