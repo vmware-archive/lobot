@@ -120,7 +120,7 @@ Then /^TeamCity is installed$/ do
   ci_conf_location = 'testapp/config/ci.yml'
   ci_yml = YAML.load_file(ci_conf_location)
 
-  Timeout::timeout(300) do
+  Timeout::timeout(400) do
     until system("wget http://#{ci_yml['server']['elastic_ip']}:8111")
       sleep 5
     end

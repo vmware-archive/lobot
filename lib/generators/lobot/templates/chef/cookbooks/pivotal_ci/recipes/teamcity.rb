@@ -29,7 +29,15 @@ template "/etc/init.d/teamcity" do
   mode 0755
 end
 
-execute "Adding TeamCity to init.d" do
-  command "/etc/init.d/teamcity start && chkconfig --add teamcity"
+execute "Start TeamCity" do
+  # while this runs successfully, it doesn't successfully start TeamCity.  Rebooting instead.
+  command "/etc/init.d/teamcity start"
 end
 
+execute "Adding TeamCity to init.d" do
+  command "chkconfig --add teamcity"
+end
+
+execute "Reboot the instance to bring up TeamCity" do
+  command "sudo reboot"
+end
