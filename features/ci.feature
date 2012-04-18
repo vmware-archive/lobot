@@ -9,7 +9,7 @@ Feature: CI
     And I vendor Lobot
     And I put Lobot in the Gemfile
     And I run bundle install
-    And I run the Lobot generator
+    And I run the Lobot generator for "Jenkins"
     Then rake reports ci tasks as being available
 
   @aws
