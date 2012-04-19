@@ -1,6 +1,6 @@
 def fetch_configuration
   conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-  YAML.load(ERB.new(File.read(conf_location).result)
+  YAML.load(ERB.new(File.read(conf_location).result))
 end
 namespace :ci do
   desc "Spin up CI server on amazon"
