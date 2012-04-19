@@ -92,7 +92,7 @@ When /^I push to git$/ do
 end
 
 When /^I start the server$/ do
-  system! "cd testapp && bundle exec rake ci:server_start"
+  system! "cd testapp && bundle exec rake ci:create_server"
 end
 
 When /^I bootstrap$/ do
@@ -113,7 +113,7 @@ Then /^CI is green$/ do
 end
 
 Then /^rake reports ci tasks as being available$/ do
-  `cd testapp && bundle exec rake -T`.should include("ci:start")
+  `cd testapp && bundle exec rake -T`.should include("ci:start_server")
 end
 
 Then /^TeamCity is installed$/ do

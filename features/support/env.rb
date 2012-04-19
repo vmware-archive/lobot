@@ -8,5 +8,5 @@ def system!(str)
 end
 
 After '@aws' do
-  system "cd #{LOBOT_TEMP_DIRECTORY}/testapp && rake ci:terminate" unless ENV["KEEP_INSTANCE"]
+  system "cd #{LOBOT_TEMP_DIRECTORY}/testapp && rake ci:destroy_server" unless ENV["KEEP_INSTANCE"]
 end
