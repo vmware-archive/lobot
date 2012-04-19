@@ -1,6 +1,6 @@
 namespace :ci do
   desc "Spin up CI server on amazon"
-  task :server_start do
+  task :create_server do
     require 'fog'
     require 'yaml'
     require 'socket'
@@ -104,7 +104,7 @@ namespace :ci do
   end
 
   desc "terminate the CI Server and release IP"
-  task :terminate do
+  task :destroy_server do
     puts "Terminating the CI Server and releasing IP..."
     require 'fog'
     require 'yaml'
@@ -126,7 +126,7 @@ namespace :ci do
   end
 
   desc "stop(suspend) the CI Server"
-  task :stop do
+  task :stop_server do
     puts "Stopping (suspending) the CI Server..."
     require 'fog'
     require 'yaml'
@@ -147,7 +147,7 @@ namespace :ci do
   end
 
   desc "start(resume) the CI Server"
-  task :start do
+  task :start_server do
     require 'fog'
     require 'yaml'
     require 'socket'
@@ -258,4 +258,11 @@ namespace :ci do
     end
     exit exit_code
   end
+
+  #aliases
+  desc "maybe"
+  task "server:create" => "ci:create_server"
+  task "server:start" => "ci:start_server"
+  task "server:destroy" => "ci:destroy_server"
+  task "server:stop" => "ci:stop_server"
 end
