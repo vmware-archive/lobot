@@ -1,3 +1,7 @@
+def fetch_configuration
+  conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+  YAML.load(ERB.new(File.read(conf_location).result)
+end
 namespace :ci do
   desc "Spin up CI server on amazon"
   task :create_server do
@@ -5,8 +9,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     aws_credentials = aws_conf['credentials']
     ec2_server_access = aws_conf['ec2_server_access']
     server_config = aws_conf['server']
@@ -110,8 +113,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     aws_credentials = aws_conf['credentials']
     server_config = aws_conf['server']
 
@@ -132,8 +134,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     aws_credentials = aws_conf['credentials']
     server_config = aws_conf['server']
 
@@ -152,8 +153,7 @@ namespace :ci do
     require 'yaml'
     require 'socket'
 
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     aws_credentials = aws_conf['credentials']
     server_config = aws_conf['server']
 
@@ -172,16 +172,14 @@ namespace :ci do
 
   desc "open the CI interface in a browser"
   task :open do
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     server_config = aws_conf['server']
     exec "open http://#{server_config['elastic_ip']}"
   end
 
   desc "ssh to CI"
   task :ssh do
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
+    aws_conf = fetch_configuration
     server_config = aws_conf['server']
     ssh_port = server_config['ssh_port'] || 22
     cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
@@ -192,8 +190,7 @@ namespace :ci do
   desc "Get build status"
   task :status do
     require 'nokogiri'
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    ci_conf = YAML.load_file(aws_conf_location)
+    ci_conf = fetch_configuration
 
     jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
     if latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
@@ -212,8 +209,7 @@ namespace :ci do
 
   desc "Print cimonitor and ccmenu setup information"
   task :info do
-    ci_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    ci_conf = YAML.load_file(ci_conf_location)
+    ci_conf = fetch_configuration
 
     if ci_conf['server']['elastic_ip']
       puts "CI Monitor Config:"
