@@ -9,14 +9,14 @@ export JAVA_HOME=/usr/lib/jvm/jre-1.6.0-openjdk.x86_64
 
 start(){
   echo "Starting TeamCity"
-  exec /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/bin/startup.sh
-  exec /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/buildAgent/bin/agent.sh start
+  /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/bin/startup.sh
+  /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/buildAgent/bin/agent.sh start
 }
 
 stop(){
   echo "Stopping TeamCity"
-  exec /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/bin/shutdown.sh
-  exec /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/buildAgent/bin/agent.sh stop kill
+  /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/bin/shutdown.sh
+  /command/setuidgid <%= @username %> /home/<%= @username %>/TeamCity/buildAgent/bin/agent.sh stop kill
 }
 
 restart(){
