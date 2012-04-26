@@ -80,6 +80,23 @@ When /^I make changes to be committed$/ do
   end
   system!("cd testapp && bundle install")
   system!("cd testapp && bundle exec jasmine init .")
+  system!(%{cd testapp && echo "task :default => 'jasmine:ci'" >> Rakefile})
+
+  spec_contents = <<-RUBY
+  require 'rspec'
+
+  describe "The World" do
+    it "should be green and blue" do
+      the_world = ["green", "blue"]
+      the_world.should include("green")
+      the_world.should include("blue")
+    end
+  end
+  RUBY
+
+  File.open("testapp/spec/hello_world_spec.rb", "w") do |file|
+    file.write(spec_contents)
+  end
 end
 
 When /^I push to git$/ do

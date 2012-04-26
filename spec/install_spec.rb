@@ -15,11 +15,35 @@ describe Lobot::InstallGenerator do
   end
 
   context "without requiring input" do
-    before { run_generator }
+    before do
+      before_generator
+      run_generator
+    end
 
+    let(:before_generator) {}
 
-    it "creates .gitignore" do
-      assert_file ".gitignore", /config\/ci.yml/
+    context "when no .gitignore exists" do
+      it "creates .gitignore" do
+        assert_file ".gitignore", /config\/ci.yml/
+      end
+
+      it "adds spec/reports to the gitignore" do
+        assert_file ".gitignore", /spec\/reports/
+      end
+    end
+
+    context "when there is already a .gitignore" do
+      let(:before_generator) do
+        system("touch #{destination_root}/.gitignore")
+      end
+
+      it "creates .gitignore" do
+        assert_file ".gitignore", /config\/ci.yml/
+      end
+
+      it "adds spec/reports to the gitignore" do
+        assert_file ".gitignore", /spec\/reports/
+      end
     end
 
     it "creates ci.yml" do

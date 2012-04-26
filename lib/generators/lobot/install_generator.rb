@@ -20,11 +20,9 @@ module Lobot
     end
 
     def add_ci_yml_to_gitignore
-      if File.exists?("#{destination_root}/.gitignore")
-        append_to_file '.gitignore', "config/ci.yml\n"
-      else
-        template 'dot-gitignore', '.gitignore'
-      end
+      system("touch #{destination_root}/.gitignore")
+      append_to_file '.gitignore', "config/ci.yml\n"
+      append_to_file '.gitignore', "spec/reports\n"
     end
 
     def create_chef_cookbooks
