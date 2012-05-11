@@ -248,9 +248,11 @@ namespace :ci do
       exit 1
     end
     exit_code = 1
+    #strip out quote wrapping that teamcity includes
+    command = args[:command].gsub(/^['"]/, "").gsub(/['"]$/, "") if args[:command].match(/^['"].*['"]$/)
     Headless.ly(:display => 42) do |headless|
       begin
-        system(args[:command])
+        system(command)
         exit_code = $?.exitstatus
       ensure
         headless.destroy
