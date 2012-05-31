@@ -26,10 +26,10 @@ Gem::Specification.new do |s|
   s.add_dependency('rvm-capistrano')
   s.add_dependency('nokogiri', '>=1.4.4')
   s.add_dependency('ci_reporter', '>=1.7.0')
+  s.add_dependency('headless')
   s.add_development_dependency('cucumber')
   s.add_development_dependency('rspec')
   s.add_development_dependency('generator_spec')
   s.add_development_dependency('rails')
   s.add_development_dependency('jasmine')
-  s.add_development_dependency('headless')
 end
