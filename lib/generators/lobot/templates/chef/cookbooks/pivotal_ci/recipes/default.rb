@@ -1,3 +1,4 @@
+include_recipe "pivotal_ci::ssl_certificate"
 include_recipe "pivotal_server::imagemagick"
 include_recipe "pivotal_server::sqlite"
 include_recipe "pivotal_server::libxml_prereqs"

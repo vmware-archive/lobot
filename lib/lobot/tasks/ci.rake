@@ -29,7 +29,7 @@ namespace :ci do
       p security_group
     end
 
-    PORTS_TO_OPEN = [22, 443, 80, 8111]
+    PORTS_TO_OPEN = [22, 443, 80, 8111 ] + (9000...9010).to_a
     PORTS_TO_OPEN.each do |port|
       is_in_security_group = !!security_group.ip_permissions.detect{|group| (group['fromPort']..group['toPort']).include?(port) && group['ipRanges'].detect{|range| range["cidrIp"]== "0.0.0.0/0" } }
 

@@ -21,7 +21,7 @@ run_unless_marker_file_exists("nginx_1_0_1") do
   end
 
   execute "configure nginx" do
-    command "cd #{src_dir} && ./configure"
+    command "cd #{src_dir} && ./configure --with-http_ssl_module"
   end
 
   execute "make nginx" do
