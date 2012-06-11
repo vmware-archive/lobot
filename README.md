@@ -70,7 +70,7 @@ Alternatively, manually edit config/ci.yml
 ## Adjust Defaults (Optional)
 In your ci.yml, there are defaults set for values that have the recommened value. For example, the instance size used for EC2 is set to "m1.large", which costs $230/month.
 If you don't need to increase your memory size for Jenkins or TeamCity, you could elect to use "c1.medium" instead which costs about half that.
-You can also save on EC2 costs by using a tool like cimonitor or ylastic to schedule when your instances are online.
+You can also save on EC2 costs by using a tool like projectmonitor or ylastic to schedule when your instances are online.
 
 For security, the lobot:install task added config/ci.yml to the .gitignore file since it includes sensitive AWS credentials and your CI users password.
 Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
@@ -118,7 +118,7 @@ Rstarting a server
 
     rake ci:start_server
 
-## Add your new CI instance to [cimonitor](http://github.com/pivotal/cimonitor) and CCMenu
+## Add your new CI instance to [projectmonitor](http://github.com/pivotal/projectmonitor) and CCMenu
 
 Lobot can generate the config for you, just run:
 

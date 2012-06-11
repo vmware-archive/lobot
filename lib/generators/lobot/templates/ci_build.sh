@@ -19,4 +19,4 @@ RAILS_ENV=test rake db:version  > /dev/null || rake db:create
 
 RAILS_ENV=development rake db:migrate test:prepare
 
-rake ci:headlessly['rake'] --trace
+rake ci:headlessly['rake -f `bundle show ci_reporter`/stub.rake ci:setup:rspec default'] --trace
