@@ -1,4 +1,5 @@
 require File.expand_path('lobot/version', File.dirname(__FILE__))
+require 'headless'
 
 module Lobot
   def self.rails3?
