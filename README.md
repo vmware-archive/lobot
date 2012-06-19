@@ -124,6 +124,16 @@ Lobot can generate the config for you, just run:
 
     rake ci:info
 
+## Color
+
+Lobot installs the ansicolor plugin, however you need to configure rspec to generate colorful output. One way is to include `--color` in your .rspec and update your spec_helper.rb to include
+
+``` ruby
+RSpec.configure do |config|
+ config.tty = true
+end
+```
+
 ## Dependencies
 
 * fog

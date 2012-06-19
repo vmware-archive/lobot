@@ -13,10 +13,12 @@ execute "download jenkins" do
   not_if { File.exists?(bin_location) }
 end
 
-execute "download git plugin" do
-  command "mkdir -p /home/#{username}/.jenkins/plugins && curl -Lsf http://mirrors.jenkins-ci.org/plugins/git/latest/git.hpi -o /home/#{username}/.jenkins/plugins/git.hpi"
-  not_if { File.exists?("/home/#{username}/.jenkins/plugins/git.hpi") }
-  user username
+['git', 'ansicolor'].each do |plugin|
+  execute "download #{plugin} plugin" do
+    command "mkdir -p /home/#{username}/.jenkins/plugins && curl -Lsf http://mirrors.jenkins-ci.org/plugins/#{plugin}/latest/#{plugin}.hpi -o /home/#{username}/.jenkins/plugins/#{plugin}.hpi"
+    not_if { File.exists?("/home/#{username}/.jenkins/plugins/#{plugin}.hpi") }
+    user username
+  end
 end
 
 execute "make project dir" do
