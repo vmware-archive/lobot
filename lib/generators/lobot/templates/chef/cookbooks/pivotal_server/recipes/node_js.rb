@@ -1,4 +1,12 @@
-git "/tmp/node_js" do
+directory Chef::Config[:file_cache_path] do
+  owner "root"
+  group "root"
+  mode 0777
+  action :create
+  recursive true
+end
+
+git "#{Chef::Config[:file_cache_path]}/node_js" do
   repository "git://github.com/joyent/node.git"
   revision "627f379f2273341426ab3d5cb7eb4d5c148d500a"
   action :sync

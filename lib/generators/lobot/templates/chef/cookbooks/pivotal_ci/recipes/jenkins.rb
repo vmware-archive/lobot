@@ -27,6 +27,28 @@ end
 template "/home/#{username}/.jenkins/jobs/#{ENV['APP_NAME']}/config.xml" do
   source "jenkins-job-config.xml.erb"
   owner username
+  notifies :run, "execute[reload jenkins]"
+  variables(
+    :git_location => CI_CONFIG['git_location'],
+    :build_command => CI_CONFIG['build_command']
+  )
+end
+
+CI_CONFIG['additional_builds'].each do |build|
+  execute "make project dir" do
+    command "mkdir -p /home/#{username}/.jenkins/jobs/#{build['build_name']}"
+    user username
+  end
+
+  template "/home/#{username}/.jenkins/jobs/#{build['build_name']}/config.xml" do
+    source "jenkins-job-config.xml.erb"
+    owner username
+    notifies :run, "execute[reload jenkins]"
+    variables(
+      :git_location => build['git_location'],
+      :build_command => build['build_script']
+    )
+  end
 end
 
 service_name = "jenkins"
@@ -36,10 +58,15 @@ execute "create daemontools directory" do
 end
 
 execute "create run script2" do # srsly! the not_if from mysql was being applied because they had the same name. I kid you not.
-  command "echo -e '#!/bin/sh\nexport PATH=/usr/local/mysql/bin/:$PATH\nexport HOME=/home/#{username}\nexec /command/setuidgid #{username}  /usr/bin/java -jar #{bin_location}' > /service/#{service_name}/run"
+  command "echo -e '#!/bin/sh\nexport PATH=/usr/lib64/qt4/bin/:usr/local/mysql/bin/:$PATH\nexport HOME=/home/#{username}\nexec /command/setuidgid #{username}  /usr/bin/java -jar #{bin_location}' > /service/#{service_name}/run"
   # not_if "ls /service/#{service_name}/run"
 end
 
 execute "make run script executable" do
   command "chmod 755 /service/#{service_name}/run"
+end
+
+execute "reload jenkins" do
+  command "sudo svc -h /service/jenkins/"
+  action :nothing
 end
