@@ -36,7 +36,7 @@ template "/home/#{username}/.jenkins/jobs/#{ENV['APP_NAME']}/config.xml" do
   )
 end
 
-CI_CONFIG['additional_builds'].each do |build|
+(CI_CONFIG['additional_builds'] || []).each do |build|
   execute "make project dir" do
     command "mkdir -p /home/#{username}/.jenkins/jobs/#{build['build_name']}"
     user username
