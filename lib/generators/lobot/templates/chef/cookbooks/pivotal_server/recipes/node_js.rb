@@ -14,7 +14,7 @@ end
 
 script "compile & install node" do
   interpreter "bash"
-  cwd "/tmp/node_js"
+  cwd "#{Chef::Config[:file_cache_path]}/node_js"
   code "./configure && make install"
   not_if "which node"
 end
