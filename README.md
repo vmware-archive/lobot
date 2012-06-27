@@ -8,7 +8,7 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 
 # What do I get?
 
-* Rake tasks for creating, starting, stopping, or destroying your CI srever on EC2
+* Rake tasks for creating, starting, stopping, or destroying your CI server on EC2
 * Capistrano tasks for bootstrapping the Centos EC2 instance
 * Chef recipes for configuring the instance to run Jenkins and build Rails projects
 
