@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 source $HOME/.rvm/scripts/rvm && source .rvmrc
 
@@ -10,5 +10,7 @@ echo USER=$USER && ruby --version && which ruby && which bundle
 
 # conditionally install project gems from Gemfile
 bundle check || bundle install || exit 1
+
+cp ~/secrets.yml features/config/
 
 bundle exec rake default --trace
