@@ -84,7 +84,7 @@ namespace :ci do
           Timeout.timeout(5) do
             socket = TCPSocket.open(aws_conf['server']['elastic_ip'], 22)
           end
-        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, Timeout::Error
+        rescue Errno::ECONNREFUSED, Errno::ETIMEDOUT, Timeout::Error, Errno::EHOSTUNREACH
         end
         putc "."
         sleep 1
