@@ -250,7 +250,8 @@ namespace :ci do
     exit_code = 1
     Headless.ly(:display => 42) do |headless|
       begin
-        system(args[:command])
+        command = args[:command].gsub(/^['"](.*)['"]$/, "\\1")
+        system(command)
         exit_code = $?.exitstatus
       ensure
         headless.destroy
