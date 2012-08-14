@@ -175,7 +175,7 @@ namespace :ci do
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
-    exec "open http://#{server_config['elastic_ip']}"
+    exec "open https://#{server_config['elastic_ip']}"
   end
 
   desc "ssh to CI"
@@ -195,7 +195,7 @@ namespace :ci do
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     ci_conf = YAML.load_file(aws_conf_location)
 
-    jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth http://#{ci_conf['server']['elastic_ip']}/rssAll`
+    jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth --insecure https://#{ci_conf['server']['elastic_ip']}/rssAll`
     if latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
       title = latest_build.css("title").first.content
     else
@@ -217,7 +217,7 @@ namespace :ci do
 
     if ci_conf['server']['elastic_ip']
       puts "CI Monitor Config:"
-      puts "\tURL:\t\thttp://#{ci_conf['server']['elastic_ip']}/job/#{ci_conf['app_name']}/rssAll"
+      puts "\tURL:\t\thttps://#{ci_conf['server']['elastic_ip']}/job/#{ci_conf['app_name']}/rssAll"
       puts "\tProject Type:\tHudson/Jenkins"
       puts "\tFeed Username:\t#{ci_conf['basic_auth'][0]['username']}"
       puts "\tFeed Password:\t#{ci_conf['basic_auth'][0]['password']}"
@@ -228,7 +228,7 @@ namespace :ci do
       puts "\tEC2 Secret Access Key :\t#{ci_conf['credentials']['aws_secret_access_key']}"
       puts ""
       puts "CC Menu Config:"
-      puts "\tURL:\thttp://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
+      puts "\tURL:\thttps://#{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']}@#{ci_conf['server']['elastic_ip']}/cc.xml"
     else
       puts "EC2 instance information not available. Did you run rake ci:server_start?"
     end
