@@ -122,7 +122,7 @@ When /^I deploy$/ do
 end
 
 Then /^CI is green$/ do
-  Timeout::timeout(300) do
+  Timeout::timeout(600) do
     until system("cd testapp && bundle exec rake ci:status")
       sleep 5
     end

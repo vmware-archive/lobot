@@ -195,7 +195,9 @@ namespace :ci do
     aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
     ci_conf = YAML.load_file(aws_conf_location)
 
-    jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth --insecure https://#{ci_conf['server']['elastic_ip']}/rssAll`
+    jenkins_rss_feed = `curl --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth --insecure https://#{ci_conf['server']['elastic_ip']}/rssAll`
+    # jenkins_rss_feed = `curl -s --user #{ci_conf['basic_auth'][0]['username']}:#{ci_conf['basic_auth'][0]['password']} --anyauth --insecure https://#{ci_conf['server']['elastic_ip']}/rssAll`
+    p jenkins_rss_feed
     if latest_build = Nokogiri::XML.parse(jenkins_rss_feed.downcase).css('feed entry:first').first
       title = latest_build.css("title").first.content
     else
