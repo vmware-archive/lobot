@@ -5,3 +5,4 @@ pkg/*
 features/config/secrets.yml
 .idea
 spec/tmp
+spec/reports/

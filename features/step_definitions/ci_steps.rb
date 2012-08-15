@@ -8,9 +8,9 @@ Given /^I am in the temp directory$/ do
 end
 
 When /^I create a new Rails project$/ do
-  system!("rvm ruby-1.9.3-p125 do rvm gemset create testapp")
+  system!("rvm ruby-1.9.3-p194 do rvm gemset create testapp")
   system!("rails new testapp")
-  system!("cd testapp && echo 'rvm use ruby-1.9.3-p125@testapp' > .rvmrc")
+  system!("cd testapp && echo 'rvm use ruby-1.9.3-p194@testapp' > .rvmrc")
 end
 
 When /^I vendor Lobot$/ do
