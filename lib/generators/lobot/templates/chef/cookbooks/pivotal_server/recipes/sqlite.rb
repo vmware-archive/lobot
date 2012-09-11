@@ -18,3 +18,11 @@ run_unless_marker_file_exists("sqlite_0") do
     command "cd #{src_dir} && make install"
   end
 end
+
+file "/etc/ld.so.conf.d/sqlite.conf" do
+  content "/usr/local/lib"
+end
+
+execute "add sqlite to ldconf" do
+  command "/sbin/ldconfig"
+end
