@@ -60,8 +60,7 @@ execute "create daemontools directory" do
 end
 
 execute "create run script2" do # srsly! the not_if from mysql was being applied because they had the same name. I kid you not.
-  command "echo -e '#!/bin/sh\nexport PATH=/usr/lib64/qt4/bin/:usr/local/mysql/bin/:$PATH\nexport HOME=/home/#{username}\nexec /command/setuidgid #{username}  /usr/bin/java -jar #{bin_location}' > /service/#{service_name}/run"
-  # not_if "ls /service/#{service_name}/run"
+  command "echo -e '#!/bin/sh\nexport PATH=/usr/lib64/qt4/bin/:/usr/local/mysql/bin/:$PATH\nexport HOME=/home/#{username}\nexec /command/setuidgid #{username}  /usr/bin/java -jar #{bin_location}' > /service/#{service_name}/run"
 end
 
 execute "make run script executable" do

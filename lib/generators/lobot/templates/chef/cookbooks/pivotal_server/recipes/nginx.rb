@@ -1,3 +1,5 @@
+include_recipe "pivotal_server::daemontools"
+
 src_dir = "/usr/local/src/nginx"
 install_dir = "/usr/local/nginx"
 
