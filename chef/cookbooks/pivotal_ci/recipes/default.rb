@@ -1,0 +1,6 @@
+include_recipe "pivotal_ci::ssl_certificate"
+include_recipe "pivotal_ci::nginx"
+include_recipe "pivotal_ci::fonts"
+include_recipe "pivotal_ci::id_rsa"
+include_recipe "pivotal_ci::git_config"
+include_recipe "pivotal_ci::jenkins_config"

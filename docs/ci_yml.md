@@ -1,9 +1,6 @@
 # app_name
 A short name for your application.  This will be used as the name of the build in jenkins.
 
-# app_user
-The user created to run jenkins.  This can be set to the same value as app_name if desired.
-
 # git_location
 The location of your remote git repository which Jenkins will poll and pull from on changes.  If it's a public project, use the http://github.com/user/project.git url.  If it's a private project, use the ssh form, git@github.com:user/project.git.
 

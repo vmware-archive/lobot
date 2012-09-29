@@ -12,7 +12,6 @@ module Lobot
       default_app_name = File.basename(Rails.root)
       config = {
         'app_name' => default_app_name,
-        'app_user' => "ci",
         'git_location' => default_git_location,
         'basic_auth' => [
           {
@@ -25,7 +24,7 @@ module Lobot
         'server' => {
           'name' => nil,
           'instance_id' => nil,
-          'flavor_id' => "m1.large",
+          'flavor_id' => "c1.medium",
           'security_group' => "ci_servers",
           'ssh_port' => "22"
         },

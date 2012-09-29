@@ -14,7 +14,7 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 
 After you add lobot to your Gemfile, all you'll need to do is run the following commands:
 
-    rails g lobot:install [jenkins|teamcity]
+    rails g lobot:install
     rails g lobot:config
     rake ci:create_server
     cap ci bootstrap
@@ -24,21 +24,13 @@ Read on for an explanation of what each one of these steps does.
 
 ## Install
 
-Add lobot to your Gemfile, in the development group:
+Add lobot to your Gemfile, in the test group:
 
-    gem "lobot", :group => :development
+    gem "lobot", :group => :test
 
-## Generate
-Lobot is a Rails 3 generator.  Rails 2 can be made to work, but you will need to copy the template files into your project.
+### To Install
 
-### For Jenkins:
-
-    rails g lobot:install jenkins
-
-### For TeamCity:
-Lobot only creates your EC2 instance and installs the build server. Configuration for TeamCity still needs to be done manually.
-
-    rails g lobot:install teamcity
+    rails g lobot:install
 
 ## Setup
 You can use a generator to interactively generate the config/ci.yml that includes some reasonable defaults and explanations.
@@ -49,7 +41,6 @@ Alternatively, manually edit config/ci.yml
 
     ---
     app_name: # a short name for your application
-    app_user: # the user created to run your CI process
     git_location: # The location of your remote git repository which Jenkins will poll and pull from on changes.
     basic_auth:
     - username: # The username you will use to access the Jenkins web interface
@@ -68,20 +59,16 @@ Alternatively, manually edit config/ci.yml
     github_private_ssh_key_path: ~/.ssh/id_rsa
 
 ## Adjust Defaults (Optional)
-In your ci.yml, there are defaults set for values that have the recommened value. For example, the instance size used for EC2 is set to "m1.large", which costs $230/month.
-If you don't need to increase your memory size for Jenkins or TeamCity, you could elect to use "c1.medium" instead which costs about half that.
-You can also save on EC2 costs by using a tool like projectmonitor or ylastic to schedule when your instances are online.
-
-For security, the lobot:install task added config/ci.yml to the .gitignore file since it includes sensitive AWS credentials and your CI users password.
-Keep in mind that the default build script ci_build.sh uses the headless gem and jasmine. You'll want to add those to your Gemfile or change your build command.
+In your ci.yml, there are defaults set for values that have the recommened value. For example, the instance size used for EC2 is set to "c1.medium", which costs $118/month.
+You can save on EC2 costs by using a tool like projectmonitor or ylastic to schedule when your instances are online.
 
 ## Commit and push your changes
 
-At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so Jenkins can execute your build command.
+At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so Jenkins can execute the build script when it pulls down your repo for the first time.
 
 ## Modify the soloistrc if necessary
 
-Switch postgres to mysql, or add your own recipes for your own dependencies.
+TRAVIS STUFF
 
 ## Starting your lobot instance
 

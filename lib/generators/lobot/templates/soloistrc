@@ -1,9 +1,12 @@
 cookbook_paths:
 - ./chef/cookbooks/
+- ./chef/travis-cookbooks/ci_environment/
+
 recipes:
-# - pivotal_server::mysql_5_5
-- pivotal_server::postgres
-- pivotal_ci::default
+- pivotal_ci::jenkins # Order Matters: Jenkins home directory needs to exist
+- pivotal_ci::limited_travis_ci_environment
+- pivotal_ci
+
 env_variable_switches:
   APP_NAME:
     cookbook_paths: []
@@ -11,3 +14,9 @@ env_variable_switches:
   APP_DIR:
     cookbook_paths: []
     recipes: []
+
+node_attributes:
+  travis_build_environment:
+    user: jenkins
+    group: jenkins
+    home: /var/lib/jenkins

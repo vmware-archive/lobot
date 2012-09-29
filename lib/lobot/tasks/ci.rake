@@ -60,8 +60,8 @@ namespace :ci do
 
     puts "Launching server... (this costs money until you stop it)"
     server = aws_connection.servers.create(
-      :image_id => 'ami-d4de25bd',
-      :flavor_id =>  server_config['flavor_id'] || 'm1.large',
+      :image_id => 'ami-a29943cb',
+      :flavor_id =>  server_config['flavor_id'] || 'c1.medium',
       :key_name => ec2_key_pair_name,
       :groups => [security_group_name]
     )
@@ -184,7 +184,7 @@ namespace :ci do
     aws_conf = YAML.load_file(aws_conf_location)
     server_config = aws_conf['server']
     ssh_port = server_config['ssh_port'] || 22
-    cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} #{aws_conf['app_user']}@#{server_config['elastic_ip']} -p #{ssh_port}"
+    cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} ubuntu@#{server_config['elastic_ip']} -p #{ssh_port}"
     puts cmd
     exec cmd
   end

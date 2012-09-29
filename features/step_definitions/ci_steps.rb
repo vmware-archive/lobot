@@ -56,7 +56,6 @@ When /^I enter my info into the ci\.yml file$/ do
   ci_yml = YAML.load_file(ci_conf_location)
   ci_yml.merge!(
     'app_name' => 'testapp',
-    'app_user' => 'testapp-user',
     'git_location' => 'git@github.com:pivotalprivate/ci-smoke.git',
     'basic_auth' => [{ 'username' => 'testapp', 'password' => 'testpass' }],
     'credentials' => { 'aws_access_key_id' => secrets['aws_access_key_id'], 'aws_secret_access_key' => secrets['aws_secret_access_key'], 'provider' => 'AWS' },
@@ -132,15 +131,3 @@ end
 Then /^rake reports ci tasks as being available$/ do
   `cd testapp && bundle exec rake -T`.should include("ci:start_server")
 end
-
-Then /^TeamCity is installed$/ do
-  ci_conf_location = 'testapp/config/ci.yml'
-  ci_yml = YAML.load_file(ci_conf_location)
-
-  Timeout::timeout(400) do
-    until system("wget http://#{ci_yml['server']['elastic_ip']}:8111")
-      sleep 5
-    end
-  end
-end
-

@@ -10,7 +10,7 @@ credentials:
   aws_secret_access_key: AWS_SECRET
   provider: AWS # leave this one
 server:
-  flavor_id: m1.large # See http://aws.amazon.com/ec2/instance-types/ API name values
+  flavor_id: c1.medium # See http://aws.amazon.com/ec2/instance-types/ API name values
   security_group: ci_servers
   name:    # run 'rake ci:server_start to populate'
   instance_id:  # run 'rake ci:server_start to populate'
