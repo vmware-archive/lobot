@@ -4,12 +4,20 @@ directory "#{node["jenkins"]["home"]}/plugins" do
   owner "jenkins"
 end
 
+jenkins_plugin = Proc.new do |resource, plugin, url|
+  resource.command "curl -Lsf #{url} -o #{node["jenkins"]["home"]}/plugins/#{plugin}.hpi"
+  resource.not_if { File.exists?("#{node["jenkins"]["home"]}/plugins/#{plugin}.hpi") }
+  resource.user "jenkins"
+  resource.notifies :restart, "service[jenkins]"
+end
+
+execute "download lobot plugin" do
+  jenkins_plugin.call(self, "lobot", "http://cheffiles.pivotallabs.com/lobot/lobot.hpi")
+end
+
 ['git', 'ansicolor'].each do |plugin|
   execute "download #{plugin} plugin" do
-    command "curl -Lsf http://mirrors.jenkins-ci.org/plugins/#{plugin}/latest/#{plugin}.hpi -o #{node["jenkins"]["home"]}/plugins/#{plugin}.hpi"
-    not_if { File.exists?("#{node["jenkins"]["home"]}/plugins/#{plugin}.hpi") }
-    user "jenkins"
-    notifies :restart, "service[jenkins]"
+    jenkins_plugin.call(self, plugin, "http://mirrors.jenkins-ci.org/plugins/#{plugin}/latest/#{plugin}.hpi")
   end
 end
 

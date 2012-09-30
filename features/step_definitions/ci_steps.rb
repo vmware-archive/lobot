@@ -78,7 +78,8 @@ When /^I make changes to be committed$/ do
     system!(%{echo "gem '#{gem}'" >> testapp/Gemfile})
   end
   system!("cd testapp && bundle install")
-  system!("cd testapp && bundle exec jasmine init .")
+  system!("cd testapp && bundle exec rails g jasmine:install")
+  system!("cd testapp && bundle exec rails g jasmine:examples")
   system!(%{cd testapp && echo "task :default => 'jasmine:ci'" >> Rakefile})
 
   spec_contents = <<-RUBY
@@ -109,6 +110,9 @@ end
 
 When /^I start the server$/ do
   system! "cd testapp && bundle exec rake ci:create_server"
+  server_ip = YAML.load(File.read('testapp/config/ci.yml'))["server"]["elastic_ip"]
+  system! "cat ~/.ssh/known_hosts | grep -v #{server_ip} > /tmp/known_hosts"
+  system! "mv /tmp/known_hosts ~/.ssh/known_hosts"
 end
 
 When /^I bootstrap$/ do

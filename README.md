@@ -1,10 +1,11 @@
 Lobot: Your Chief Administrative Aide on Cloud City
 ============================
 
-![Lobot](http://i.imgur.com/QAkd7.jpg)
-###Easily create your CI server on EC2
+![Lobot](http://cheffiles.pivotallabs.com/lobot/logo.png)
 
-Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins or TeamCity for CI for your Rails app on Amazon EC2.
+### Easily create your CI server on EC2
+
+Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins CI for your Rails app on Amazon EC2.
 
 # What do I get?
 
@@ -60,7 +61,7 @@ Alternatively, manually edit config/ci.yml
 
 ## Adjust Defaults (Optional)
 In your ci.yml, there are defaults set for values that have the recommened value. For example, the instance size used for EC2 is set to "c1.medium", which costs $118/month.
-You can save on EC2 costs by using a tool like projectmonitor or ylastic to schedule when your instances are online.
+You can save on EC2 costs by using a tool like [projectmonitor](https://github.com/pivotal/projectmonitor) or ylastic to schedule when your instances are online.
 
 ## Commit and push your changes
 
@@ -68,7 +69,7 @@ At this point you will need to create a commit of the files generated or modifie
 
 ## Modify the soloistrc if necessary
 
-TRAVIS STUFF
+The soloistrc in root of your project is where you tell chef which recipes to run.  Because we're using the cookbooks from Travis CI, you can look through [all the recipes Travis has available](https://github.com/travis-ci/travis-cookbooks/), and add any of them to your soloistrc.
 
 ## Starting your lobot instance
 
@@ -138,7 +139,7 @@ Use the secrets.yml.example to create a secrets.yml file with your account infor
 
 # Contributing
 
-Lobot is in its infancy and we welcome pull requests.  Pull requests should have test coverage for quick consideration.
+We welcome pull requests.  Pull requests should have test coverage for quick consideration.  Please fork, make your changes on a branch, and open a pull request.
 
 # License
 
