@@ -31,7 +31,8 @@ template "#{node["jenkins"]["home"]}/jobs/#{ENV['APP_NAME']}/config.xml" do
   notifies :restart, "service[jenkins]"
   variables(
     :git_location => CI_CONFIG['git_location'],
-    :build_command => CI_CONFIG['build_command']
+    :build_command => CI_CONFIG['build_command'],
+    :branch => node['jenkins']['git_branch']
   )
 end
 
@@ -46,7 +47,8 @@ end
     notifies :restart, "service[jenkins]"
     variables(
       :git_location => build['git_location'],
-      :build_command => build['build_script']
+      :build_command => build['build_script'],
+      :branch => build['git_branch'] || 'master'
     )
   end
 end

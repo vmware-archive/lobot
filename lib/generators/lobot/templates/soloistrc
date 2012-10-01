@@ -18,5 +18,6 @@ env_variable_switches:
 node_attributes:
   travis_build_environment:
     user: jenkins
-    group: jenkins
+    group: nogroup
     home: /var/lib/jenkins
+

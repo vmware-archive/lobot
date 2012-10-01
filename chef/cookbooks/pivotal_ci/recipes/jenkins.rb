@@ -8,14 +8,16 @@ end
 
 file "/etc/apt/sources.list.d/jenkins.list" do
   content "deb http://pkg.jenkins-ci.org/debian binary/"
-  notifies :run, "execute[apt-get update]"
+  notifies :run, "execute[apt-get update]", :immediately
 end
 
 execute "apt-get update" do
   action :nothing
 end
 
-package "jenkins"
+package "jenkins" do
+  version "1.483"
+end
 
 execute "usermod jenkins -aG rvm" do
   not_if "groups jenkins | grep rvm"

@@ -1,3 +1,4 @@
-node["jenkins"] = {
-  "home" => "/var/lib/jenkins"
+default["jenkins"] = {
+  "home" => "/var/lib/jenkins",
+  "git_branch" => "master",
 }
