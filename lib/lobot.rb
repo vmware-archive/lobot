@@ -1,4 +1,4 @@
-require File.expand_path('lobot/version', File.dirname(__FILE__))
+require File.expand_path("../lobot/version", __FILE__)
 require 'headless'
 
 module Lobot
@@ -12,4 +12,4 @@ module Lobot
   end
 end
 
-require File.expand_path(File.join('lobot', "railtie"), File.dirname(__FILE__)) if Lobot.rails3?
+require File.expand_path("../lobot/railtie", __FILE__) if Lobot.rails3?

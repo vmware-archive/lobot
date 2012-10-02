@@ -1,11 +1,12 @@
+$: << File.expand_path("../../lib", __FILE__)
 require "rubygems"
 
 require 'rails/all'
 require 'rails/generators'
 
-require File.expand_path('../lib/lobot', File.dirname(__FILE__))
+require "lobot"
+require "lobot/cli"
 
 require 'generator_spec/test_case'
-
 require 'generator_spec'
-require File.expand_path('../../lib/generators/lobot/install_generator.rb', __FILE__)
+require "generators/lobot/install_generator"

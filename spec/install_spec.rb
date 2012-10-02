@@ -55,13 +55,13 @@ describe Lobot::InstallGenerator do
         prepare_destination
         system("echo 'line 2' > #{destination_root}/Capfile")
         run_generator
-        assert_file "Capfile", "load 'lobot/recipes/ci'\nline 2\n"
+        assert_file "Capfile", "require 'lobot/recipes/ci'\nline 2\n"
       end
     end
 
     context "Capfile doesn't exist" do
       it "create a Capfile" do
-        assert_file "Capfile", /load 'lobot\/recipes\/ci'/
+        assert_file "Capfile", /require 'lobot\/recipes\/ci'/
       end
 
       it "give you the capify (default) capfile, but commented out" do
