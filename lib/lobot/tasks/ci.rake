@@ -170,24 +170,24 @@ namespace :ci do
     aws_connection.associate_address(server_config['instance_id'], server_config['elastic_ip']) if server_config['elastic_ip']
   end
 
-  desc "open the CI interface in a browser"
-  task :open do
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
-    server_config = aws_conf['server']
-    exec "open https://#{server_config['elastic_ip']}"
-  end
-
-  desc "ssh to CI"
-  task :ssh do
-    aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
-    aws_conf = YAML.load_file(aws_conf_location)
-    server_config = aws_conf['server']
-    ssh_port = server_config['ssh_port'] || 22
-    cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} ubuntu@#{server_config['elastic_ip']} -p #{ssh_port}"
-    puts cmd
-    exec cmd
-  end
+  # desc "open the CI interface in a browser"
+  # task :open do
+  #   aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+  #   aws_conf = YAML.load_file(aws_conf_location)
+  #   server_config = aws_conf['server']
+  #   exec "open https://#{server_config['elastic_ip']}"
+  # end
+  # 
+  # desc "ssh to CI"
+  # task :ssh do
+  #   aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
+  #   aws_conf = YAML.load_file(aws_conf_location)
+  #   server_config = aws_conf['server']
+  #   ssh_port = server_config['ssh_port'] || 22
+  #   cmd = "ssh -i #{aws_conf['ec2_server_access']['id_rsa_path']} ubuntu@#{server_config['elastic_ip']} -p #{ssh_port}"
+  #   puts cmd
+  #   exec cmd
+  # end
 
   desc "Get build status"
   task :status do
@@ -236,31 +236,31 @@ namespace :ci do
     end
   end
 
-  desc "Run a command with a virtual frame buffer"
-  task :headlessly, :command do |task, args|
-    # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
-    begin
-      Headless
-    rescue NameError
-      puts "Headless not available, did you add it to your Gemfile?"
-      exit 1
-    end
-    unless args[:command]
-      puts "Usage: rake ci:headlessly[command] <additional options>"
-      exit 1
-    end
-    exit_code = 1
-    Headless.ly(:display => 42) do |headless|
-      begin
-        command = args[:command].gsub(/^['"](.*)['"]$/, "\\1")
-        system(command)
-        exit_code = $?.exitstatus
-      ensure
-        headless.destroy
-      end
-    end
-    exit exit_code
-  end
+  # desc "Run a command with a virtual frame buffer"
+  # task :headlessly, :command do |task, args|
+  #   # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
+  #   begin
+  #     Headless
+  #   rescue NameError
+  #     puts "Headless not available, did you add it to your Gemfile?"
+  #     exit 1
+  #   end
+  #   unless args[:command]
+  #     puts "Usage: rake ci:headlessly[command] <additional options>"
+  #     exit 1
+  #   end
+  #   exit_code = 1
+  #   Headless.ly(:display => 42) do |headless|
+  #     begin
+  #       command = args[:command].gsub(/^['"](.*)['"]$/, "\\1")
+  #       system(command)
+  #       exit_code = $?.exitstatus
+  #     ensure
+  #       headless.destroy
+  #     end
+  #   end
+  #   exit exit_code
+  # end
 
   #aliases
   desc "maybe"

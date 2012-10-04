@@ -1,22 +1,64 @@
 require "hashie"
 
 module Lobot
-  class Config
-    attr_accessor :ssh_port, :master, :server_ssh_key, :basic_auth_user, :basic_auth_password
-
-    def initialize(config_hash = {})
-      config = Hashie::Mash.new(config_hash)
-      @ssh_port = config.ssh_port || 22
-      @master = config.master || "127.0.0.1"
-      @server_ssh_key = config.server_ssh_key || File.expand_path("~/.ssh/lobot_id_rsa")
-      @basic_auth_user = config.basic_auth_user || "ci"
-      @basic_auth_password = config.basic_auth_password
+  class Config < Hashie::Mash
+    def ssh_port
+      super || 22
     end
 
-    def self.from_file(yaml)
+    def master
+      super || "127.0.0.1"
+    end
+
+    def server_ssh_key
+      super || File.expand_path("~/.ssh/id_rsa")
+    end
+
+    def basic_auth_user
+      super || "ci"
+    end
+
+    def recipes
+      super || ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
+    end
+
+    def soloistrc
+      {
+        'recipes' => recipes,
+        'node_attributes' => {
+          'basic_auth_user' => basic_auth_user
+        }.merge(node_attributes)
+      }
+    end
+
+    def save
+      return self unless path
+      File.open(path, "w+") { |file| file.write(YAML::dump(to_hash)) }
+      self
+    end
+
+    def to_hash
+      hash = super
+      hash.delete("path")
+      {
+        "ssh_port" => ssh_port,
+        "master" => master,
+        "server_ssh_key" => server_ssh_key,
+        "basic_auth_user" => basic_auth_user,
+        "basic_auth_password" => basic_auth_password,
+        "recipes" => recipes
+      }.merge(hash)
+    end
+
+    def self.from_file(yaml_file)
+      config = read_config(yaml_file)
+      self.new(config.merge(path: yaml_file))
+    end
+
+    def self.read_config(yaml_file)
       config = nil
-      File.open(yaml, "r") { |file| config = YAML::load(file) }
-      self.new(config)
+      File.open(yaml_file, "r") { |file| config = YAML.load(file.read) }
+      config
     end
   end
 end
