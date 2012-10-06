@@ -22,11 +22,23 @@ module Lobot
       super || ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     end
 
+    def node_attributes
+      super || {}
+    end
+
+    def cookbook_paths
+      super || ['./chef/cookbooks/', './chef/travis-cookbooks']
+    end
+
     def soloistrc
       {
         'recipes' => recipes,
+        'cookbook_paths' => cookbook_paths,
         'node_attributes' => {
-          'basic_auth_user' => basic_auth_user
+          'nginx' => {
+            'basic_auth_user' => basic_auth_user,
+            'basic_auth_password' => basic_auth_password
+          }
         }.merge(node_attributes)
       }
     end

@@ -46,9 +46,45 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#bootstrap" do
-    it "should set install packages and rvm" do
-      pending "write me"
+  describe "#bootstrap", slow: true do
+    before { cli.create_vagrant }
+
+    it "installs all necessary packages" do
+      cli.bootstrap
+
+      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
+        ssh.exec!("dpkg --get-selections").should include("libncurses5-dev")
+      end
+    end
+
+    it "installs rvm" do
+      cli.bootstrap
+
+      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
+        ssh.exec!("ls /usr/local/rvm/").should_not be_empty
+      end
+    end
+
+    it "adds the ubuntu user to the rvm group" do
+      cli.bootstrap
+      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
+        ssh.exec!("groups ubuntu").should include("rvm")
+      end
+    end
+  end
+
+  describe "#chef" do
+    before do
+      cli.create_vagrant
+      cli.bootstrap
+    end
+
+    it "runs chef" do
+      cli.lobot_config.recipes = ["pivotal_ci::nginx"]
+      cli.chef
+      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
+        ssh.exec!("ls /etc/nginx").should_not be_empty
+      end
     end
   end
 end

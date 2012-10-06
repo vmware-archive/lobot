@@ -1,0 +1,4 @@
+cookbook "pivotal_ci" do
+  configuration "default"
+end
+q

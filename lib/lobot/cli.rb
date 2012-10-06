@@ -37,26 +37,50 @@ module Lobot
       pp lobot_config.to_hash
     end
 
-    # desc "bootstrap", "Configures Lobot's master node"
-    # def bootstrap
-    #   master_server.upload(File.expand_path("script/", lobot_root_path), "script/")
-    #   master_server.run! "chmod +x script/bootstrap_server.sh && script/bootstrap_server.sh"
-    # end
+    desc "bootstrap", "Configures Lobot's master node"
+    def bootstrap
+      sync_bootstrap_script
+      Net::SSH.start(master_server.ip, "ubuntu", keys: [master_server.key], timeout: 10000) do |ssh|
+        ssh.exec("bash -l script/bootstrap_server.sh")
+      end
+    rescue Errno::ECONNRESET
+      sleep 1
+    end
 
-    # desc "chef", "Uploads chef recipes and runs them"
-    # def chef
-    #   master_server.upload(File.join(lobot_root_path, "chef/"), "chef/")
-    #   master_server.upload(File.expand_path("lib/generators/lobot/templates/soloistrc", lobot_root_path), "soloistrc")
-    #   master_server.run! "rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist"
-    # end
+    desc "chef", "Uploads chef recipes and runs them"
+    def chef
+      sync_chef_recipes
+      upload_soloist
+      Net::SSH.start(master_server.ip, "ubuntu", keys: [master_server.key], timeout: 10000) do |ssh|
+        ssh.exec("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
+      end
+    rescue Errno::ECONNRESET
+      sleep 1
+    end
 
     no_tasks do
-      # def master_server
-      #   Sobo::Server.new(lobot_config.master, lobot_config.server_ssh_key)
-      # end
+      def master_server
+        Sobo::Server.new(lobot_config.master, lobot_config.server_ssh_key)
+      end
 
       def lobot_config
         @lobot_config ||= Lobot::Config.from_file(lobot_config_path)
+      end
+
+      def sync_bootstrap_script
+        master_server.upload(File.join(lobot_root_path, "script/"), "script/")
+      end
+
+      def sync_chef_recipes
+        master_server.upload(File.join(lobot_root_path, "chef/"), "chef/")
+      end
+
+      def upload_soloist
+        Tempfile.open("lobot-soloistrc") do |file|
+          file.write(YAML.dump(lobot_config.soloistrc))
+          file.close
+          master_server.upload(file.path, "soloistrc")
+        end
       end
     end
 

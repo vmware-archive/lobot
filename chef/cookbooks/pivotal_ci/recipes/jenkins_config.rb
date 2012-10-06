@@ -21,34 +21,19 @@ end
   end
 end
 
-directory "#{node["jenkins"]["home"]}/jobs/#{ENV['APP_NAME']}" do
-  owner "jenkins"
-end
-
-template "#{node["jenkins"]["home"]}/jobs/#{ENV['APP_NAME']}/config.xml" do
-  source "jenkins-job-config.xml.erb"
-  owner "jenkins"
-  notifies :restart, "service[jenkins]"
-  variables(
-    :git_location => CI_CONFIG['git_location'],
-    :build_command => CI_CONFIG['build_command'],
-    :branch => node['jenkins']['git_branch']
-  )
-end
-
-(CI_CONFIG['additional_builds'] || []).each do |build|
-  directory "#{node["jenkins"]["home"]}/jobs/#{build['build_name']}" do
+node["jenkins"]["builds"].each do |build|
+  directory "#{node["jenkins"]["home"]}/jobs/#{build['name']}" do
     owner "jenkins"
   end
 
-  template "#{node["jenkins"]["home"]}/jobs/#{build['build_name']}/config.xml" do
+  template "#{node["jenkins"]["home"]}/jobs/#{build['name']}/config.xml" do
     source "jenkins-job-config.xml.erb"
     owner "jenkins"
     notifies :restart, "service[jenkins]"
     variables(
-      :git_location => build['git_location'],
-      :build_command => build['build_script'],
-      :branch => build['git_branch'] || 'master'
+      :branch => build['branch'],
+      :command => build['command'],
+      :repository => build['repository']
     )
   end
 end
