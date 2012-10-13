@@ -236,31 +236,31 @@ namespace :ci do
     end
   end
 
-  # desc "Run a command with a virtual frame buffer"
-  # task :headlessly, :command do |task, args|
-  #   # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
-  #   begin
-  #     Headless
-  #   rescue NameError
-  #     puts "Headless not available, did you add it to your Gemfile?"
-  #     exit 1
-  #   end
-  #   unless args[:command]
-  #     puts "Usage: rake ci:headlessly[command] <additional options>"
-  #     exit 1
-  #   end
-  #   exit_code = 1
-  #   Headless.ly(:display => 42) do |headless|
-  #     begin
-  #       command = args[:command].gsub(/^['"](.*)['"]$/, "\\1")
-  #       system(command)
-  #       exit_code = $?.exitstatus
-  #     ensure
-  #       headless.destroy
-  #     end
-  #   end
-  #   exit exit_code
-  # end
+  desc "Run a command with a virtual frame buffer"
+  task :headlessly, :command do |task, args|
+    # headless is your friend on linux - http://www.aentos.com/blog/easy-setup-your-cucumber-scenarios-using-headless-gem-run-selenium-your-ci-server
+    begin
+      Headless
+    rescue NameError
+      puts "Headless not available, did you add it to your Gemfile?"
+      exit 1
+    end
+    unless args[:command]
+      puts "Usage: rake ci:headlessly[command] <additional options>"
+      exit 1
+    end
+    exit_code = 1
+    Headless.ly(:display => 42) do |headless|
+      begin
+        command = args[:command].gsub(/^['"](.*)['"]$/, "\\1")
+        system(command)
+        exit_code = $?.exitstatus
+      ensure
+        headless.destroy
+      end
+    end
+    exit exit_code
+  end
 
   #aliases
   desc "maybe"
