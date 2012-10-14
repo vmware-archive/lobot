@@ -15,9 +15,7 @@ execute "apt-get update" do
   action :nothing
 end
 
-package "jenkins" do
-  version "1.483"
-end
+package "jenkins"
 
 execute "usermod jenkins -aG rvm" do
   not_if "groups jenkins | grep rvm"

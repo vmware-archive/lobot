@@ -8,9 +8,10 @@ directory "#{node["jenkins"]["home"]}/.ssh" do
 end
 
 execute "copy id_rsa" do
-  files = "/home/#{username}/.ssh/id_rsa #{node["jenkins"]["home"]}/.ssh/id_rsa"
+  destination_path = "#{node["jenkins"]["home"]}/.ssh/id_rsa"
+  files = "/home/#{username}/.ssh/id_rsa #{destination_path}"
   command "cp #{files}"
-  not_if "diff -q #{files}"
+  not_if { !(::File.exists?(destination_path)) || "diff -q #{files}" }
 end
 
 file "#{node["jenkins"]["home"]}/.ssh/id_rsa" do
