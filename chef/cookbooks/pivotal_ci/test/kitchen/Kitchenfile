@@ -1,6 +1,4 @@
 cookbook "pivotal_ci" do
-  configuration "nginx"
-  configuration "jenkins"
   configuration "default"
   lint(:ignore => ["FC007"])
 end

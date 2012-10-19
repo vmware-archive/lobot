@@ -7,3 +7,4 @@ features/config/secrets.yml
 spec/tmp
 spec/reports/
 .vagrant
+.kitchen

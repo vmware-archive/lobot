@@ -61,16 +61,7 @@ describe Lobot::Config do
     its(:basic_auth_user) { should == "ci" }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:node_attributes) { should == {} }
-    its(:builds) { should have(1).thing }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks'] }
-
-    describe "#builds" do
-      it "extracts a default build" do
-        subject.builds.first.should == {
-
-        }
-      end
-    end
 
     describe "#soloistrc" do
       it "defaults to recipes and nginx basic auth" do
