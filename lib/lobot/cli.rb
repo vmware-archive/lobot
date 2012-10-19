@@ -2,6 +2,7 @@ require "thor"
 require "lobot/config"
 require "lobot/port_checker"
 require "lobot/sobo"
+require "lobot/amazon"
 require "pp"
 
 module Lobot
@@ -40,9 +41,7 @@ module Lobot
     desc "bootstrap", "Configures Lobot's master node"
     def bootstrap
       sync_bootstrap_script
-      Net::SSH.start(master_server.ip, "ubuntu", keys: [master_server.key], timeout: 10000) do |ssh|
-        ssh.exec("bash -l script/bootstrap_server.sh")
-      end
+      master_server.exec("bash -l script/bootstrap_server.sh")
     rescue Errno::ECONNRESET
       sleep 1
     end
@@ -51,16 +50,14 @@ module Lobot
     def chef
       sync_chef_recipes
       upload_soloist
-      Net::SSH.start(master_server.ip, "ubuntu", keys: [master_server.key], timeout: 10000) do |ssh|
-        ssh.exec("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
-      end
+      master_server.exec("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
     rescue Errno::ECONNRESET
       sleep 1
     end
 
     no_tasks do
       def master_server
-        Sobo::Server.new(lobot_config.master, lobot_config.server_ssh_key)
+        @master_server ||= Lobot::Sobo::Server.new(lobot_config.master, lobot_config.server_ssh_key)
       end
 
       def lobot_config

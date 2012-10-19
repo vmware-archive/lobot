@@ -177,7 +177,7 @@ namespace :ci do
   #   server_config = aws_conf['server']
   #   exec "open https://#{server_config['elastic_ip']}"
   # end
-  # 
+  #
   # desc "ssh to CI"
   # task :ssh do
   #   aws_conf_location = File.join(Dir.pwd, 'config', 'ci.yml')
