@@ -44,13 +44,25 @@ describe Lobot::Amazon do
 
   describe "#add_key_pair" do
     let(:tempdir) { Dir.mktmpdir }
-    let(:key_pair_path) { "/tmp/supernuts" }
+    let(:key_pair_path) { "#{tempdir}/supernuts" }
 
-    before { system "ssh-keygen -q -f #{key_pair_path} -P ''" }
+    before do
+      system "ssh-keygen -q -f #{key_pair_path} -P ''"
+      amazon.delete_key_pair("is_supernuts")
+    end
 
     it "uploads the key" do
       amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
       amazon.key_pairs.map(&:name).should include "is_supernuts"
+    end
+
+    context "when the key is already there" do
+      it "doesn't reupload" do
+        amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
+        expect do
+          amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
+        end.not_to raise_error
+      end
     end
   end
 end

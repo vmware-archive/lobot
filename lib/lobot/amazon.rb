@@ -34,6 +34,10 @@ module Lobot
       end
     end
 
+    def delete_key_pair(key_pair_name)
+      key_pairs.new(:name => key_pair_name).destroy
+    end
+
     def add_key_pair(key_pair_name, key_path)
       unless key_pairs.get(key_pair_name)
         key_pairs.create(:name => key_pair_name, :public_key => File.read("#{key_path}"))
