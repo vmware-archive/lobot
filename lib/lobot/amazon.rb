@@ -19,6 +19,14 @@ module Lobot
       fog.key_pairs
     end
 
+    def servers
+      fog.servers
+    end
+
+    def elastic_ip_address
+      @elastic_ip_address ||= fog.addresses.create
+    end
+
     def create_security_group(group_name)
       unless security_groups.get(group_name)
         security_groups.create(:name => group_name, :description => 'Lobot-generated group')
@@ -44,11 +52,33 @@ module Lobot
       end
     end
 
+    def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium")
+      servers.create(
+        :image_id => "ami-a29943cb",
+        :flavor_id => instance_type,
+        :availability_zone => "us-east-1a",
+        :tags => {"Name" => "Lobot", "lobot" => Lobot::VERSION},
+        :key_name => key_pair_name,
+        :groups => [security_group_name]
+      ).tap do |server|
+        server.wait_for { ready? }
+        fog.associate_address(server.id, elastic_ip_address.public_ip) # needs to be running
+        server.reload
+      end
+    end
+
+    def destroy_ec2
+      servers = fog.servers.select { |s| s.tags.keys.include?("lobot") && s.state == "running" }
+      ips = servers.map(&:public_ip_address)
+      servers.map(&:destroy)
+      ips.each { |ip| release_address(ip) }
+    end
+
     private
 
     def fog
       @fog ||= Fog::Compute.new(
-        :provider => 'aws',
+        :provider => "aws",
         :aws_access_key_id => key,
         :aws_secret_access_key => secret
       )

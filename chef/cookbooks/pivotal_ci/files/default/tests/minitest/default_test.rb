@@ -13,12 +13,21 @@ describe_recipe "pivotal_ci::jenkins" do
 end
 
 describe_recipe "pivotal_ci::default" do
+  def wait_for(match, options="")
+    Timeout.timeout(10) do
+      sleep 1 until `curl #{options} -ks https://localhost/` =~ match
+      true
+    end
+  rescue Timeout::Error
+    false
+  end
+
   it "requires basic auth" do
-    `curl -ks https://localhost/`.must_match /401 Authorization Required/
+    wait_for(/401 Authorization Required/).must_equal true
   end
 
   it "sets the right basic_auth credentials" do
     credentials = "#{node['nginx']['basic_auth_user']}:#{node['nginx']['basic_auth_password']}"
-    `curl -ks --user #{credentials} https://localhost/`.must_match /jenkins/
+    wait_for(/jenkins/, "--user #{credentials}").must_equal true
   end
 end

@@ -1,7 +1,9 @@
 require "spec_helper"
 
-describe Lobot::Amazon do
+describe Lobot::Amazon, :slow => true do
+  let(:tempdir) { Dir.mktmpdir }
   let(:amazon) { Lobot::Amazon.new(ENV["EC2_KEY"], ENV["EC2_SECRET"]) }
+  let(:fog) { amazon.send(:fog) }
 
   describe "#create_security_group" do
     context "when there is no existing security group" do
@@ -43,7 +45,6 @@ describe Lobot::Amazon do
   end
 
   describe "#add_key_pair" do
-    let(:tempdir) { Dir.mktmpdir }
     let(:key_pair_path) { "#{tempdir}/supernuts" }
 
     before do
@@ -57,12 +58,63 @@ describe Lobot::Amazon do
     end
 
     context "when the key is already there" do
+      before { amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub") }
+
       it "doesn't reupload" do
-        amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
         expect do
           amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
         end.not_to raise_error
       end
+    end
+  end
+
+
+  describe "things which launch instances" do
+    let(:key_pair_path) { "#{tempdir}/cookie" }
+
+    before do
+      system "ssh-keygen -q -f #{key_pair_path} -P ''"
+      amazon.add_key_pair("eating_my_cookie", "#{key_pair_path}.pub")
+      amazon.create_security_group("chump_of_change")
+    end
+
+    let(:freshly_launched_server) { amazon.launch_server("eating_my_cookie", "chump_of_change", "t1.micro") }
+
+    describe "#launch_instance" do
+      it "creates an instance" do
+        expect { freshly_launched_server }.to change { amazon.servers.reload.count }.by(1)
+
+        freshly_launched_server.availability_zone.should == "us-east-1a"
+        freshly_launched_server.flavor_id.should == "t1.micro"
+        freshly_launched_server.tags.should == {"lobot"=>Lobot::VERSION, "Name"=>"Lobot"}
+        freshly_launched_server.key_name.should == "eating_my_cookie"
+        freshly_launched_server.groups.should == ["chump_of_change"]
+        freshly_launched_server.public_ip_address.should == amazon.elastic_ip_address.public_ip
+
+        freshly_launched_server.destroy
+        amazon.elastic_ip_address.destroy
+      end
+    end
+
+    describe "#destroy_ec2" do
+      before do
+        freshly_launched_server
+      end
+
+      it "stops all the instances" do
+        expect do
+          amazon.destroy_ec2
+        end.to change { freshly_launched_server.reload.state }.from("running")
+      end
+    end
+  end
+
+
+  describe "#elastic_ip_address" do
+    it "allocates an ip address" do
+      expect { amazon.elastic_ip_address }.to change { fog.addresses.reload.count }.by(1)
+      amazon.elastic_ip_address.public_ip.should =~ /\d+\.\d+\.\d+\.\d+/
+      amazon.elastic_ip_address.destroy
     end
   end
 end

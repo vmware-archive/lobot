@@ -17,7 +17,28 @@ module Lobot
       exec("open https://#{lobot_config.basic_auth_user}:#{lobot_config.basic_auth_password}@#{lobot_config.master}/")
     end
 
-    desc "create_vagrant", "Create a new Lobot server using Vagrant"
+    desc "create_ec2", "Create a new Lobot server using EC2"
+    def create_ec2
+      ssh_key_path = File.expand_path("#{lobot_config.server_ssh_key}.pub")
+
+      amazon.add_key_pair("lobot", ssh_key_path)
+      amazon.create_security_group("lobot")
+      amazon.open_port("lobot", 22, 443)
+      server = amazon.launch_server("lobot", "lobot")
+
+      puts "Writing ip address for ec2: #{server.public_ip_address}"
+      lobot_config.master = server.public_ip_address
+      lobot_config.instance_id = server.id
+      lobot_config.save
+    end
+
+    desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
+    def destroy_ec2
+      amazon.destroy_ec2
+      lobot_config.delete(:master)
+    end
+
+    desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
     def create_vagrant
       spawn_env = {"LOBOT_SSH_KEY" => File.expand_path("#{lobot_config.server_ssh_key}.pub"),
                    "VAGRANT_HOME" => File.expand_path("~")}
@@ -62,6 +83,10 @@ module Lobot
 
       def lobot_config
         @lobot_config ||= Lobot::Config.from_file(lobot_config_path)
+      end
+
+      def amazon
+        @amazon ||= Lobot::Amazon.new(lobot_config.aws_key, lobot_config.aws_secret)
       end
 
       def sync_bootstrap_script

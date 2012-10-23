@@ -8,3 +8,4 @@ spec/tmp
 spec/reports/
 .vagrant
 .kitchen
+.env

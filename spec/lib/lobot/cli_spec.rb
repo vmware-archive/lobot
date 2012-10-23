@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe Lobot::CLI do
-  let(:lobot_config) { Lobot::Config.new }
+  let(:lobot_config) { Lobot::Config.new(:aws_key => ENV["EC2_KEY"], :aws_secret => ENV["EC2_SECRET"]) }
   let(:cli) { subject }
 
   before do
@@ -16,7 +16,7 @@ describe Lobot::CLI do
   end
 
   describe "#open" do
-    let(:lobot_config) { Lobot::Config.new(basic_auth_user: "ci", basic_auth_password: "secret") }
+    let(:lobot_config) { Lobot::Config.new(:basic_auth_user => "ci", :basic_auth_password => "secret") }
 
     it "opens a web browser with the lobot page" do
       cli.should_receive(:exec).with("open https://#{cli.lobot_config.basic_auth_user}:#{cli.lobot_config.basic_auth_password}@#{cli.lobot_config.master}/")
@@ -24,10 +24,19 @@ describe Lobot::CLI do
     end
   end
 
+  describe "#create_ec2" do
+    it "launches an instance and associates elastic ip" do
+      cli.create_ec2
+      lobot_config.master.should_not == "127.0.0.1"
+      cli.destroy_ec2
+      lobot_config.master.should == "127.0.0.1"
+    end
+  end
+
   describe "#create_vagrant" do
     let(:tempfile) do
       t = Tempfile.new('lobot-config')
-      t.write YAML.dump(basic_auth_user: "ci", basic_auth_password: "secret")
+      t.write YAML.dump(:basic_auth_user => "ci", :basic_auth_password => "secret")
       t.close
       t
     end
