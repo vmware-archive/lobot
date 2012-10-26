@@ -68,7 +68,6 @@ describe Lobot::Amazon, :slow => true do
     end
   end
 
-
   describe "things which launch instances" do
     let(:key_pair_path) { "#{tempdir}/cookie" }
 
@@ -97,24 +96,32 @@ describe Lobot::Amazon, :slow => true do
     end
 
     describe "#destroy_ec2" do
-      before do
-        freshly_launched_server
-      end
+      let!(:server_ip) { freshly_launched_server.public_ip_address }
 
       it "stops all the instances" do
         expect do
           amazon.destroy_ec2
         end.to change { freshly_launched_server.reload.state }.from("running")
+        fog.addresses.get(server_ip).should_not be
       end
     end
   end
-
 
   describe "#elastic_ip_address" do
     it "allocates an ip address" do
       expect { amazon.elastic_ip_address }.to change { fog.addresses.reload.count }.by(1)
       amazon.elastic_ip_address.public_ip.should =~ /\d+\.\d+\.\d+\.\d+/
       amazon.elastic_ip_address.destroy
+    end
+  end
+
+  describe "#release_elastic_ip" do
+    let!(:elastic_ip) { amazon.elastic_ip_address }
+
+    it "releases the ip" do
+      expect do
+        amazon.release_elastic_ip(elastic_ip.public_ip)
+      end.to change { fog.addresses.reload.count }.by(-1)
     end
   end
 end

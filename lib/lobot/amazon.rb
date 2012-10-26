@@ -71,7 +71,11 @@ module Lobot
       servers = fog.servers.select { |s| s.tags.keys.include?("lobot") && s.state == "running" }
       ips = servers.map(&:public_ip_address)
       servers.map(&:destroy)
-      ips.each { |ip| release_address(ip) }
+      ips.each { |ip| release_elastic_ip(ip) }
+    end
+
+    def release_elastic_ip(ip)
+      fog.addresses.get(ip).destroy if fog.addresses.get(ip)
     end
 
     private

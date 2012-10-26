@@ -60,18 +60,23 @@ describe Lobot::Config do
     its(:server_ssh_key) { should =~ /id_rsa$/ }
     its(:basic_auth_user) { should == "ci" }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
-    its(:node_attributes) { should == {} }
-    its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks'] }
+    its(:node_attributes) { should == {:travis_build_environment => {:user => "jenkins", :group => "nogroup", :home => "/var/lib/jenkins"}} }
+    its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment'] }
 
     describe "#soloistrc" do
       it "defaults to recipes and nginx basic auth" do
         subject.soloistrc.should == {
-          'recipes' => subject.recipes,
-          'cookbook_paths' => subject.cookbook_paths,
-          'node_attributes' => {
-            'nginx' => {
-              'basic_auth_user' => 'ci',
-              'basic_auth_password' => nil
+          "recipes" => subject.recipes,
+          "cookbook_paths" => subject.cookbook_paths,
+          "node_attributes" => {
+            "nginx" => {
+              "basic_auth_user" => "ci",
+              "basic_auth_password" => nil
+            },
+            "travis_build_environment" => {
+              "user" => "jenkins",
+              "group" => "nogroup",
+              "home" => "/var/lib/jenkins"
             }
           }
         }

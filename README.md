@@ -25,9 +25,9 @@ Read on for an explanation of what each one of these steps does.
 
 ## Install
 
-Add lobot to your Gemfile, in the test group:
+Add lobot to your Gemfile, in the development group:
 
-    gem "lobot", :group => :test
+    gem "lobot", :group => :development
 
 ### To Install
 

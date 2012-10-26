@@ -23,29 +23,35 @@ module Lobot
     end
 
     def node_attributes
-      super || {}
+      super || {
+        travis_build_environment: {
+          user: "jenkins",
+          group: "nogroup",
+          home: "/var/lib/jenkins"
+        }
+      }
     end
 
     def cookbook_paths
-      super || ['./chef/cookbooks/', './chef/travis-cookbooks']
+      super || ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment']
     end
 
     def soloistrc
-      {
-        'recipes' => recipes,
-        'cookbook_paths' => cookbook_paths,
-        'node_attributes' => {
-          'nginx' => {
-            'basic_auth_user' => basic_auth_user,
-            'basic_auth_password' => basic_auth_password
+      Hashie::Hash.new.merge(
+        "recipes" => recipes,
+        "cookbook_paths" => cookbook_paths,
+        "node_attributes" => {
+          "nginx" => {
+            "basic_auth_user" => basic_auth_user,
+            "basic_auth_password" => basic_auth_password
           }
         }.merge(node_attributes)
-      }
+      ).as_json
     end
 
     def save
       return self unless path
-      File.open(path, "w+") { |file| file.write(YAML::dump(to_hash)) }
+      File.open(path, "w+") { |file| file.write(YAML.dump(to_hash)) }
       self
     end
 

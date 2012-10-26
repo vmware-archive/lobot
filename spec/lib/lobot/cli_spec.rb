@@ -24,7 +24,7 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#create_ec2" do
+  describe "#create_ec2", :slow => true do
     it "launches an instance and associates elastic ip" do
       cli.create_ec2
       lobot_config.master.should_not == "127.0.0.1"
@@ -82,17 +82,22 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#chef" do
+  describe "#chef", :slow => true do
     before do
       cli.create_vagrant
       cli.bootstrap
     end
 
     it "runs chef" do
-      cli.lobot_config.recipes = ["pivotal_ci::nginx"]
+      cli.lobot_config.node_attributes = cli.lobot_config.node_attributes.to_hash.tap do |attributes|
+        attributes["nodejs"] = {}
+        attributes["nodejs"]["versions"] = []
+      end
+      cli.lobot_config.recipes = ["pivotal_ci::jenkins", "sysctl"]
       cli.chef
       Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
-        ssh.exec!("ls /etc/nginx").should_not be_empty
+        ssh.exec!("ls /var/lib/jenkins").should_not include "No such file or directory"
+        ssh.exec!("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
       end
     end
   end

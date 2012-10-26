@@ -8,4 +8,3 @@ guard 'bundler' do
   watch('Gemfile')
   watch('lobot.gemspec')
 end
-
