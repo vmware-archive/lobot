@@ -30,6 +30,8 @@ module Lobot
       lobot_config.master = server.public_ip_address
       lobot_config.instance_id = server.id
       lobot_config.save
+
+      update_known_hosts(lobot_config.master)
     end
 
     desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
@@ -52,6 +54,8 @@ module Lobot
       puts "Writing ip address for vagrant: #{vagrant_ip}"
       lobot_config.master = vagrant_ip
       lobot_config.save
+
+      update_known_hosts(lobot_config.master)
     end
 
     desc "config", "Dumps all configuration data for Lobot"
@@ -103,6 +107,11 @@ module Lobot
           file.close
           master_server.upload(file.path, "soloistrc")
         end
+      end
+
+      def update_known_hosts(ip)
+        system "ssh-keygen -R #{ip}"
+        system "ssh-keyscan #{ip} >> ~/.ssh/known_hosts"
       end
     end
 
