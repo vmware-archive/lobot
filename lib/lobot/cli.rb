@@ -1,9 +1,11 @@
 require "thor"
 require "lobot/config"
-require "lobot/port_checker"
 require "lobot/sobo"
 require "lobot/amazon"
+require "lobot/jenkins"
 require "pp"
+require "tempfile"
+require "json"
 
 module Lobot
   class CLI < Thor
@@ -14,7 +16,7 @@ module Lobot
 
     desc "open", "Open a browser to Lobot"
     def open
-      exec("open https://#{lobot_config.basic_auth_user}:#{lobot_config.basic_auth_password}@#{lobot_config.master}/")
+      exec("open https://#{lobot_config.node_attributes.nginx.basic_auth_user}:#{lobot_config.node_attributes.nginx.basic_auth_password}@#{lobot_config.master}/")
     end
 
     desc "create_ec2", "Create a new Lobot server using EC2"
@@ -24,20 +26,20 @@ module Lobot
       amazon.add_key_pair("lobot", ssh_key_path)
       amazon.create_security_group("lobot")
       amazon.open_port("lobot", 22, 443)
-      server = amazon.launch_server("lobot", "lobot")
+      server = amazon.launch_server("lobot", "lobot", lobot_config.instance_size)
 
       puts "Writing ip address for ec2: #{server.public_ip_address}"
       lobot_config.master = server.public_ip_address
       lobot_config.instance_id = server.id
       lobot_config.save
 
-      update_known_hosts(lobot_config.master)
+      update_known_hosts
     end
 
     desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
     def destroy_ec2
       amazon.destroy_ec2
-      lobot_config.delete(:master)
+      lobot_config.master = nil
     end
 
     desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
@@ -55,7 +57,7 @@ module Lobot
       lobot_config.master = vagrant_ip
       lobot_config.save
 
-      update_known_hosts(lobot_config.master)
+      update_known_hosts
     end
 
     desc "config", "Dumps all configuration data for Lobot"
@@ -75,14 +77,29 @@ module Lobot
     def chef
       sync_chef_recipes
       upload_soloist
+      sync_github_ssh_key
       master_server.exec("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
     rescue Errno::ECONNRESET
       sleep 1
     end
 
+    desc "add_build(name, repository, branch, command)", "Adds a build to Lobot"
+    def add_build(name, repository, branch, command)
+      build = {
+        "name" => name,
+        "repository" => repository,
+        "branch" => branch,
+        "command" => command
+      }
+      lobot_config.node_attributes = lobot_config.node_attributes.tap do |config|
+        config.jenkins.builds << build unless config.jenkins.builds.include?(build)
+      end
+      lobot_config.save
+    end
+
     no_tasks do
       def master_server
-        @master_server ||= Lobot::Sobo::Server.new(lobot_config.master, lobot_config.server_ssh_key)
+        @master_server ||= Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key)
       end
 
       def lobot_config
@@ -97,21 +114,20 @@ module Lobot
         master_server.upload(File.join(lobot_root_path, "script/"), "script/")
       end
 
+      def sync_github_ssh_key
+        master_server.upload(lobot_config.github_ssh_key, "~/.ssh/id_rsa")
+      end
+
       def sync_chef_recipes
         master_server.upload(File.join(lobot_root_path, "chef/"), "chef/")
       end
 
       def upload_soloist
         Tempfile.open("lobot-soloistrc") do |file|
-          file.write(YAML.dump(lobot_config.soloistrc))
+          file.write(YAML.dump(JSON.parse(JSON.dump(lobot_config.soloistrc))))
           file.close
           master_server.upload(file.path, "soloistrc")
         end
-      end
-
-      def update_known_hosts(ip)
-        system "ssh-keygen -R #{ip}"
-        system "ssh-keyscan #{ip} >> ~/.ssh/known_hosts"
       end
     end
 
@@ -122,6 +138,11 @@ module Lobot
 
     def lobot_config_path
       File.expand_path("config/lobot.yml", Dir.pwd)
+    end
+
+    def update_known_hosts
+      raise "failed to remove old host key from known_hosts" unless system "ssh-keygen -R #{lobot_config.master} 2> /dev/null"
+      raise "failed to add host key to known_hosts" unless system "ssh-keyscan #{lobot_config.master} 2> /dev/null >> ~/.ssh/known_hosts"
     end
   end
 end

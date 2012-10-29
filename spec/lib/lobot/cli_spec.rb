@@ -1,8 +1,16 @@
 require "spec_helper"
 
 describe Lobot::CLI do
+  let(:tempfile) do
+    Tempfile.new('lobot-config').tap do |file|
+      file.write YAML.dump({})
+      file.close
+    end
+  end
+
   let(:lobot_config) { Lobot::Config.new(:aws_key => ENV["EC2_KEY"], :aws_secret => ENV["EC2_SECRET"]) }
   let(:cli) { subject }
+  let(:sobo) { Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key) }
 
   before do
     cli.stub(:lobot_config).and_return(lobot_config)
@@ -16,65 +24,125 @@ describe Lobot::CLI do
   end
 
   describe "#open" do
-    let(:lobot_config) { Lobot::Config.new(:basic_auth_user => "ci", :basic_auth_password => "secret") }
+    let(:lobot_config) do
+      Lobot::Config.new(:node_attributes => {
+        :nginx => {
+          :basic_auth_user => "ci",
+          :basic_auth_password => "secret"
+        }
+      })
+    end
 
     it "opens a web browser with the lobot page" do
-      cli.should_receive(:exec).with("open https://#{cli.lobot_config.basic_auth_user}:#{cli.lobot_config.basic_auth_password}@#{cli.lobot_config.master}/")
+      cli.should_receive(:exec).with("open https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
       cli.open
     end
   end
 
-  shared_examples_for "a start command that updates known_hosts" do
-    let(:ip_address) { '192.168.33.10' }
-    let(:server) { double("server", :public_ip_address => ip_address).as_null_object }
-    let(:key) { "AAAAB3NzaC1yc2EAAAADAQABAAABAQDjhJ/xZCgVhq9Xk+3DKJZ6tcgyIHcIXKSzu6Z/EK1uykyHeP/i7CwwKgiAv7lAV7B4UiUMHUm2nEiguog9VtYc6mc0g1N829lnuMhPRyOTb0SSYTNEN7Uuwy10cuq3Rd/9QAdxNV/voQW3Rl60BFzZvzp8UxJzCXFT1NmB+0W45X7Ypstv0oVV/EdyJJUuoPijQ097A4kHt6KUThKzxhagh1UrVTCE6eccscxuuRPX3yCEf8cUaVrKtuSE3vZnBcmSOY92zA4NV/YdJYNPIrKyCvWb/R+nC4R0pQNqv1gSEqPT51wYxKnvmIPFGntKaJSN2qmMlvs/AlFnFOeUsUFN" }
+  describe "#add_build" do
+    let(:name) { "bob" }
+    let(:repository) { "http://github.com/mkocher/soloist.git" }
+    let(:branch) { "master" }
+    let(:command) { "script/ci_build.sh" }
 
+    it "adds a build to the node attributes" do
+      cli.add_build(name, repository, branch, command)
+      lobot_config.node_attributes.jenkins.builds.should =~ [{
+        "name" => "bob",
+        "repository" => "http://github.com/mkocher/soloist.git",
+        "command" => "script/ci_build.sh",
+        "branch" => "master"
+      }]
+    end
+
+    it "does not add a build twice with identical parameters" do
+      cli.add_build(name, repository, branch, command)
+      cli.add_build(name, repository, branch, command)
+      lobot_config.node_attributes.jenkins.builds.should =~ [{
+        "name" => "bob",
+        "repository" => "http://github.com/mkocher/soloist.git",
+        "command" => "script/ci_build.sh",
+        "branch" => "master"
+      }]
+    end
+
+    context "with persisted configuration data" do
+      let(:lobot_config) { Lobot::Config.from_file(tempfile.path) }
+
+      def builds
+        cli.lobot_config.reload.node_attributes.jenkins.builds
+      end
+
+      it "persists a build" do
+        cli.add_build(name, repository, branch, command)
+        builds.should_not be_nil
+        builds.should_not be_empty
+      end
+    end
+  end
+
+  shared_examples_for "a start command that updates known_hosts" do
+    let(:key) { "AAAAB3NzaC1yc2EAAAADAQABAAABAQDjhJ/xZCgVhq9Xk+3DKJZ6tcgyIHcIXKSzu6Z/EK1uykyHeP/i7CwwKgiAv7lAV7B4UiUMHUm2nEiguog9VtYc6mc0g1N829lnuMhPRyOTb0SSYTNEN7Uuwy10cuq3Rd/9QAdxNV/voQW3Rl60BFzZvzp8UxJzCXFT1NmB+0W45X7Ypstv0oVV/EdyJJUuoPijQ097A4kHt6KUThKzxhagh1UrVTCE6eccscxuuRPX3yCEf8cUaVrKtuSE3vZnBcmSOY92zA4NV/YdJYNPIrKyCvWb/R+nC4R0pQNqv1gSEqPT51wYxKnvmIPFGntKaJSN2qmMlvs/AlFnFOeUsUFN" }
 
     def known_hosts_contents
       File.read(File.expand_path('~/.ssh/known_hosts'))
     end
 
     it "clears out the entry in knownhosts as this is a new box but the ip may be recycled" do
-      system %| echo "#{ip_address} ssh-rsa #{key}" >> ~/.ssh/known_hosts |
+      system "echo '#{ip_address} ssh-rsa #{key}' >> ~/.ssh/known_hosts"
       action
       known_hosts_contents.should_not include(key)
       known_hosts_contents.should include(ip_address)
     end
 
     it "doesn't mess with other entries" do
-      old_contents = known_hosts_contents
-      action
-      old_contents.should == known_hosts_contents
+      expect { action }.not_to change { known_hosts_contents }
     end
   end
 
   describe "#create_ec2", :slow => true do
     it "launches an instance and associates elastic ip" do
-      cli.create_ec2
-      lobot_config.master.should_not == "127.0.0.1"
-      cli.destroy_ec2
-      lobot_config.master.should == "127.0.0.1"
+      cli.lobot_config.instance_size = 't1.micro'
+      expect { cli.create_ec2 }.to change { lobot_config.master }.from(nil)
+      expect { cli.destroy_ec2 }.to change { lobot_config.master }.to(nil)
     end
 
-    context "known_hosts" do
-      before do
-        cli.stub(:amazon) { double("AMZN", :launch_server => server).as_null_object }
-      end
+    context "with a fake amazon" do
+      let(:ip_address) { "192.168.33.10" }
+      let(:server) { double("server", :public_ip_address => ip_address).as_null_object }
+      let(:amazon) { double("AMZN", :launch_server => server).as_null_object }
+
+      before { cli.stub(:amazon).and_return(amazon) }
 
       def action
         cli.create_ec2
       end
 
       it_behaves_like "a start command that updates known_hosts"
+
+      context "with a custom instance size", :slow => false do
+        before { cli.lobot_config.instance_size = 'really_big_instance' }
+
+        it "launches the instance with the configured instance size" do
+          amazon.should_receive(:launch_server).with(anything, anything, 'really_big_instance')
+          cli.create_ec2
+        end
+      end
     end
   end
 
   describe "#create_vagrant" do
-    let(:tempfile) do
-      t = Tempfile.new('lobot-config')
-      t.write YAML.dump(:basic_auth_user => "ci", :basic_auth_password => "secret")
-      t.close
-      t
+    before do
+      File.open(tempfile.path, "w") do |f|
+        f.write(YAML.dump(
+          "node_attributes" => {
+            "nginx" => {
+              "basic_auth_user" => "ci",
+              "basic_auth_password" => "secret"
+            }
+          }
+        ))
+      end
     end
 
     def lobot_config
@@ -83,7 +151,7 @@ describe Lobot::CLI do
 
     it "starts a virtual machine" do
       cli.create_vagrant
-      Lobot::PortChecker.is_listening?('192.168.33.10', 22, 1).should be
+      Godot.wait('192.168.33.10', 22).should be
     end
 
     it "updates the config master ip address" do
@@ -91,9 +159,7 @@ describe Lobot::CLI do
     end
 
     context "known_hosts" do
-      before do
-        cli.stub(:amazon) { double("AMZN", :launch_server => server).as_null_object }
-      end
+      let(:ip_address) { "192.168.33.10" }
 
       def action
         cli.create_vagrant
@@ -103,50 +169,44 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#bootstrap", slow: true do
+  describe "#bootstrap", :slow => true do
     before { cli.create_vagrant }
 
-    it "installs all necessary packages" do
+    it "installs all necessary packages, installs rvm and sets up the user" do
       cli.bootstrap
-
-      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
-        ssh.exec!("dpkg --get-selections").should include("libncurses5-dev")
-      end
-    end
-
-    it "installs rvm" do
-      cli.bootstrap
-
-      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
-        ssh.exec!("ls /usr/local/rvm/").should_not be_empty
-      end
-    end
-
-    it "adds the ubuntu user to the rvm group" do
-      cli.bootstrap
-      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
-        ssh.exec!("groups ubuntu").should include("rvm")
-      end
+      sobo.exec("dpkg --get-selections").should include("libncurses5-dev")
+      sobo.exec("ls /usr/local/rvm/").should_not be_empty
+      sobo.exec("groups ubuntu").should include("rvm")
     end
   end
 
   describe "#chef", :slow => true do
+    let(:name) { "Bob" }
+    let(:repository) { "http://github.com/mkocher/soloist.git" }
+    let(:branch) { "master" }
+    let(:command) { "exit 0" }
+
+    let(:godot) { Godot.new(cli.master_server.ip, 8080) }
+    let(:jenkins) { Lobot::Jenkins.new(lobot_config) }
+
     before do
       cli.create_vagrant
       cli.bootstrap
+      cli.add_build(name, repository, branch, command)
     end
 
     it "runs chef" do
-      cli.lobot_config.node_attributes = cli.lobot_config.node_attributes.to_hash.tap do |attributes|
-        attributes["nodejs"] = {}
-        attributes["nodejs"]["versions"] = []
-      end
-      cli.lobot_config.recipes = ["pivotal_ci::jenkins", "sysctl"]
+      cli.lobot_config.recipes = ["pivotal_ci::jenkins", "pivotal_ci::id_rsa", "pivotal_ci::git_config", "sysctl", "pivotal_ci::jenkins_config"]
       cli.chef
-      Net::SSH.start(cli.master_server.ip, "ubuntu", keys: [cli.master_server.key], timeout: 10000) do |ssh|
-        ssh.exec!("ls /var/lib/").should include "jenkins"
-        ssh.exec!("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
-      end
+
+      sobo.exec("ls /var/lib/").should include "jenkins"
+      sobo.exec("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
+      sobo.exec("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == File.read(lobot_config.github_ssh_key)
+
+      godot.wait!
+      godot.match!(/Bob/, 'api/json')
+
+      jenkins.jobs.first.name.should == "Bob"
     end
   end
 end

@@ -19,25 +19,21 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency 'fog', '>=0.9.0'
-  s.add_dependency 'capistrano'
-  s.add_dependency 'capistrano-ext'
-  s.add_dependency 'rvm'
-  s.add_dependency 'rvm-capistrano'
-  s.add_dependency 'nokogiri', '>=1.4.4'
-  s.add_dependency 'ci_reporter', '>=1.7.0'
-  s.add_dependency 'headless'
-  s.add_dependency 'thor'
-  s.add_dependency 'hashie'
-  s.add_dependency 'net-ssh-telnet'
+  s.add_dependency "fog", "~> 1.6"
+  s.add_dependency "ci_reporter", "~> 1.7"
+  s.add_dependency "thor"
+  s.add_dependency "hashie"
+  s.add_dependency "net-ssh"
 
-  s.add_development_dependency 'cucumber'
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'generator_spec'
-  s.add_development_dependency 'rails'
-  s.add_development_dependency 'jasmine'
-  s.add_development_dependency 'guard-rspec'
-  s.add_development_dependency 'guard-bundler'
-  s.add_development_dependency 'test-kitchen'
-  s.add_development_dependency 'pry'
+  s.add_development_dependency "godot"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "jasmine"
+  s.add_development_dependency "guard-rspec"
+  s.add_development_dependency "guard-bundler"
+  s.add_development_dependency "test-kitchen"
+  s.add_development_dependency "pry"
+
+  s.add_development_dependency "terminal-notifier-guard"
+  s.add_development_dependency "rb-fsevent"
+  s.add_development_dependency "vagrant", "~> 1.0"
 end

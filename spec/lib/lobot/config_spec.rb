@@ -1,13 +1,15 @@
 require "spec_helper"
 
 describe Lobot::Config do
+  let(:default_config) { Lobot::Config.new }
+
   describe "with a file" do
     let(:config_contents) { {ssh_port: 42} }
     let(:tempfile) do
-      t = Tempfile.new('lobot-config')
-      t.write YAML.dump(config_contents)
-      t.close
-      t
+      Tempfile.new('lobot-config').tap do |file|
+        file.write YAML.dump(config_contents)
+        file.close
+      end
     end
 
     let(:config) { Lobot::Config.from_file(tempfile.path) }
@@ -29,7 +31,7 @@ describe Lobot::Config do
 
     describe "soloistrc-specific attributes" do
       let(:recipes) { ["pivotal_workstation::broken_postgres", "pivotal_workstation::janus"] }
-      let(:node_attributes) { {"radiator" => {"busted" => "hella"}} }
+      let(:node_attributes) { default_config.node_attributes.merge({"radiator" => {"busted" => "hella"}}) }
       let(:config_contents) { {recipes: recipes, node_attributes: node_attributes} }
 
       describe "#recipes" do
@@ -43,10 +45,6 @@ describe Lobot::Config do
           config.soloistrc['recipes'].should == recipes
         end
 
-        it "adds in basic_auth_user into node_attributes" do
-          config.soloistrc['node_attributes']['nginx']['basic_auth_user'].should == "ci"
-        end
-
         it "has node_attributes" do
           config.soloistrc['node_attributes']['radiator']['busted'].should == "hella"
         end
@@ -56,12 +54,21 @@ describe Lobot::Config do
 
   describe "defaults" do
     its(:ssh_port) { should == 22 }
-    its(:master) { should == "127.0.0.1" }
     its(:server_ssh_key) { should =~ /id_rsa$/ }
-    its(:basic_auth_user) { should == "ci" }
+    its(:github_ssh_key) { should =~ /id_rsa$/ }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
-    its(:node_attributes) { should == {:travis_build_environment => {:user => "jenkins", :group => "nogroup", :home => "/var/lib/jenkins"}} }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment'] }
+    its(:instance_size) { should == 'm1.medium' }
+
+    describe "#node_attributes" do
+      it "defaults to overwriting the travis build environment" do
+        subject.node_attributes.travis_build_environment.to_hash.should ==  {
+          "user" => "jenkins",
+          "group" => "nogroup",
+          "home" => "/var/lib/jenkins"
+        }
+      end
+    end
 
     describe "#soloistrc" do
       it "defaults to recipes and nginx basic auth" do
@@ -71,12 +78,14 @@ describe Lobot::Config do
           "node_attributes" => {
             "nginx" => {
               "basic_auth_user" => "ci",
-              "basic_auth_password" => nil
             },
             "travis_build_environment" => {
               "user" => "jenkins",
               "group" => "nogroup",
               "home" => "/var/lib/jenkins"
+            },
+            "jenkins" => {
+              "builds" => []
             }
           }
         }

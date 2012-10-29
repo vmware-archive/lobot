@@ -1,58 +1,58 @@
 require "hashie"
 
 module Lobot
-  class Config < Hashie::Mash
-    def ssh_port
-      super || 22
-    end
+  class Config < Hashie::Dash
+    property :path
+    property :aws_key
+    property :aws_secret
+    property :instance_id
+    property :master
 
-    def master
-      super || "127.0.0.1"
-    end
-
-    def server_ssh_key
-      super || File.expand_path("~/.ssh/id_rsa")
-    end
-
-    def basic_auth_user
-      super || "ci"
-    end
-
-    def recipes
-      super || ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
-    end
-
-    def node_attributes
-      super || {
-        travis_build_environment: {
-          user: "jenkins",
-          group: "nogroup",
-          home: "/var/lib/jenkins"
-        }
+    property :instance_size, :default => 'm1.medium'
+    property :ssh_port, :default => 22
+    property :server_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")
+    property :github_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")
+    property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
+    property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment']
+    property :node_attributes, :default => {
+      :travis_build_environment => {
+        :user => "jenkins",
+        :group => "nogroup",
+        :home => "/var/lib/jenkins"
+      },
+      :nginx => {
+        :basic_auth_user => "ci",
+      },
+      :jenkins => {
+        :builds => []
       }
+    }
+
+    def initialize(attributes = {})
+      super
+      self["node_attributes"] = Hashie::Mash.new(node_attributes)
     end
 
-    def cookbook_paths
-      super || ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment']
+    def node_attributes=(attributes)
+      self["node_attributes"] = Hashie::Mash.new(attributes)
     end
 
     def soloistrc
-      Hashie::Hash.new.merge(
+      {
         "recipes" => recipes,
         "cookbook_paths" => cookbook_paths,
-        "node_attributes" => {
-          "nginx" => {
-            "basic_auth_user" => basic_auth_user,
-            "basic_auth_password" => basic_auth_password
-          }
-        }.merge(node_attributes)
-      ).as_json
+        "node_attributes" => node_attributes.to_hash
+      }
     end
 
     def save
       return self unless path
-      File.open(path, "w+") { |file| file.write(YAML.dump(to_hash)) }
+      File.open(path, "w+") { |file| file.write(YAML.dump(JSON.parse(JSON.dump(to_hash)))) }
       self
+    end
+
+    def reload
+      self.class.from_file(path)
     end
 
     def to_hash
@@ -62,21 +62,19 @@ module Lobot
         "ssh_port" => ssh_port,
         "master" => master,
         "server_ssh_key" => server_ssh_key,
-        "basic_auth_user" => basic_auth_user,
-        "basic_auth_password" => basic_auth_password,
-        "recipes" => recipes
+        "recipes" => recipes,
+        "cookbook_paths" => cookbook_paths,
+        "node_attributes" => node_attributes
       }.merge(hash)
     end
 
     def self.from_file(yaml_file)
       config = read_config(yaml_file)
-      self.new(config.merge(path: yaml_file))
+      self.new(config.merge(:path => yaml_file))
     end
 
     def self.read_config(yaml_file)
-      config = nil
-      File.open(yaml_file, "r") { |file| config = YAML.load(file.read) }
-      config
+      File.open(yaml_file, "r") { |file| YAML.load(file.read) }
     end
   end
 end

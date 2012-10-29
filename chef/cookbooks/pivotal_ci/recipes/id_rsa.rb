@@ -9,12 +9,14 @@ end
 
 execute "copy id_rsa" do
   destination_path = "#{node["jenkins"]["home"]}/.ssh/id_rsa"
-  files = "/home/#{username}/.ssh/id_rsa #{destination_path}"
+  source_path = "/home/#{username}/.ssh/id_rsa"
+  files = "#{source_path} #{destination_path}"
   command "cp #{files}"
-  not_if { !(::File.exists?(destination_path)) || "diff -q #{files}" }
+  only_if { (::File.exists?(source_path)) && !system("diff -q #{files}") }
 end
 
 file "#{node["jenkins"]["home"]}/.ssh/id_rsa" do
+  mode 0600
   owner "jenkins"
 end
 

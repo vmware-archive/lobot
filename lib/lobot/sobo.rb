@@ -1,24 +1,29 @@
-require 'net/ssh/telnet'
+require 'net/ssh'
 
 module Lobot
-  module Sobo
-    class Server
-      attr_reader :ip, :key
+  class Sobo
+    attr_reader :ip, :key
+    attr_writer :timeout
 
-      def initialize(ip, key)
-        @ip = ip
-        @key = key
-      end
+    def initialize(ip, key)
+      @ip = ip
+      @key = key
+    end
 
-      def exec(command)
-        Net::SSH.start(ip, "ubuntu", :keys => [key], :timeout => 10000) do |ssh|
-          ssh.exec(command)
-        end
-      end
+    def timeout
+      @timeout || 10000
+    end
 
-      def upload(from, to, opts = "--exclude .git")
-        system("rsync -avz --delete #{from} ubuntu@#{ip}:#{to} #{opts}")
+    def exec(command)
+      output = nil
+      Net::SSH.start(ip, "ubuntu", :keys => [key], :timeout => timeout) do |ssh|
+        output = ssh.exec!(command)
       end
+      output
+    end
+
+    def upload(from, to, opts = "--exclude .git")
+      system("rsync -avz --delete #{from} ubuntu@#{ip}:#{to} #{opts}")
     end
   end
 end
