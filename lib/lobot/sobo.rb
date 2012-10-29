@@ -15,6 +15,12 @@ module Lobot
     end
 
     def exec(command)
+      Net::SSH.start(ip, "ubuntu", :keys => [key], :timeout => timeout) do |ssh|
+        ssh.exec(command)
+      end
+    end
+
+    def exec!(command)
       output = nil
       Net::SSH.start(ip, "ubuntu", :keys => [key], :timeout => timeout) do |ssh|
         output = ssh.exec!(command)

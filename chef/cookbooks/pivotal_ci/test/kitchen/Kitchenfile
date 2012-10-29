@@ -1,4 +1,4 @@
 cookbook "pivotal_ci" do
   configuration "default"
-  lint(:ignore => ["FC007"])
+  lint(:ignore => ["FC007", "FC009"])
 end

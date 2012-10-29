@@ -15,10 +15,16 @@ execute "download lobot plugin" do
   jenkins_plugin.call(self, "lobot", "http://cheffiles.pivotallabs.com/lobot/lobot.hpi")
 end
 
-['git', 'ansicolor'].each do |plugin|
+['git', 'ansicolor', 'xvfb'].each do |plugin|
   execute "download #{plugin} plugin" do
     jenkins_plugin.call(self, plugin, "http://mirrors.jenkins-ci.org/plugins/#{plugin}/latest/#{plugin}.hpi")
   end
+end
+
+template "#{node["jenkins"]["home"]}/org.jenkinsci.plugins.xvfb.XvfbBuildWrapper.xml" do
+  source "org.jenkinsci.plugins.xvfb.XvfbBuildWrapper.xml.erb"
+  owner "jenkins"
+  notifies :restart, "service[jenkins]"
 end
 
 node["jenkins"]["builds"].each do |build|

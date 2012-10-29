@@ -65,5 +65,13 @@
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper>
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <org.jenkinsci.plugins.xvfb.XvfbBuildWrapper plugin="xvfb@1.0.4">
+      <installationName>system</installationName>
+      <screen>1024x768x24</screen>
+      <debug>false</debug>
+      <timeout>0</timeout>
+      <displayNameOffset>0</displayNameOffset>
+      <additionalOptions></additionalOptions>
+    </org.jenkinsci.plugins.xvfb.XvfbBuildWrapper>
   </buildWrappers>
 </project>

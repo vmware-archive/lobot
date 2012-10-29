@@ -58,7 +58,7 @@ describe Lobot::Config do
     its(:github_ssh_key) { should =~ /id_rsa$/ }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment'] }
-    its(:instance_size) { should == 'm1.medium' }
+    its(:instance_size) { should == 'c1.medium' }
 
     describe "#node_attributes" do
       it "defaults to overwriting the travis build environment" do

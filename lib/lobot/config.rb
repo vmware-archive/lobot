@@ -8,7 +8,7 @@ module Lobot
     property :instance_id
     property :master
 
-    property :instance_size, :default => 'm1.medium'
+    property :instance_size, :default => 'c1.medium'
     property :ssh_port, :default => 22
     property :server_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")
     property :github_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")

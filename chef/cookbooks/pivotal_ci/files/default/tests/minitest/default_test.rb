@@ -10,6 +10,10 @@ describe_recipe "pivotal_ci::jenkins" do
   it "creates the jenkins user" do
     user("jenkins").must_exist
   end
+
+  it "configures the xvfb plugin" do
+    file("/var/lib/jenkins/org.jenkinsci.plugins.xvfb.XvfbBuildWrapper.xml").must_exist
+  end
 end
 
 describe_recipe "pivotal_ci::default" do
