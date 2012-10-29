@@ -100,10 +100,10 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#create_ec2", :slow => true do
+  describe "#create", :slow => true do
     it "launches an instance and associates elastic ip" do
       cli.lobot_config.instance_size = 't1.micro'
-      expect { cli.create_ec2 }.to change { lobot_config.master }.from(nil)
+      expect { cli.create }.to change { lobot_config.master }.from(nil)
       expect { cli.destroy_ec2 }.to change { lobot_config.master }.to(nil)
     end
 
@@ -115,7 +115,7 @@ describe Lobot::CLI do
       before { cli.stub(:amazon).and_return(amazon) }
 
       def action
-        cli.create_ec2
+        cli.create
       end
 
       it_behaves_like "a start command that updates known_hosts"
@@ -125,7 +125,7 @@ describe Lobot::CLI do
 
         it "launches the instance with the configured instance size" do
           amazon.should_receive(:launch_server).with(anything, anything, 'really_big_instance')
-          cli.create_ec2
+          cli.create
         end
       end
     end

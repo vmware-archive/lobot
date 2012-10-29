@@ -19,8 +19,8 @@ module Lobot
       exec("open https://#{lobot_config.node_attributes.nginx.basic_auth_user}:#{lobot_config.node_attributes.nginx.basic_auth_password}@#{lobot_config.master}/")
     end
 
-    desc "create_ec2", "Create a new Lobot server using EC2"
-    def create_ec2
+    desc "create", "Create a new Lobot server using EC2"
+    def create
       ssh_key_path = File.expand_path("#{lobot_config.server_ssh_key}.pub")
 
       amazon.add_key_pair("lobot", ssh_key_path)
