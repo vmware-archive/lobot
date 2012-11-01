@@ -33,3 +33,7 @@ include_recipe "xserver"
 include_recipe "firefox"
 include_recipe "chromium"
 include_recipe "phantomjs::tarball"
+
+# Packages for xserver
+#
+package "libicu48"

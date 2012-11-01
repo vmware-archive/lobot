@@ -34,7 +34,7 @@ describe Lobot::CLI do
     end
 
     it "opens a web browser with the lobot page" do
-      cli.should_receive(:exec).with("open https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
+      cli.should_receive(:exec).with("open -a /Applications/Safari.app https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
       cli.open
     end
   end
@@ -205,8 +205,6 @@ describe Lobot::CLI do
 
       godot.wait!
       godot.match!(/Bob/, 'api/json')
-
-      jenkins.jobs.first.name.should == "Bob"
     end
   end
 end
