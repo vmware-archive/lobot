@@ -1,4 +1,4 @@
-require File.expand_path("../lobot/version", __FILE__)
+require "lobot/version"
 
 module Lobot
 end
