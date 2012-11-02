@@ -29,6 +29,8 @@ module Lobot
     end
 
     def upload(from, to, opts = "--exclude .git")
+      system("ssh-agent > /dev/null")
+      system("ssh-add #{key} > /dev/null")
       system("rsync -avz --delete #{from} ubuntu@#{ip}:#{to} #{opts}")
     end
   end
