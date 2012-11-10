@@ -24,8 +24,6 @@ module Lobot
       system("sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain #{certificate_file.path}")
     end
 
-
-
     private
     def http_client
       @http_client ||=

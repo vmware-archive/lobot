@@ -24,6 +24,7 @@ After you add `gem "lobot"` to your Gemfile, all you'll need to do is run the fo
     lobot bootstrap
     lobot add_build BobTheBuild git@github.com:you/some_repo.git master script/ci_build.sh
     lobot chef
+    lobot trust_certificate     # only if you're on a mac
 
 Read on for an explanation of what each one of these steps does.
 

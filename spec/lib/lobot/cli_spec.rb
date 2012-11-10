@@ -37,9 +37,19 @@ describe Lobot::CLI do
       cli.should_receive(:exec).with("open -a /Applications/Safari.app https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
       cli.open
     end
+  end
 
-    it "adds the ssl key" do
-      pending "keychain needs to be used"
+  describe "#trust_certificate" do
+    let(:keychain) { Lobot::Keychain.new("/Library/Keychains/System.keychain") }
+    before { lobot_config.master = "192.168.99.99" }
+
+    it "adds the key to the keychain" do
+      fake_keychain = double(:keychain)
+      fake_keychain.should_receive(:fetch_remote_certificate).with("https://#{lobot_config.master}/").and_return("IAMACERTIFICATE")
+      fake_keychain.should_receive(:add_certificate).with("IAMACERTIFICATE")
+      Lobot::Keychain.should_receive(:new).with("/Library/Keychains/System.keychain").and_return(fake_keychain)
+
+      cli.trust_certificate
     end
   end
 

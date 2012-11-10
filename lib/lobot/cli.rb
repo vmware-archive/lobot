@@ -103,6 +103,13 @@ module Lobot
       lobot_config.save
     end
 
+    desc "trust_certificate", "Adds the current master's certificate to your OSX keychain"
+    def trust_certificate
+      keychain = Keychain.new("/Library/Keychains/System.keychain")
+      certificate_contents = keychain.fetch_remote_certificate("https://#{lobot_config.master}/")
+      keychain.add_certificate(certificate_contents)
+    end
+
     no_tasks do
       def master_server
         @master_server ||= Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key)
