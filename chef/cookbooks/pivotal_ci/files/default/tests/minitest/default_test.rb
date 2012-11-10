@@ -1,4 +1,4 @@
-describe_recipe "pivotal_ci::jenkins" do
+describe "pivotal_ci::jenkins" do
   include MiniTest::Chef::Assertions
   include MiniTest::Chef::Context
   include MiniTest::Chef::Resources
@@ -16,7 +16,11 @@ describe_recipe "pivotal_ci::jenkins" do
   end
 end
 
-describe_recipe "pivotal_ci::default" do
+describe "pivotal_ci::default" do
+  include MiniTest::Chef::Assertions
+  include MiniTest::Chef::Context
+  include MiniTest::Chef::Resources
+
   def wait_for(match, options="")
     Timeout.timeout(10) do
       sleep 1 until `curl #{options} -ks https://localhost/` =~ match

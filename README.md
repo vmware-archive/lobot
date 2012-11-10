@@ -9,9 +9,7 @@ Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely
 
 # Lobot 2.0 Warning
 
-Please note these instructions are the for the prerelease *Lobot 2.0.0pre*.  Please report any issues you encounter by opening a github issue.
-
-
+Please note these instructions are the for the *prerelease Lobot 2.0*.  Please report any issues you encounter by opening a github issue.
 
 # What do I get?
 
@@ -50,6 +48,18 @@ Create a config/lobot.yml file in your project:
         basic_auth_password: password
 
 See [https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key](https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key) to generate AWS key/secret.
+
+Then, create a build script in `script/ci_build.sh`:
+
+    #!/bin/bash -l
+    source .rvmrc
+
+    set -e
+
+    gem install bundler --no-ri --no-rdoc && bundle install
+
+    RAILS_ENV=test rake db:migrate
+    rake
 
 ## Adjust Defaults (Optional)
 

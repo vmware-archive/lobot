@@ -3,6 +3,7 @@ require "lobot/config"
 require "lobot/sobo"
 require "lobot/amazon"
 require "lobot/jenkins"
+require "lobot/keychain"
 require "pp"
 require "tempfile"
 require "json"
@@ -65,6 +66,11 @@ module Lobot
       pp lobot_config.to_hash
     end
 
+    desc "certificate", "Dump the certificate"
+    def certificate
+      p keychain.fetch_remote_certificate("https://#{lobot_config.master}")
+    end
+
     desc "bootstrap", "Configures Lobot's master node"
     def bootstrap
       sync_bootstrap_script
@@ -110,6 +116,10 @@ module Lobot
         @amazon ||= Lobot::Amazon.new(lobot_config.aws_key, lobot_config.aws_secret)
       end
 
+      def keychain
+        @keychain ||= Lobot::Keychain.new("/Library/Keychains/System.keychain")
+      end
+
       def sync_bootstrap_script
         master_server.upload(File.join(lobot_root_path, "script/"), "script/")
       end
@@ -140,9 +150,13 @@ module Lobot
       File.expand_path("config/lobot.yml", Dir.pwd)
     end
 
+    def known_hosts_path
+      File.expand_path('~/.ssh/known_hosts')
+    end
+
     def update_known_hosts
-      raise "failed to remove old host key from known_hosts" unless system "ssh-keygen -R #{lobot_config.master} 2> /dev/null"
-      raise "failed to add host key to known_hosts" unless system "ssh-keyscan #{lobot_config.master} 2> /dev/null >> ~/.ssh/known_hosts"
+      raise "failed to remove old host key from known_hosts" unless system "ssh-keygen -R #{lobot_config.master} -f #{known_hosts_path} 2> /dev/null"
+      raise "failed to add host key to known_hosts" unless system "ssh-keyscan #{lobot_config.master} 2> /dev/null >> #{known_hosts_path}"
     end
   end
 end

@@ -37,6 +37,10 @@ describe Lobot::CLI do
       cli.should_receive(:exec).with("open -a /Applications/Safari.app https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
       cli.open
     end
+
+    it "adds the ssl key" do
+      pending "keychain needs to be used"
+    end
   end
 
   describe "#add_build" do
@@ -83,19 +87,26 @@ describe Lobot::CLI do
 
   shared_examples_for "a start command that updates known_hosts" do
     let(:key) { "AAAAB3NzaC1yc2EAAAADAQABAAABAQDjhJ/xZCgVhq9Xk+3DKJZ6tcgyIHcIXKSzu6Z/EK1uykyHeP/i7CwwKgiAv7lAV7B4UiUMHUm2nEiguog9VtYc6mc0g1N829lnuMhPRyOTb0SSYTNEN7Uuwy10cuq3Rd/9QAdxNV/voQW3Rl60BFzZvzp8UxJzCXFT1NmB+0W45X7Ypstv0oVV/EdyJJUuoPijQ097A4kHt6KUThKzxhagh1UrVTCE6eccscxuuRPX3yCEf8cUaVrKtuSE3vZnBcmSOY92zA4NV/YdJYNPIrKyCvWb/R+nC4R0pQNqv1gSEqPT51wYxKnvmIPFGntKaJSN2qmMlvs/AlFnFOeUsUFN" }
+    let(:known_hosts_path) { Tempfile.new("known_hosts").path }
 
     def known_hosts_contents
-      File.read(File.expand_path('~/.ssh/known_hosts'))
+      File.read(File.expand_path(known_hosts_path))
+    end
+
+    before do
+      cli.stub(:known_hosts_path) { known_hosts_path }
     end
 
     it "clears out the entry in knownhosts as this is a new box but the ip may be recycled" do
-      system "echo '#{ip_address} ssh-rsa #{key}' >> ~/.ssh/known_hosts"
+      system "echo '#{ip_address} ssh-rsa #{key}' >> #{known_hosts_path}"
+      action # Our vagrant box resets the first ssh connection. :-(
       action
       known_hosts_contents.should_not include(key)
       known_hosts_contents.should include(ip_address)
     end
 
     it "doesn't mess with other entries" do
+      action
       expect { action }.not_to change { known_hosts_contents }
     end
   end
