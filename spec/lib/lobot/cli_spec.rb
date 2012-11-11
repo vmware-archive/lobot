@@ -195,9 +195,9 @@ describe Lobot::CLI do
 
     it "installs all necessary packages, installs rvm and sets up the user" do
       cli.bootstrap
-      sobo.exec!("dpkg --get-selections").should include("libncurses5-dev")
-      sobo.exec!("ls /usr/local/rvm/").should_not be_empty
-      sobo.exec!("groups ubuntu").should include("rvm")
+      sobo.backtick("dpkg --get-selections").should include("libncurses5-dev")
+      sobo.backtick("ls /usr/local/rvm/").should_not be_empty
+      sobo.backtick("groups ubuntu").should include("rvm")
     end
   end
 
@@ -220,9 +220,9 @@ describe Lobot::CLI do
       cli.lobot_config.recipes = ["pivotal_ci::jenkins", "pivotal_ci::id_rsa", "pivotal_ci::git_config", "sysctl", "pivotal_ci::jenkins_config"]
       cli.chef
 
-      sobo.exec!("ls /var/lib/").should include "jenkins"
-      sobo.exec!("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
-      sobo.exec!("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == File.read(lobot_config.github_ssh_key)
+      sobo.backtick("ls /var/lib/").should include "jenkins"
+      sobo.backtick("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
+      sobo.backtick("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == File.read(lobot_config.github_ssh_key)
 
       godot.wait!
       godot.match!(/Bob/, 'api/json')

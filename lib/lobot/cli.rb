@@ -74,7 +74,7 @@ module Lobot
     desc "bootstrap", "Configures Lobot's master node"
     def bootstrap
       sync_bootstrap_script
-      master_server.exec("bash -l script/bootstrap_server.sh")
+      master_server.system!("bash -l script/bootstrap_server.sh")
     rescue Errno::ECONNRESET
       sleep 1
     end
@@ -84,7 +84,7 @@ module Lobot
       sync_chef_recipes
       upload_soloist
       sync_github_ssh_key
-      master_server.exec("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
+      master_server.system!("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
     rescue Errno::ECONNRESET
       sleep 1
     end
