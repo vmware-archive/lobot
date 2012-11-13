@@ -44,6 +44,10 @@ Create a config/lobot.yml file in your project:
     aws_key: <your AWS Key>
     aws_secret: <your AWS Secret>
     node_attributes:
+      travis_build_environment:
+        user: jenkins
+        group: nogroup
+        home: /var/lib/jenkins
       nginx:
         basic_auth_user: ci
         basic_auth_password: password
