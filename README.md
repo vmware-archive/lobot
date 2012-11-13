@@ -131,6 +131,12 @@ end
 * hashie
 * net-ssh
 
+## Forking
+
+Please be aware that Lobot uses git submodules.  In order to git source Lobot in your `Gemfile`, you will need the following line:
+
+    gem "lobot", :github => "pivotal/lobot", :submodules => true
+
 ## Testing
 
 Lobot is tested using rspec, vagrant and test kitchen.  You will need to set environment variables with your AWS credentials to run tests which rely on ec2:
