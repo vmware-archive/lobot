@@ -39,8 +39,8 @@ Add lobot to your Gemfile, in the development group:
 Create a config/lobot.yml file in your project:
 
     ---
-    server_ssh_key: ~/.ssh/id_rsa
-    github_ssh_key: ~/.ssh/id_rsa
+    server_ssh_key: /Users/you/.ssh/id_rsa
+    github_ssh_key: /Users/you/.ssh/id_rsa
     aws_key: <your AWS Key>
     aws_secret: <your AWS Secret>
     node_attributes:
