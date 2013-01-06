@@ -4,6 +4,7 @@ require "lobot/sobo"
 require "lobot/amazon"
 require "lobot/jenkins"
 require "lobot/keychain"
+require "lobot/known_hosts"
 require "pp"
 require "tempfile"
 require "json"
@@ -161,9 +162,17 @@ module Lobot
       File.expand_path('~/.ssh/known_hosts')
     end
 
+    def known_hosts
+      Lobot::KnownHosts.new(known_hosts_path)
+    end
+
     def update_known_hosts
-      raise "failed to remove old host key from known_hosts" unless system "ssh-keygen -R #{lobot_config.master} -f #{known_hosts_path} 2> /dev/null"
-      raise "failed to add host key to known_hosts" unless system "ssh-keyscan #{lobot_config.master} 2> /dev/null >> #{known_hosts_path}"
+      if known_hosts.include?(lobot_config.master)
+        known_hosts.remove(lobot_config.master)
+      end
+
+      known_hosts.add(lobot_config.master, 
+                      Lobot::KnownHosts.key_for(lobot_config.master))
     end
   end
 end
