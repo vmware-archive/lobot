@@ -63,10 +63,15 @@ Then, create a build script in `script/ci_build.sh`:
 
     set -e
 
+    # uncomment this if you are using capybara webkit
+    # Xvfb :99 -ac &
+    # export DISPLAY=:99
+    
     gem install bundler --no-ri --no-rdoc && bundle install
 
-    RAILS_ENV=test rake db:migrate
-    rake
+    RAILS_ENV=test bundle exec rake db:create db:migrate db:test:prepare
+    bundle exec rake
+
 
 ## Adjust Defaults (Optional)
 
