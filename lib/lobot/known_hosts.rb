@@ -6,7 +6,7 @@ module Lobot
 
     def self.key_for(host)
       blob = `ssh-keyscan #{host} 2> /dev/null`.chomp.split(' ').last
-      Net::SSH::Buffer.new(blob.unpack("m*").first).read_key
+      Net::SSH::Buffer.new(blob.unpack("m*").first).read_key if blob
     end
 
     def initialize(path)

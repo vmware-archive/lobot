@@ -129,13 +129,19 @@ describe Lobot::CLI do
     end
 
     context "with a fake amazon" do
-      let(:ip_address) { "192.168.33.10" }
+      let(:ip_address) { "127.0.0.1" }
       let(:server) { double("server", :public_ip_address => ip_address).as_null_object }
       let(:amazon) { double("AMZN", :launch_server => server).as_null_object }
 
       before { cli.stub(:amazon).and_return(amazon) }
 
       def action
+        cli.create
+      end
+
+      it "uses the configured key pair" do
+        cli.lobot_config.keypair_name = 'my_key_pair'
+        amazon.should_receive(:add_key_pair).with("my_key_pair", File.expand_path("#{cli.lobot_config.server_ssh_key}.pub"))
         cli.create
       end
 

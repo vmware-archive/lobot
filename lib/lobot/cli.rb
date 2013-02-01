@@ -25,7 +25,7 @@ module Lobot
     def create
       ssh_key_path = File.expand_path("#{lobot_config.server_ssh_key}.pub")
 
-      amazon.add_key_pair("lobot", ssh_key_path)
+      amazon.add_key_pair(lobot_config.keypair_name, ssh_key_path)
       amazon.create_security_group("lobot")
       amazon.open_port("lobot", 22, 443)
       server = amazon.launch_server("lobot", "lobot", lobot_config.instance_size)
@@ -171,8 +171,8 @@ module Lobot
         known_hosts.remove(lobot_config.master)
       end
 
-      known_hosts.add(lobot_config.master, 
-                      Lobot::KnownHosts.key_for(lobot_config.master))
+      key = Lobot::KnownHosts.key_for(lobot_config.master)
+      known_hosts.add(lobot_config.master, key) if key
     end
   end
 end
