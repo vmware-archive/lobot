@@ -85,6 +85,7 @@ module Lobot
       sync_chef_recipes
       upload_soloist
       sync_github_ssh_key
+      master_server.system!("bash -l -c 'rvm use 1.9.3; gem list | grep chef  || gem install -v 10.18.2 --no-ri --no-rdoc chef'")
       master_server.system!("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
     rescue Errno::ECONNRESET
       sleep 1
