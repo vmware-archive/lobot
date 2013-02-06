@@ -54,8 +54,8 @@ describe Lobot::Config do
 
   describe "defaults" do
     its(:ssh_port) { should == 22 }
-    its(:server_ssh_key) { should =~ /id_rsa$/ }
-    its(:github_ssh_key) { should =~ /id_rsa$/ }
+    its(:server_ssh_key) { should =~ /^\/.*id_rsa$/ }
+    its(:github_ssh_key) { should =~ /^\/.*id_rsa$/ }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment'] }
     its(:instance_size) { should == 'c1.medium' }

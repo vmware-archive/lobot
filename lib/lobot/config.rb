@@ -10,8 +10,8 @@ module Lobot
 
     property :instance_size, :default => 'c1.medium'
     property :ssh_port, :default => 22
-    property :server_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")
-    property :github_ssh_key, :default => File.expand_path("~/.ssh/id_rsa")
+    property :server_ssh_key, :default => "~/.ssh/id_rsa"
+    property :github_ssh_key, :default => "~/.ssh/id_rsa"
     property :keypair_name, :default => "lobot"
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment']
@@ -28,6 +28,14 @@ module Lobot
         :builds => []
       }
     }
+
+    def github_ssh_key
+      File.expand_path(self[:github_ssh_key])
+    end
+
+    def server_ssh_key
+      File.expand_path(self[:server_ssh_key])
+    end
 
     def initialize(attributes = {})
       super

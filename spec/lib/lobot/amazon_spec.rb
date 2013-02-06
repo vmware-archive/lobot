@@ -5,6 +5,10 @@ describe Lobot::Amazon, :slow => true do
   let(:amazon) { Lobot::Amazon.new(ENV["EC2_KEY"], ENV["EC2_SECRET"]) }
   let(:fog) { amazon.send(:fog) }
 
+  before do
+    pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
+  end
+
   describe "#create_security_group" do
     context "when there is no existing security group" do
       it "creates a security group" do

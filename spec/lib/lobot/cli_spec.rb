@@ -123,6 +123,7 @@ describe Lobot::CLI do
 
   describe "#create", :slow => true do
     it "launches an instance and associates elastic ip" do
+      pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
       cli.lobot_config.instance_size = 't1.micro'
       expect { cli.create }.to change { lobot_config.master }.from(nil)
       expect { cli.destroy_ec2 }.to change { lobot_config.master }.to(nil)
