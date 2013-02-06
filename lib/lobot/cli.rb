@@ -28,7 +28,7 @@ module Lobot
       amazon.add_key_pair(lobot_config.keypair_name, ssh_key_path)
       amazon.create_security_group("lobot")
       amazon.open_port("lobot", 22, 443)
-      server = amazon.launch_server("lobot", "lobot", lobot_config.instance_size)
+      server = amazon.launch_server(lobot_config.keypair_name, "lobot", lobot_config.instance_size)
 
       puts "Writing ip address for ec2: #{server.public_ip_address}"
       lobot_config.master = server.public_ip_address
