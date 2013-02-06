@@ -56,7 +56,7 @@ module Lobot
       servers.create(
         :image_id => "ami-a29943cb",
         :flavor_id => instance_type,
-        :availability_zone => "us-east-1a",
+        :availability_zone => "us-east-1b",
         :tags => {"Name" => "Lobot", "lobot" => Lobot::VERSION},
         :key_name => key_pair_name,
         :groups => [security_group_name]
