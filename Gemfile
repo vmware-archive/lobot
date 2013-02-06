@@ -1,6 +1,6 @@
-source "http://rubygems.org"
+source :rubygems
 
-gem "builder", "~> 3.0.0" # Bundler goes into an infinite loop looking for this dep.  Feel free to remove.
+#gem "builder", "~> 3.0.0" # Bundler occasionally goes into an infinite loop looking for this dep if version isn't specified.
 
 # Specify your gem's dependencies in lobot.gemspec
 gemspec

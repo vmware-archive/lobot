@@ -15,7 +15,6 @@ Gem::Specification.new do |s|
   s.rubyforge_project = "lobot"
 
   s.files         = `git ls-files`.split("\n") + `cd chef/travis-cookbooks && git ls-files`.split("\n").map { |f| "chef/travis-cookbooks/#{f}" }
-  s.test_files    = `git ls-files -- {test,spec,features}`.split("\n")
   s.executables   = `git ls-files -- bin`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 

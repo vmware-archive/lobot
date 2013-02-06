@@ -1,0 +1,4 @@
+source :rubygems
+
+gem 'soloist', '0.9.7'
+gem 'chef', '~> 10.18.2'

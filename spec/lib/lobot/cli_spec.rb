@@ -233,15 +233,24 @@ describe Lobot::CLI do
       cli.create_vagrant
       cli.bootstrap
       cli.add_build(name, repository, branch, command)
+      FileUtils.mkdir_p("/tmp/lobot_dummy/cookbooks/pork/recipes/")
+      File.write("/tmp/lobot_dummy/cookbooks/pork/recipes/bacon.rb", "package 'htop'")
+    end
+
+    after do
+      FileUtils.rm_rf("/tmp/lobot_dummy")
     end
 
     it "runs chef" do
-      cli.lobot_config.recipes = ["pivotal_ci::jenkins", "pivotal_ci::id_rsa", "pivotal_ci::git_config", "sysctl", "pivotal_ci::jenkins_config"]
-      cli.chef
+      Dir.chdir('/tmp/lobot_dummy/') do
+        cli.lobot_config.recipes = ["pivotal_ci::jenkins", "pivotal_ci::id_rsa", "pivotal_ci::git_config", "sysctl", "pivotal_ci::jenkins_config", "pork::bacon"]
+        cli.chef
+      end
 
       sobo.backtick("ls /var/lib/").should include "jenkins"
       sobo.backtick("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
       sobo.backtick("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == File.read(lobot_config.github_ssh_key)
+      sobo.system("dpkg -l htop").should == 0
 
       godot.wait!
       godot.match!(/Bob/, 'api/json')

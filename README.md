@@ -108,6 +108,14 @@ Because we're using the cookbooks from Travis CI, you can look through [all the 
 Your lobot instance should now be up and running. You will be able to access your CI server at: http://&lt;your instance address&gt;/ with the username and password you chose during configuration.
 For more information about Jenkins CI, see [http://jenkins-ci.org](http://jenkins-ci.org).
 
+## Custom Chef Recipes
+
+If you need to write your own chef recipes to install your project's dependencies, you can add a cookbooks directory to
+the root of your project.  Make sure to delete the cookbook_paths section from your lobot.yml (to use the default values),
+or add ./chef/project-cookbooks to the cookbook_paths section.
+
+So, to have a bacon recipe, you should have cookbooks/pork/recipes/bacon.rb file in your repository.
+
 ## Troubleshooting
 
 Shell access for your instance

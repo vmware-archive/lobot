@@ -85,8 +85,8 @@ module Lobot
       sync_chef_recipes
       upload_soloist
       sync_github_ssh_key
-      master_server.system!("bash -l -c 'rvm use 1.9.3; gem list | grep soloist || gem install --no-ri --no-rdoc soloist; soloist'")
-    rescue Errno::ECONNRESET
+      master_server.upload(File.expand_path('../../../templates/Gemfile-remote', __FILE__), 'Gemfile')
+      master_server.system!("bash -l -c 'rvm use 1.9.3; bundle install; soloist'")    rescue Errno::ECONNRESET
       sleep 1
     end
 
@@ -140,6 +140,7 @@ module Lobot
 
       def sync_chef_recipes
         master_server.upload(File.join(lobot_root_path, "chef/"), "chef/")
+        master_server.upload("cookbooks/", "chef/project-cookbooks/")
       end
 
       def upload_soloist
