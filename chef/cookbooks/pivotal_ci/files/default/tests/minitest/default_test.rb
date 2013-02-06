@@ -16,6 +16,40 @@ describe "pivotal_ci::jenkins" do
   end
 end
 
+describe "pivotal_ci::id_rsa" do
+  include MiniTest::Chef::Assertions
+  include MiniTest::Chef::Context
+  include MiniTest::Chef::Resources
+
+  describe ".ssh/id_rsa" do
+    it "exists" do
+      file("/var/lib/jenkins/.ssh/id_rsa").must_exist
+    end
+
+    it "is user-writable" do
+      file("/var/lib/jenkins/.ssh/id_rsa").must_have(:mode, "600")
+    end
+
+    it "is owned by jenkins" do
+      file("/var/lib/jenkins/.ssh/id_rsa").must_have(:user, "jenkins")
+    end
+  end
+
+  describe ".ssh/known_hosts" do
+    it "exists" do
+      file("/var/lib/jenkins/.ssh/known_hosts").must_exist
+    end
+
+    it "is user-writable" do
+      file("/var/lib/jenkins/.ssh/known_hosts").must_have(:mode, "600")
+    end
+
+    it "is owned by jenkins" do
+      file("/var/lib/jenkins/.ssh/known_hosts").must_have(:user, "jenkins")
+    end
+  end
+end
+
 describe "pivotal_ci::default" do
   include MiniTest::Chef::Assertions
   include MiniTest::Chef::Context
