@@ -65,8 +65,8 @@ Then, create a build script in `script/ci_build.sh`:
 
     gem install bundler --no-ri --no-rdoc && bundle install
 
-    RAILS_ENV=test rake db:migrate
-    rake
+    RAILS_ENV=test bundle exec rake db:migrate
+    bundle exec rake
 
 ## Adjust Defaults (Optional)
 
