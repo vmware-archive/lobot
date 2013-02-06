@@ -92,6 +92,8 @@ module Lobot
 
     desc "add_build(name, repository, branch, command)", "Adds a build to Lobot"
     def add_build(name, repository, branch, command)
+      raise lobot_config.errors.join(" and ") unless lobot_config.valid?
+
       build = {
         "name" => name,
         "repository" => repository,

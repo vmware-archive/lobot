@@ -59,38 +59,50 @@ describe Lobot::CLI do
     let(:branch) { "master" }
     let(:command) { "script/ci_build.sh" }
 
-    it "adds a build to the node attributes" do
-      cli.add_build(name, repository, branch, command)
-      lobot_config.node_attributes.jenkins.builds.should =~ [{
-        "name" => "bob",
-        "repository" => "http://github.com/mkocher/soloist.git",
-        "command" => "script/ci_build.sh",
-        "branch" => "master"
-      }]
+    context "when the config is invalid" do
+      before { lobot_config.node_attributes.jenkins = {} }
+
+      it "blows the hell up" do
+        expect do
+          cli.add_build(name, repository, branch, command)
+        end.to raise_error %r{your config file does not have a}
+      end
     end
 
-    it "does not add a build twice with identical parameters" do
-      cli.add_build(name, repository, branch, command)
-      cli.add_build(name, repository, branch, command)
-      lobot_config.node_attributes.jenkins.builds.should =~ [{
-        "name" => "bob",
-        "repository" => "http://github.com/mkocher/soloist.git",
-        "command" => "script/ci_build.sh",
-        "branch" => "master"
-      }]
-    end
-
-    context "with persisted configuration data" do
-      let(:lobot_config) { Lobot::Config.from_file(tempfile.path) }
-
-      def builds
-        cli.lobot_config.reload.node_attributes.jenkins.builds
+    context "when the config is valid" do
+      it "adds a build to the node attributes" do
+        cli.add_build(name, repository, branch, command)
+        lobot_config.node_attributes.jenkins.builds.should =~ [{
+          "name" => "bob",
+          "repository" => "http://github.com/mkocher/soloist.git",
+          "command" => "script/ci_build.sh",
+          "branch" => "master"
+        }]
       end
 
-      it "persists a build" do
+      it "does not add a build twice with identical parameters" do
         cli.add_build(name, repository, branch, command)
-        builds.should_not be_nil
-        builds.should_not be_empty
+        cli.add_build(name, repository, branch, command)
+        lobot_config.node_attributes.jenkins.builds.should =~ [{
+          "name" => "bob",
+          "repository" => "http://github.com/mkocher/soloist.git",
+          "command" => "script/ci_build.sh",
+          "branch" => "master"
+        }]
+      end
+
+      context "with persisted configuration data" do
+        let(:lobot_config) { Lobot::Config.from_file(tempfile.path) }
+
+        def builds
+          cli.lobot_config.reload.node_attributes.jenkins.builds
+        end
+
+        it "persists a build" do
+          cli.add_build(name, repository, branch, command)
+          builds.should_not be_nil
+          builds.should_not be_empty
+        end
       end
     end
   end

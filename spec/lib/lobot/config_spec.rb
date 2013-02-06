@@ -14,6 +14,33 @@ describe Lobot::Config do
 
     let(:config) { Lobot::Config.from_file(tempfile.path) }
 
+    describe "#valid?" do
+      it "returns true by default" do
+        config.should be_valid
+        config.errors.should be_empty
+      end
+
+      context "when there is no jenkins config" do
+        let(:config_contents) { {node_attributes: {}} }
+
+        it "returns false" do
+          config.should_not be_valid
+        end
+      end
+
+      context "when jenkins config has no builds" do
+        let(:config_contents) { {node_attributes: {jenkins: {}}} }
+
+        it "returns false" do
+          config.should_not be_valid
+        end
+
+        it "has a useful error message" do
+          config.errors.should include("your config file does not have a [:node_attributes][:jenkins][:builds] key")
+        end
+      end
+    end
+
     describe ".from_file" do
       it "loads from a yaml file" do
         config.ssh_port.should == 42

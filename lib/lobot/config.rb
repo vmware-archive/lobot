@@ -29,21 +29,37 @@ module Lobot
       }
     }
 
-    def github_ssh_key
-      File.expand_path(self[:github_ssh_key])
-    end
-
-    def server_ssh_key
-      File.expand_path(self[:server_ssh_key])
-    end
-
     def initialize(attributes = {})
       super
       self["node_attributes"] = Hashie::Mash.new(node_attributes)
     end
 
+    def github_ssh_key
+      File.expand_path(self["github_ssh_key"])
+    end
+
+    def server_ssh_key
+      File.expand_path(self["server_ssh_key"])
+    end
+
     def node_attributes=(attributes)
       self["node_attributes"] = Hashie::Mash.new(attributes)
+    end
+
+    def valid?
+      errors.empty?
+    end
+
+    def errors
+      messages = []
+      if node_attributes.has_key?("jenkins")
+        unless node_attributes.jenkins.has_key?("builds")
+          messages << "[:node_attributes][:jenkins][:builds]"
+        end
+      else
+        messages << "[:node_attributes][:jenkins]"
+      end
+      messages.map{ |path| "your config file does not have a #{path} key" }
     end
 
     def soloistrc
