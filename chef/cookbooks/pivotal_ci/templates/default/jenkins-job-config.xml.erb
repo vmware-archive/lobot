@@ -51,7 +51,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command><%= @command %></command>
+      <command><%= CGI.escapeHTML @command %></command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

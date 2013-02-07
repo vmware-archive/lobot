@@ -32,6 +32,7 @@ node["jenkins"]["builds"].each do |build|
     owner "jenkins"
   end
 
+  require "cgi"
   template "#{node["jenkins"]["home"]}/jobs/#{build['name']}/config.xml" do
     source "jenkins-job-config.xml.erb"
     owner "jenkins"
