@@ -37,10 +37,12 @@ node["jenkins"]["builds"].each do |build|
     source "jenkins-job-config.xml.erb"
     owner "jenkins"
     notifies :restart, "service[jenkins]"
+    junit_publisher = build['junit_publisher'].nil? ? true : build['junit_publisher']
     variables(
       :branch => build['branch'],
       :command => build['command'],
-      :repository => build['repository']
+      :repository => build['repository'],
+      :junit_publisher => junit_publisher
     )
   end
 end
