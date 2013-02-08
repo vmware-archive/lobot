@@ -76,7 +76,8 @@ describe Lobot::CLI do
           "name" => "bob",
           "repository" => "http://github.com/mkocher/soloist.git",
           "command" => "script/ci_build.sh",
-          "branch" => "master"
+          "branch" => "master",
+          "junit_publisher" => true
         }]
       end
 
@@ -87,7 +88,8 @@ describe Lobot::CLI do
           "name" => "bob",
           "repository" => "http://github.com/mkocher/soloist.git",
           "command" => "script/ci_build.sh",
-          "branch" => "master"
+          "branch" => "master",
+          "junit_publisher" => true
         }]
       end
 

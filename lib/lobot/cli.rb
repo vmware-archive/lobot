@@ -98,7 +98,8 @@ module Lobot
         "name" => name,
         "repository" => repository,
         "branch" => branch,
-        "command" => command
+        "command" => command,
+        "junit_publisher" => true
       }
       lobot_config.node_attributes = lobot_config.node_attributes.tap do |config|
         config.jenkins.builds << build unless config.jenkins.builds.include?(build)
