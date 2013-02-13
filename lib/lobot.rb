@@ -1,4 +1,9 @@
 require "lobot/version"
-
-module Lobot
-end
+require "lobot/config"
+require "lobot/sobo"
+require "lobot/amazon"
+require "lobot/jenkins"
+require "lobot/keychain"
+require "lobot/known_hosts"
+require "lobot/generator"
+require "lobot/cli"

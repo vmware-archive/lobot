@@ -94,8 +94,9 @@ module Lobot
     end
 
     def self.from_file(yaml_file)
-      config = read_config(yaml_file)
-      self.new(config.merge(:path => yaml_file))
+      config = {:path => yaml_file}
+      config.merge!(read_config(yaml_file)) if File.exists?(yaml_file)
+      self.new(config)
     end
 
     def self.read_config(yaml_file)

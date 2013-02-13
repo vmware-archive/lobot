@@ -45,6 +45,14 @@ describe Lobot::Config do
       it "loads from a yaml file" do
         config.ssh_port.should == 42
       end
+
+      context "when the yaml file does not exist" do
+        let(:config) { Lobot::Config.from_file("#{tempfile.path}-nonexistent") }
+
+        it "does not load from a yaml file" do
+          config.ssh_port.should == 22
+        end
+      end
     end
 
     describe "#save" do
@@ -84,7 +92,7 @@ describe Lobot::Config do
     its(:server_ssh_key) { should =~ /^\/.*id_rsa$/ }
     its(:github_ssh_key) { should =~ /^\/.*id_rsa$/ }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
-    its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment'] }
+    its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks'] }
     its(:instance_size) { should == 'c1.medium' }
     its(:keypair_name) { should == 'lobot' }
 
