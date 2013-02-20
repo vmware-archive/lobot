@@ -1,4 +1,5 @@
 require "thor"
+require "godot"
 
 module Lobot
   class Clippy < ::Thor
@@ -56,12 +57,12 @@ module Lobot
       def prompt_for_amazon_create
         return unless config.master.nil?
         cli.create if yes?("Would you like to start an instance on AWS?")
+        Godot.new(config.reload.master, 22, :timeout => 180).wait!
         say("Instance launched.")
       end
 
       def provision_server
-        @config = config.reload
-        return if config.master.nil?
+        return if config.reload.master.nil?
         say <<-OOTSTRAP.gsub(/^\s*/, '')
           To bootstrap an instance, we upload the bootstrap_server.sh script. This
           script installs the packages necessary to compile ruby, installs RVM, and

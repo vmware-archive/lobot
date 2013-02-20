@@ -240,6 +240,11 @@ describe Lobot::Clippy do
         cli.should_receive(:create)
         clippy.prompt_for_amazon_create
       end
+
+      it "waits for the amazon instance to be alive" do
+        Godot.any_instance.should_receive(:wait!)
+        clippy.prompt_for_amazon_create
+      end
     end
 
     context "when there is an instance in the config" do
