@@ -1,10 +1,11 @@
 require "thor"
 
 module Lobot
-  class Generator < ::Thor
-    default_task :generate
+  class Clippy < ::Thor
+    default_task :clippy
 
-    def generate
+    desc "clippy", "One of the worst software design blunders in the annals of computing"
+    def clippy
       return unless yes?("It looks like you're trying to set up a CI Box. Can I help?")
       prompt_for_aws
       prompt_for_basic_auth

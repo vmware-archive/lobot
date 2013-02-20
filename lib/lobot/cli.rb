@@ -1,10 +1,14 @@
 require "thor"
+require "thor/group"
 require "pp"
 require "tempfile"
 require "json"
+require "lobot/clippy"
 
 module Lobot
-  class CLI < Thor
+  class CLI < ::Thor
+    register(Clippy, "clippy", "clippy", "One of the worst software design blunders in the annals of computing.")
+
     desc "ssh", "SSH into Lobot"
     def ssh
       exec("ssh -i #{lobot_config.server_ssh_key} ubuntu@#{lobot_config.master} -p #{lobot_config.ssh_port}")

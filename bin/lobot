@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 $: << File.expand_path('../../lib', __FILE__)
 
-require "rubygems"
 require "lobot"
-require "lobot/cli"
-
 Lobot::CLI.start
