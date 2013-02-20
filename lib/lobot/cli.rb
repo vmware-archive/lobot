@@ -28,7 +28,7 @@ module Lobot
       amazon.open_port("lobot", 22, 443)
       server = amazon.launch_server(lobot_config.keypair_name, "lobot", lobot_config.instance_size)
 
-      puts "Writing ip address for ec2: #{server.public_ip_address}"
+      say("Writing ip address for ec2: #{server.public_ip_address}")
       lobot_config.master = server.public_ip_address
       lobot_config.instance_id = server.id
       lobot_config.save
@@ -53,7 +53,7 @@ module Lobot
 
       vagrant_ip = "192.168.33.10"
 
-      puts "Writing ip address for vagrant: #{vagrant_ip}"
+      say("Writing ip address for vagrant: #{vagrant_ip}")
       lobot_config.master = vagrant_ip
       lobot_config.save
 
@@ -62,12 +62,12 @@ module Lobot
 
     desc "config", "Dumps all configuration data for Lobot"
     def config
-      pp lobot_config.to_hash
+      say(lobot_config.to_hash.inspect)
     end
 
     desc "certificate", "Dump the certificate"
     def certificate
-      p keychain.fetch_remote_certificate("https://#{lobot_config.master}")
+      say(keychain.fetch_remote_certificate("https://#{lobot_config.master}"))
     end
 
     desc "bootstrap", "Configures Lobot's master node"

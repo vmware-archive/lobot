@@ -11,7 +11,10 @@ module Lobot
       prompt_for_basic_auth
       prompt_for_ssh_key
       prompt_for_github_key
+      prompt_for_build
       config.save
+      prompt_for_amazon_create
+      provision_server
     end
 
     no_tasks do
@@ -22,6 +25,7 @@ module Lobot
       end
 
       def prompt_for_aws
+        say("For your AWS Access Key and Secret, see https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key")
         config.aws_key = ask_with_default("Your AWS key", config.aws_key)
         config.aws_secret = ask_with_default("Your AWS secret key", config.aws_secret)
       end
@@ -39,6 +43,44 @@ module Lobot
         config.github_ssh_key = ask_with_default("Path to a SSH key authorized to clone the repository", config.github_ssh_key)
       end
 
+      def prompt_for_build
+        build = config.node_attributes.jenkins.builds.first || {}
+        config.node_attributes.jenkins.builds[0] = {
+          "name" => ask_with_default("What would you like to name your build?", build["name"]),
+          "repository" => ask_with_default("What is the address of your git repository?", build["repository"]),
+          "command" => ask_with_default("What command should be run during the build?", build["command"]),
+          "branch" => "master"
+        }
+      end
+
+      def prompt_for_amazon_create
+        return unless config.master.nil?
+        cli.create if yes?("Would you like to start an instance on AWS?")
+        say("Instance launched.")
+      end
+
+      def provision_server
+        @config = config.reload
+        return if config.master.nil?
+        say <<-OOTSTRAP.gsub(/^\s*/, '')
+          To bootstrap an instance, we upload the bootstrap_server.sh script. This
+          script installs the packages necessary to compile ruby, installs RVM, and
+          adds the ubuntu user to the rvm group.
+
+          Bootstrapping the instance now.
+        OOTSTRAP
+        cli.bootstrap
+
+        say <<-HEF.gsub(/^\s*/, '')
+          Next we'll go ahead and chef the instance.  This involves uploading the chef
+          recipes, and invoking chef-solo via soloist.  Chef will then converge, using
+          the pivotal_ci cookbook and the travis-ci ci_environment cookbooks.
+
+          Running chef-solo now.
+        HEF
+        cli.chef
+      end
+
       def config
         @config ||= Lobot::Config.from_file(lobot_config_path)
       end
@@ -48,6 +90,10 @@ module Lobot
     def lobot_config_path
       FileUtils.mkdir_p(File.join(Dir.pwd, "config"))
       File.expand_path("config/lobot.yml", Dir.pwd)
+    end
+
+    def cli
+      Lobot::CLI.new
     end
   end
 end
