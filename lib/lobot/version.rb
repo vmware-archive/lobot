@@ -1,3 +1,3 @@
 module Lobot
-  VERSION = "2.0.1.pre"
+  VERSION = "2.0.0"
 end
