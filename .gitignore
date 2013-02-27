@@ -2,3 +2,4 @@
 .vagrant
 /spec/reports
 Gemfile.lock
+/config
