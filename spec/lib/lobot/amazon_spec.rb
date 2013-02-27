@@ -87,7 +87,7 @@ describe Lobot::Amazon, :slow => true do
       it "creates an instance" do
         expect { freshly_launched_server }.to change { amazon.servers.reload.count }.by(1)
 
-        freshly_launched_server.availability_zone.should == "us-east-1a"
+        freshly_launched_server.availability_zone.should =~ /us-east-1[abcd]/
         freshly_launched_server.flavor_id.should == "t1.micro"
         freshly_launched_server.tags.should == {"lobot"=>Lobot::VERSION, "Name"=>"Lobot"}
         freshly_launched_server.key_name.should == "eating_my_cookie"
