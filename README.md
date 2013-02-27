@@ -3,6 +3,11 @@ Lobot: Your Chief Administrative Aide on Cloud City
 
 ![Lobot](http://cheffiles.pivotallabs.com/lobot/logo.png)
 
+
+[![Code Climate](https://codeclimate.com/github/pivotal/lobot.png)](https://codeclimate.com/github/pivotal/lobot)
+[![Build Status](https://travis-ci.org/pivotal/lobot.png?branch=master)](https://travis-ci.org/pivotal/lobot)
+
+
 ## Easily create your CI server on EC2
 
 Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins CI for your Rails app on Amazon EC2.
