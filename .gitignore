@@ -3,3 +3,4 @@
 /spec/reports
 Gemfile.lock
 /config
+/pkg
