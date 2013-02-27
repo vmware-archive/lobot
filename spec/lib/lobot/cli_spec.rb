@@ -171,7 +171,7 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#create_vagrant" do
+  describe "#create_vagrant", :vagrant => true do
     before do
       File.open(tempfile.path, "w") do |f|
         f.write(YAML.dump(
