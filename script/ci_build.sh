@@ -1,14 +1,13 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -l
 
-source $HOME/.rvm/scripts/rvm && source .rvmrc
+source .rvmrc
 
 # install bundler if necessary
-gem list --local bundler | grep bundler || gem install bundler || exit 1
+set -e
+
+gem install bundler --no-ri --no-rdoc && bundle install
 
 # debugging info
 echo USER=$USER && ruby --version && which ruby && which bundle
-
-# conditionally install project gems from Gemfile
-bundle check || bundle install || exit 1
 
 bundle exec rspec spec --tag ~slow --tag ~vagrant --tag ~system
