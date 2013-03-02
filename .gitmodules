@@ -1,3 +1,3 @@
 [submodule "chef/travis-cookbooks"]
 	path = chef/travis-cookbooks
-	url = https://github.com/pivotalexperimental/travis-cookbooks
+	url = git://github.com/travis-ci/travis-cookbooks.git
