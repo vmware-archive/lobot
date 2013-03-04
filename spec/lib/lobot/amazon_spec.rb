@@ -13,7 +13,7 @@ describe Lobot::Amazon, :slow => true do
     context "when there is no existing security group" do
       it "creates a security group" do
         amazon.create_security_group("totally_not_a_honeypot")
-        amazon.security_groups.map(&:name).should include "totally_not_a_honeypot"
+        amazon.fog_security_groups.map(&:name).should include "totally_not_a_honeypot"
       end
     end
 
@@ -29,7 +29,7 @@ describe Lobot::Amazon, :slow => true do
   describe "#open_port" do
     before { amazon.create_security_group("bag_of_weasels") }
 
-    let(:group) { amazon.security_groups.get("bag_of_weasels") }
+    let(:group) { amazon.fog_security_groups.get("bag_of_weasels") }
 
     def includes_port?(permissions, ports)
       permissions.any? { |p| (p["fromPort"]..p["toPort"]).include?(80) }
@@ -58,7 +58,7 @@ describe Lobot::Amazon, :slow => true do
 
     it "uploads the key" do
       amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
-      amazon.key_pairs.map(&:name).should include "is_supernuts"
+      amazon.fog_key_pairs.map(&:name).should include "is_supernuts"
     end
 
     context "when the key is already there" do
@@ -85,7 +85,7 @@ describe Lobot::Amazon, :slow => true do
 
     describe "#launch_instance" do
       it "creates an instance" do
-        expect { freshly_launched_server }.to change { amazon.servers.reload.count }.by(1)
+        expect { freshly_launched_server }.to change { amazon.fog_servers.reload.count }.by(1)
 
         freshly_launched_server.availability_zone.should =~ /us-east-1[abcd]/
         freshly_launched_server.flavor_id.should == "t1.micro"

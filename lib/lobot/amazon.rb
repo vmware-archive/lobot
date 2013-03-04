@@ -11,15 +11,15 @@ module Lobot
       @secret = secret
     end
 
-    def security_groups
+    def fog_security_groups
       fog.security_groups
     end
 
-    def key_pairs
+    def fog_key_pairs
       fog.key_pairs
     end
 
-    def servers
+    def fog_servers
       fog.servers
     end
 
@@ -28,13 +28,13 @@ module Lobot
     end
 
     def create_security_group(group_name)
-      unless security_groups.get(group_name)
-        security_groups.create(:name => group_name, :description => 'Lobot-generated group')
+      unless fog_security_groups.get(group_name)
+        fog_security_groups.create(:name => group_name, :description => 'Lobot-generated group')
       end
     end
 
     def open_port(group_name, *ports)
-      group = security_groups.get(group_name)
+      group = fog_security_groups.get(group_name)
       ports.each do |port|
         unless group.ip_permissions.any? { |p| (p["fromPort"]..p["toPort"]).include?(port) }
           group.authorize_port_range(port..port)
@@ -43,15 +43,15 @@ module Lobot
     end
 
     def delete_key_pair(key_pair_name)
-      key_pairs.new(:name => key_pair_name).destroy
+      fog_key_pairs.new(:name => key_pair_name).destroy
     end
 
     def add_key_pair(key_pair_name, key_path)
-      key_pairs.create(:name => key_pair_name, :public_key => File.read("#{key_path}")) unless key_pairs.get(key_pair_name)
+      fog_key_pairs.create(:name => key_pair_name, :public_key => File.read("#{key_path}")) unless fog_key_pairs.get(key_pair_name)
     end
 
     def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium")
-      servers.create(
+      fog_servers.create(
         :image_id => "ami-a29943cb",
         :flavor_id => instance_type,
         :availability_zone => "us-east-1b",
