@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Lobot::Keychain, :system => true do
+describe Lobot::Keychain, :osx => true do
   subject { Lobot::Keychain.new("/Library/Keychains/System.keychain") }
 
   describe "#has_key?" do

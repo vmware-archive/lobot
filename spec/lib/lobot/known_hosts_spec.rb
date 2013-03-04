@@ -7,7 +7,7 @@ describe Lobot::KnownHosts do
 
   subject { Lobot::KnownHosts.new(known_hosts.path) }
 
-  describe ".key_for", :system => true do
+  describe ".key_for", :osx => true do
     let(:local) { `ssh-keyscan localhost 2> /dev/null`.chomp.split(' ').last }
     let(:local_key) { Net::SSH::Buffer.new(local.unpack("m*").first).read_key }
 
