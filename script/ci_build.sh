@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -e
+#!/bin/bash -le
 
 source .rvmrc
 
