@@ -47,9 +47,7 @@ module Lobot
     end
 
     def add_key_pair(key_pair_name, key_path)
-      unless key_pairs.get(key_pair_name)
-        key_pairs.create(:name => key_pair_name, :public_key => File.read("#{key_path}"))
-      end
+      key_pairs.create(:name => key_pair_name, :public_key => File.read("#{key_path}")) unless key_pairs.get(key_pair_name)
     end
 
     def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium")
