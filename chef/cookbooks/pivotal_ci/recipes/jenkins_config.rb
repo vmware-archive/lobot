@@ -15,7 +15,7 @@ execute "download lobot plugin" do
   jenkins_plugin.call(self, "lobot", "http://cheffiles.pivotallabs.com/lobot/lobot.hpi")
 end
 
-['git', 'ansicolor', 'xvfb'].each do |plugin|
+['git-client', 'git', 'ansicolor', 'xvfb'].each do |plugin|
   execute "download #{plugin} plugin" do
     jenkins_plugin.call(self, plugin, "http://mirrors.jenkins-ci.org/plugins/#{plugin}/latest/#{plugin}.hpi")
   end
