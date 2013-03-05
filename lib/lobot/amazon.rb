@@ -65,12 +65,14 @@ module Lobot
       end
     end
 
-    def destroy_ec2(*args)
+    def destroy_ec2(confirm_proc, *args)
       servers.each do |server|
         next unless (args == [:all]) || args.include?(server.id)
+        next unless confirm_proc.call(server)
         ip = server.public_ip_address
         server.destroy
         release_elastic_ip(ip)
+        yield(server) if block_given?
       end
     end
 

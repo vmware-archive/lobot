@@ -37,14 +37,17 @@ module Lobot
 
     desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
     method_option :all, default: false
+    method_option :force, default: false
     def destroy_ec2
-      options['all'] ? amazon.destroy_ec2(:all) : amazon.destroy_ec2(lobot_config.instance_id)
+      instance = (options['all'] ? :all : lobot_config.instance_id)
 
-      say("Clearing ip address for ec2: #{lobot_config.master}")
+      amazon.destroy_ec2(confirmation_proc(options['force']), instance) do |server|
+        say("Clearing ip address for ec2: #{server.public_ip_address}")
 
-      known_hosts.remove(lobot_config.master)
+        known_hosts.remove(lobot_config.master)
 
-      lobot_config.update(master: nil, instance_id: nil)
+        lobot_config.update(master: nil, instance_id: nil)
+      end
     end
 
     desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
@@ -172,6 +175,17 @@ module Lobot
 
     def known_hosts
       Lobot::KnownHosts.new(known_hosts_path)
+    end
+
+    # The proc is given a Fog server object and must return true/false
+    def confirmation_proc(force)
+      if force
+        ->(_) { true }
+      else
+        ->(server) {
+          ask("DESTROY #{server.id} (#{server.public_ip_address})?", :limited_to => ["", "YES", "NO"]) == "YES"
+        }
+      end
     end
   end
 end

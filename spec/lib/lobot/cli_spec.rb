@@ -140,6 +140,8 @@ describe Lobot::CLI do
       pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
       cli.lobot_config.instance_size = 't1.micro'
       expect { cli.create }.to change { lobot_config.master }.from(nil)
+
+      cli.stub(:options).and_return({'force' => 'force'})
       expect { cli.destroy_ec2 }.to change { lobot_config.master }.to(nil)
     end
   end
@@ -177,15 +179,19 @@ describe Lobot::CLI do
       end
     end
 
-    describe "#destroy_ec2" do
+    describe "destroy_ec2" do
       before do
         cli.lobot_config.master = ip_address
         cli.lobot_config.instance_id = instance_id
       end
 
       context 'by default' do
+        before do
+          amazon.stub(:destroy_ec2).and_yield(mock("SERVER").as_null_object)
+        end
+
         it 'deletes the known instance' do
-          amazon.should_receive(:destroy_ec2)
+          amazon.should_receive(:destroy_ec2).and_yield(mock("SERVER").as_null_object)
           cli.destroy_ec2
         end
 
@@ -198,11 +204,17 @@ describe Lobot::CLI do
         end
 
         it 'does not delete sibling instances' do
-          amazon.should_receive(:destroy_ec2).with(instance_id)
+          amazon.should_receive(:destroy_ec2).with(a_kind_of(Proc), instance_id)
           cli.destroy_ec2
         end
 
-        it 'prompts for confirmation'
+        it 'prompts for confirmation' do
+          cli.should_receive(:ask).and_return(true)
+          amazon.should_receive(:destroy_ec2).with(a_kind_of(Proc), instance_id) do |confirm_proc, instance_id|
+            confirm_proc.call(mock("SERVER").as_null_object)
+          end
+          cli.destroy_ec2
+        end
       end
 
       context 'with --all' do
@@ -211,13 +223,23 @@ describe Lobot::CLI do
         end
 
         it 'deletes everything tagged "lobot"' do
-          amazon.should_receive(:destroy_ec2).with(:all)
+          amazon.should_receive(:destroy_ec2).with(a_kind_of(Proc), :all)
           cli.destroy_ec2
         end
       end
 
       context 'with --force' do
-        it 'does not prompt for confirmation'
+        before do
+          cli.stub(:options).and_return({'force' => 'force'})
+        end
+
+        it 'does not prompt for confirmation' do
+          cli.should_not_receive(:ask)
+          amazon.should_receive(:destroy_ec2).with(a_kind_of(Proc), instance_id) do |confirm_proc, instance_id|
+            confirm_proc.call(mock("SERVER").as_null_object)
+          end
+          cli.destroy_ec2
+        end
       end
     end
   end

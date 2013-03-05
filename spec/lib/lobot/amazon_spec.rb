@@ -102,19 +102,34 @@ describe Lobot::Amazon, :slow => true do
     describe "#destroy_ec2" do
       let!(:server_ip) { freshly_launched_server.public_ip_address }
 
-      it "stops all the instances" do
-        # TODO: This probably needs some more testing with n > 1 instances
-        expect do
-          amazon.destroy_ec2(:all)
-        end.to change { freshly_launched_server.reload.state }.from("running")
-        fog.addresses.get(server_ip).should_not be
+      context 'with a confirmation Proc that returns true' do
+        let(:proc) { ->(_) { true } }
+
+        it "stops all the instances" do
+          # TODO: This probably needs some more testing with n > 1 instances
+          expect do
+            amazon.destroy_ec2(proc, :all)
+          end.to change { freshly_launched_server.reload.state }.from("running")
+          fog.addresses.get(server_ip).should_not be
+        end
+
+        it "stops the named instances" do
+          expect do
+            amazon.destroy_ec2(proc, freshly_launched_server.id)
+          end.to change { freshly_launched_server.reload.state }.from("running")
+          fog.addresses.get(server_ip).should_not be
+        end
       end
 
-      it "stops the named instances" do
-        expect do
-          amazon.destroy_ec2(freshly_launched_server.id)
-        end.to change { freshly_launched_server.reload.state }.from("running")
-        fog.addresses.get(server_ip).should_not be
+      context 'with a confirmation Proc that returns false' do
+        let(:proc) { ->(_) { false } }
+
+        it 'does not stop instances' do
+          expect do
+            amazon.destroy_ec2(proc, :all)
+          end.to_not change { freshly_launched_server.reload.state }.from("running")
+          fog.addresses.get(server_ip).should be
+        end
       end
     end
   end
