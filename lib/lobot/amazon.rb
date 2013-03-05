@@ -65,11 +65,17 @@ module Lobot
       end
     end
 
-    def destroy_ec2
-      servers = fog.servers.select { |s| s.tags.keys.include?("lobot") && s.state == "running" }
-      ips = servers.map(&:public_ip_address)
-      servers.map(&:destroy)
-      ips.each { |ip| release_elastic_ip(ip) }
+    def destroy_ec2(*args)
+      servers.each do |server|
+        next unless (args == [:all]) || args.include?(server.id)
+        ip = server.public_ip_address
+        server.destroy
+        release_elastic_ip(ip)
+      end
+    end
+
+    def servers
+      fog_servers.select { |s| s.tags.keys.include?("lobot") && s.state == "running" }
     end
 
     def release_elastic_ip(ip)

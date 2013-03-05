@@ -135,21 +135,26 @@ describe Lobot::CLI do
     end
   end
 
-  describe "#create", :slow => true do
+  describe '#create & #destroy', :slow => true do
     it "launches an instance and associates elastic ip" do
       pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
       cli.lobot_config.instance_size = 't1.micro'
       expect { cli.create }.to change { lobot_config.master }.from(nil)
       expect { cli.destroy_ec2 }.to change { lobot_config.master }.to(nil)
     end
+  end
 
-    context "with a fake amazon" do
-      let(:ip_address) { "127.0.0.1" }
-      let(:server) { double("server", :public_ip_address => ip_address).as_null_object }
-      let(:amazon) { double("AMZN", :launch_server => server).as_null_object }
+  context "with a fake amazon" do
+    let(:ip_address) { "127.0.0.1" }
+    let(:server) { double("server", :public_ip_address => ip_address).as_null_object }
+    let(:amazon) { double("AMZN", :launch_server => server).as_null_object }
+    let(:instance_id) { 'i-xxxxxx' }
 
-      before { cli.stub(:amazon).and_return(amazon) }
+    before do
+      cli.stub(:amazon).and_return(amazon)
+    end
 
+    describe "#create" do
       def action
         cli.create
       end
@@ -169,6 +174,50 @@ describe Lobot::CLI do
           amazon.should_receive(:launch_server).with(anything, anything, 'really_big_instance')
           cli.create
         end
+      end
+    end
+
+    describe "#destroy_ec2" do
+      before do
+        cli.lobot_config.master = ip_address
+        cli.lobot_config.instance_id = instance_id
+      end
+
+      context 'by default' do
+        it 'deletes the known instance' do
+          amazon.should_receive(:destroy_ec2)
+          cli.destroy_ec2
+        end
+
+        it 'clears the master ip address' do
+          expect {cli.destroy_ec2}.to change(cli.lobot_config, :master).to(nil)
+        end
+
+        it 'clears the master instance id' do
+          expect {cli.destroy_ec2}.to change(cli.lobot_config, :instance_id).to(nil)
+        end
+
+        it 'does not delete sibling instances' do
+          amazon.should_receive(:destroy_ec2).with(instance_id)
+          cli.destroy_ec2
+        end
+
+        it 'prompts for confirmation'
+      end
+
+      context 'with --all' do
+        before do
+          cli.stub(:options).and_return({'all' => 'all'})
+        end
+
+        it 'deletes everything tagged "lobot"' do
+          amazon.should_receive(:destroy_ec2).with(:all)
+          cli.destroy_ec2
+        end
+      end
+
+      context 'with --force' do
+        it 'does not prompt for confirmation'
       end
     end
   end

@@ -1,8 +1,8 @@
 require "spec_helper"
 
 describe Lobot::Amazon, :slow => true do
+  subject(:amazon) { Lobot::Amazon.new(ENV["EC2_KEY"], ENV["EC2_SECRET"]) }
   let(:tempdir) { Dir.mktmpdir }
-  let(:amazon) { Lobot::Amazon.new(ENV["EC2_KEY"], ENV["EC2_SECRET"]) }
   let(:fog) { amazon.send(:fog) }
 
   before do
@@ -103,8 +103,16 @@ describe Lobot::Amazon, :slow => true do
       let!(:server_ip) { freshly_launched_server.public_ip_address }
 
       it "stops all the instances" do
+        # TODO: This probably needs some more testing with n > 1 instances
         expect do
-          amazon.destroy_ec2
+          amazon.destroy_ec2(:all)
+        end.to change { freshly_launched_server.reload.state }.from("running")
+        fog.addresses.get(server_ip).should_not be
+      end
+
+      it "stops the named instances" do
+        expect do
+          amazon.destroy_ec2(freshly_launched_server.id)
         end.to change { freshly_launched_server.reload.state }.from("running")
         fog.addresses.get(server_ip).should_not be
       end

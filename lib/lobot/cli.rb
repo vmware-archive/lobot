@@ -28,6 +28,7 @@ module Lobot
       amazon.open_port("lobot", 22, 443)
       server = amazon.launch_server(lobot_config.keypair_name, "lobot", lobot_config.instance_size)
 
+      # TODO: Refactor this
       say("Writing ip address for ec2: #{server.public_ip_address}")
       lobot_config.master = server.public_ip_address
       lobot_config.instance_id = server.id
@@ -37,9 +38,16 @@ module Lobot
     end
 
     desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
+    method_option :all, default: false
     def destroy_ec2
-      amazon.destroy_ec2
+      options['all'] ? amazon.destroy_ec2(:all) : amazon.destroy_ec2(lobot_config.instance_id)
+
+      # TODO: Refactor this, too
+      say("Clearing ip address for ec2: #{lobot_config.master}")
+      remove_known_host
       lobot_config.master = nil
+      lobot_config.instance_id = nil
+      lobot_config.save
     end
 
     desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
@@ -169,12 +177,14 @@ module Lobot
     end
 
     def update_known_hosts
-      if known_hosts.include?(lobot_config.master)
-        known_hosts.remove(lobot_config.master)
-      end
+      remove_known_host if known_hosts.include?(lobot_config.master)
 
       key = Lobot::KnownHosts.key_for(lobot_config.master)
       known_hosts.add(lobot_config.master, key) if key
+    end
+
+    def remove_known_host
+      known_hosts.remove(lobot_config.master)
     end
   end
 end
