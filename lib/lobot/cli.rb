@@ -28,13 +28,11 @@ module Lobot
       amazon.open_port("lobot", 22, 443)
       server = amazon.launch_server(lobot_config.keypair_name, "lobot", lobot_config.instance_size)
 
-      # TODO: Refactor this
       say("Writing ip address for ec2: #{server.public_ip_address}")
-      lobot_config.master = server.public_ip_address
-      lobot_config.instance_id = server.id
-      lobot_config.save
 
-      update_known_hosts
+      known_hosts.update(server.public_ip_address)
+
+      lobot_config.update(master: server.public_ip_address, instance_id: server.id)
     end
 
     desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
@@ -42,12 +40,11 @@ module Lobot
     def destroy_ec2
       options['all'] ? amazon.destroy_ec2(:all) : amazon.destroy_ec2(lobot_config.instance_id)
 
-      # TODO: Refactor this, too
       say("Clearing ip address for ec2: #{lobot_config.master}")
-      remove_known_host
-      lobot_config.master = nil
-      lobot_config.instance_id = nil
-      lobot_config.save
+
+      known_hosts.remove(lobot_config.master)
+
+      lobot_config.update(master: nil, instance_id: nil)
     end
 
     desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
@@ -62,10 +59,10 @@ module Lobot
       vagrant_ip = "192.168.33.10"
 
       say("Writing ip address for vagrant: #{vagrant_ip}")
-      lobot_config.master = vagrant_ip
-      lobot_config.save
 
-      update_known_hosts
+      known_hosts.update(vagrant_ip)
+
+      lobot_config.update(master: vagrant_ip)
     end
 
     desc "config", "Dumps all configuration data for Lobot"
@@ -160,6 +157,7 @@ module Lobot
     end
 
     private
+
     def lobot_root_path
       File.expand_path('../../..', __FILE__)
     end
@@ -174,17 +172,6 @@ module Lobot
 
     def known_hosts
       Lobot::KnownHosts.new(known_hosts_path)
-    end
-
-    def update_known_hosts
-      remove_known_host if known_hosts.include?(lobot_config.master)
-
-      key = Lobot::KnownHosts.key_for(lobot_config.master)
-      known_hosts.add(lobot_config.master, key) if key
-    end
-
-    def remove_known_host
-      known_hosts.remove(lobot_config.master)
     end
   end
 end

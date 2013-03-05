@@ -111,7 +111,7 @@ describe Lobot::CLI do
 
   shared_examples_for "a start command that updates known_hosts" do
     let(:key) { "AAAAB3NzaC1yc2EAAAADAQABAAABAQDjhJ/xZCgVhq9Xk+3DKJZ6tcgyIHcIXKSzu6Z/EK1uykyHeP/i7CwwKgiAv7lAV7B4UiUMHUm2nEiguog9VtYc6mc0g1N829lnuMhPRyOTb0SSYTNEN7Uuwy10cuq3Rd/9QAdxNV/voQW3Rl60BFzZvzp8UxJzCXFT1NmB+0W45X7Ypstv0oVV/EdyJJUuoPijQ097A4kHt6KUThKzxhagh1UrVTCE6eccscxuuRPX3yCEf8cUaVrKtuSE3vZnBcmSOY92zA4NV/YdJYNPIrKyCvWb/R+nC4R0pQNqv1gSEqPT51wYxKnvmIPFGntKaJSN2qmMlvs/AlFnFOeUsUFN" }
-    let(:known_hosts_path) { Tempfile.new("known_hosts").path }
+    let!(:known_hosts_path) { Tempfile.new("known_hosts").path }
 
     def known_hosts_contents
       File.read(File.expand_path(known_hosts_path))

@@ -14,11 +14,17 @@ module Lobot
     end
 
     def include?(host)
-      ! known_hosts.keys_for(host).empty?
+      ! ssh_known_hosts.keys_for(host).empty?
     end
 
-    def add(host, key)
-      known_hosts.add(host, key) unless include?(host)
+    def add(host)
+      key = self.class.key_for(host)
+      ssh_known_hosts.add(host, key) unless (key.nil? || include?(host))
+    end
+
+    def update(host)
+      remove(host)
+      add(host)
     end
 
     def remove(host)
@@ -29,7 +35,7 @@ module Lobot
     end
 
     private
-    def known_hosts
+    def ssh_known_hosts
       Net::SSH::KnownHosts.new(path)
     end
   end

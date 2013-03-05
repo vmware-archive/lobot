@@ -64,6 +64,14 @@ describe Lobot::Config do
       end
     end
 
+    describe "#update" do
+      it "sets and persists the provided values" do
+        config.update(ssh_port: 20912)
+        config = Lobot::Config.from_file(tempfile.path)
+        config.ssh_port.should == 20912
+      end
+    end
+
     describe "soloistrc-specific attributes" do
       let(:recipes) { ["pivotal_workstation::broken_postgres", "pivotal_workstation::janus"] }
       let(:node_attributes) { default_config.node_attributes.merge({"radiator" => {"busted" => "hella"}}) }

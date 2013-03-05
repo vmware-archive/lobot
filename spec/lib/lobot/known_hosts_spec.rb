@@ -16,65 +16,92 @@ describe Lobot::KnownHosts do
     end
   end
 
-  describe "#include?" do
-    context "when the known hosts file does not have the host" do
-      it "returns false" do
-        subject.include?("1.2.3.4").should_not be
+  context 'with a stubbed key_for' do
+    before do
+      described_class.stub(:key_for).and_return(key)
+    end
+
+    describe "#include?" do
+      context "when the known hosts file does not have the host" do
+        it "returns false" do
+          subject.include?("1.2.3.4").should_not be
+        end
+      end
+
+      context "when the known hosts file has the host" do
+        before { subject.add("1.2.3.4") }
+
+        it "returns true" do
+          subject.include?("1.2.3.4").should be
+        end
       end
     end
 
-    context "when the known hosts file has the host" do
-      before { subject.add("1.2.3.4", key) }
+    describe "#add" do
+      context "when the known hosts file does not have the host" do
+        it "adds the host" do
+          expect do
+            subject.add("1.2.3.4")
+          end.to change { subject.include?("1.2.3.4") }
+        end
+      end
 
-      it "returns true" do
-        subject.include?("1.2.3.4").should be
+      context "when the known hosts file has the host" do
+        before { subject.add("1.2.3.4") }
+
+        it "does not add the host" do
+          expect do
+            subject.add("1.2.3.4")
+          end.not_to change { subject.include?("1.2.3.4") }
+        end
       end
     end
-  end
 
-  describe "#add" do
-    context "when the known hosts file does not have the host" do
+    describe "#update" do
+      let(:host) { '1.2.3.4' }
+
+      it "removes the host if it exists" do
+        subject.add(host)
+        subject.should_receive(:remove).with(host)
+
+        subject.update(host)
+      end
+
       it "adds the host" do
         expect do
-          subject.add("1.2.3.4", key)
-        end.to change { subject.include?("1.2.3.4") }
+          subject.update(host)
+        end.to change { subject.include?(host) }
       end
     end
 
-    context "when the known hosts file has the host" do
-      before { subject.add("1.2.3.4", key) }
-
-      it "does not add the host" do
-        expect do
-          subject.add("1.2.3.4", key)
-        end.not_to change { subject.include?("1.2.3.4") }
-      end
-    end
-  end
-
-  describe "#remove" do
-    context "when the known hosts file does not have the host" do
-      it "does not raise an exception" do
-        expect { subject.remove("1.2.3.4") }.not_to raise_error
-      end
-    end
-
-    context "when the known hosts file has the host" do
-      before { subject.add("1.2.3.4", key) }
-
-      it "removes the host" do
-        expect do
-          subject.remove("1.2.3.4")
-        end.to change { subject.include?("1.2.3.4") }
+    describe "#remove" do
+      context "when the known hosts file does not have the host" do
+        it "does not raise an exception" do
+          expect { subject.remove("1.2.3.4") }.not_to raise_error
+        end
       end
 
-      context "when the known hosts file has other hosts" do
-        before { subject.add("1.2.3.4,lard", key) }
+      context "when the known hosts file has the host" do
+        before { subject.add("1.2.3.4") }
 
         it "removes the host" do
           expect do
             subject.remove("1.2.3.4")
-          end.to change { subject.include?("1.2.3.4") }.to(false)
+          end.to change { subject.include?("1.2.3.4") }
+        end
+
+        context "when the known hosts file has other hosts" do
+          before do
+            subject.add("1.2.3.4")
+            subject.add("4.3.2.1")
+          end
+
+          it "removes the host" do
+            expect do
+              subject.remove("1.2.3.4")
+              subject.include?("4.3.2.1").should be_true
+            end.to change { subject.include?("1.2.3.4") }.to(false)
+          end
         end
       end
     end

@@ -76,6 +76,13 @@ module Lobot
       self
     end
 
+    def update(options = {})
+      options.each_pair do |attr, value|
+        self.send("#{attr}=", value)
+      end
+      save
+    end
+
     def reload
       self.class.from_file(path)
     end
