@@ -37,11 +37,11 @@ module Lobot
       end
 
       def prompt_for_ssh_key
-        config.server_ssh_key = ask_with_default("Path to CI server SSH key", config.server_ssh_key)
+        config.server_ssh_key = ask_with_default("Path to CI server SSH key", config.server_ssh_key_path)
       end
 
       def prompt_for_github_key
-        config.github_ssh_key = ask_with_default("Path to a SSH key authorized to clone the repository", config.github_ssh_key)
+        config.github_ssh_key = ask_with_default("Path to a SSH key authorized to clone the repository", config.github_ssh_key_path)
       end
 
       def prompt_for_build

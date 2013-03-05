@@ -10,7 +10,7 @@ describe Lobot::CLI do
 
   let(:lobot_config) { Lobot::Config.new(:aws_key => ENV["EC2_KEY"], :aws_secret => ENV["EC2_SECRET"]) }
   let(:cli) { subject }
-  let(:sobo) { Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key) }
+  let(:sobo) { Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key_path) }
 
   before do
     cli.stub(:lobot_config).and_return(lobot_config)
@@ -18,7 +18,7 @@ describe Lobot::CLI do
 
   describe "#ssh" do
     it "starts an ssh session to the lobot host" do
-      cli.should_receive(:exec).with("ssh -i #{cli.lobot_config.server_ssh_key} ubuntu@#{cli.lobot_config.master} -p #{cli.lobot_config.ssh_port}")
+      cli.should_receive(:exec).with("ssh -i #{cli.lobot_config.server_ssh_key_path} ubuntu@#{cli.lobot_config.master} -p #{cli.lobot_config.ssh_port}")
       cli.ssh
     end
   end
@@ -163,7 +163,7 @@ describe Lobot::CLI do
 
       it "uses the configured key pair" do
         cli.lobot_config.keypair_name = 'my_key_pair'
-        amazon.should_receive(:add_key_pair).with("my_key_pair", File.expand_path("#{cli.lobot_config.server_ssh_key}.pub"))
+        amazon.should_receive(:add_key_pair).with("my_key_pair", cli.lobot_config.server_ssh_pubkey)
         cli.create
       end
 
@@ -322,7 +322,7 @@ describe Lobot::CLI do
 
       sobo.backtick("ls /var/lib/").should include "jenkins"
       sobo.backtick("grep 'kernel.shmmax=' /etc/sysctl.conf").should_not be_empty
-      sobo.backtick("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == File.read(lobot_config.github_ssh_key)
+      sobo.backtick("sudo cat /var/lib/jenkins/.ssh/id_rsa").should == lobot_config.github_ssh_key
       sobo.system("dpkg -l htop").should == 0
 
       godot.wait!

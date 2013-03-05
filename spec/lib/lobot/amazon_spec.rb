@@ -50,6 +50,7 @@ describe Lobot::Amazon, :slow => true do
 
   describe "#add_key_pair" do
     let(:key_pair_path) { "#{tempdir}/supernuts" }
+    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
 
     before do
       system "ssh-keygen -q -f #{key_pair_path} -P ''"
@@ -57,16 +58,16 @@ describe Lobot::Amazon, :slow => true do
     end
 
     it "uploads the key" do
-      amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
+      amazon.add_key_pair("is_supernuts", key_pair_pub)
       amazon.fog_key_pairs.map(&:name).should include "is_supernuts"
     end
 
     context "when the key is already there" do
-      before { amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub") }
+      before { amazon.add_key_pair("is_supernuts", key_pair_pub) }
 
       it "doesn't reupload" do
         expect do
-          amazon.add_key_pair("is_supernuts", "#{key_pair_path}.pub")
+          amazon.add_key_pair("is_supernuts", key_pair_pub)
         end.not_to raise_error
       end
     end
@@ -74,10 +75,11 @@ describe Lobot::Amazon, :slow => true do
 
   describe "things which launch instances" do
     let(:key_pair_path) { "#{tempdir}/cookie" }
+    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
 
     before do
       system "ssh-keygen -q -f #{key_pair_path} -P ''"
-      amazon.add_key_pair("eating_my_cookie", "#{key_pair_path}.pub")
+      amazon.add_key_pair("eating_my_cookie", key_pair_pub)
       amazon.create_security_group("chump_of_change")
     end
 

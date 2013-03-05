@@ -145,7 +145,7 @@ describe Lobot::Clippy do
 
       clippy.prompt_for_ssh_key
 
-      clippy.config.server_ssh_key.should == File.expand_path("~/.ssh/top_secret_rsa")
+      clippy.config.server_ssh_key_path.should == File.expand_path("~/.ssh/top_secret_rsa")
     end
   end
 
@@ -155,7 +155,7 @@ describe Lobot::Clippy do
 
       clippy.prompt_for_github_key
 
-      clippy.config.github_ssh_key.should == File.expand_path("~/.ssh/the_matthew_kocher_memorial_key")
+      clippy.config.github_ssh_key_path.should == File.expand_path("~/.ssh/the_matthew_kocher_memorial_key")
     end
   end
 

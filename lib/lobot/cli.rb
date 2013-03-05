@@ -11,7 +11,7 @@ module Lobot
 
     desc "ssh", "SSH into Lobot"
     def ssh
-      exec("ssh -i #{lobot_config.server_ssh_key} ubuntu@#{lobot_config.master} -p #{lobot_config.ssh_port}")
+      exec("ssh -i #{lobot_config.server_ssh_key_path} ubuntu@#{lobot_config.master} -p #{lobot_config.ssh_port}")
     end
 
     desc "open", "Open a browser to Lobot"
@@ -21,9 +21,7 @@ module Lobot
 
     desc "create", "Create a new Lobot server using EC2"
     def create
-      ssh_key_path = File.expand_path("#{lobot_config.server_ssh_key}.pub")
-
-      amazon.add_key_pair(lobot_config.keypair_name, ssh_key_path)
+      amazon.add_key_pair(lobot_config.keypair_name, lobot_config.server_ssh_pubkey)
       amazon.create_security_group("lobot")
       amazon.open_port("lobot", 22, 443)
       server = amazon.launch_server(lobot_config.keypair_name, "lobot", lobot_config.instance_size)
@@ -52,7 +50,7 @@ module Lobot
 
     desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
     def create_vagrant
-      spawn_env = {"LOBOT_SSH_KEY" => File.expand_path("#{lobot_config.server_ssh_key}.pub"),
+      spawn_env = {"LOBOT_SSH_KEY" => lobot_config.server_ssh_pubkey_path,
                    "VAGRANT_HOME" => File.expand_path("~")}
       spawn_options = {chdir: lobot_root_path}
 
@@ -122,7 +120,7 @@ module Lobot
 
     no_tasks do
       def master_server
-        @master_server ||= Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key)
+        @master_server ||= Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key_path)
       end
 
       def lobot_config
@@ -142,7 +140,7 @@ module Lobot
       end
 
       def sync_github_ssh_key
-        master_server.upload(lobot_config.github_ssh_key, "~/.ssh/id_rsa")
+        master_server.upload(lobot_config.github_ssh_key_path, "~/.ssh/id_rsa")
       end
 
       def sync_chef_recipes

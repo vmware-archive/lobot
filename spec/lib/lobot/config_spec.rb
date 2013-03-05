@@ -97,8 +97,6 @@ describe Lobot::Config do
 
   describe "defaults" do
     its(:ssh_port) { should == 22 }
-    its(:server_ssh_key) { should =~ /^\/.*id_rsa$/ }
-    its(:github_ssh_key) { should =~ /^\/.*id_rsa$/ }
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks'] }
     its(:instance_size) { should == 'c1.medium' }
@@ -134,6 +132,34 @@ describe Lobot::Config do
             }
           }
         }
+      end
+    end
+
+    describe 'ssh key accessors' do
+      context 'github' do
+        before do
+          File.stub(:read).with(subject.github_ssh_key_path) { "---GITHUB PRIVATE---" }
+          File.stub(:read).with(subject.github_ssh_pubkey_path) { "---GITHUB PUBLIC---" }
+        end
+
+        its(:github_ssh_key_path) { should =~ /^\/.*id_rsa$/ }
+        its(:github_ssh_pubkey_path) { should =~ /^\/.*id_rsa\.pub$/ }
+
+        its(:github_ssh_key) { should == "---GITHUB PRIVATE---" }
+        its(:github_ssh_pubkey) { should == "---GITHUB PUBLIC---" }
+      end
+
+      context 'server' do
+        before do
+          File.stub(:read).with(subject.server_ssh_key_path) { "---SERVER PRIVATE---" }
+          File.stub(:read).with(subject.server_ssh_pubkey_path) { "---SERVER PUBLIC---" }
+        end
+
+        its(:server_ssh_key_path) { should =~ /^\/.*id_rsa$/ }
+        its(:server_ssh_pubkey_path) { should =~ /^\/.*id_rsa\.pub$/ }
+
+        its(:server_ssh_key) { should == "---SERVER PRIVATE---" }
+        its(:server_ssh_pubkey) { should == "---SERVER PUBLIC---" }
       end
     end
   end

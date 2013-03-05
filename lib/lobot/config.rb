@@ -34,12 +34,36 @@ module Lobot
       self["node_attributes"] = Hashie::Mash.new(node_attributes)
     end
 
-    def github_ssh_key
+    def github_ssh_key_path
       File.expand_path(self["github_ssh_key"])
     end
 
-    def server_ssh_key
+    def github_ssh_pubkey_path
+      github_ssh_key_path + ".pub"
+    end
+
+    def github_ssh_key
+      File.read(github_ssh_key_path)
+    end
+
+    def github_ssh_pubkey
+      File.read(github_ssh_pubkey_path)
+    end
+
+    def server_ssh_key_path
       File.expand_path(self["server_ssh_key"])
+    end
+
+    def server_ssh_pubkey_path
+      server_ssh_key_path + ".pub"
+    end
+
+    def server_ssh_key
+      File.read(server_ssh_key_path)
+    end
+
+    def server_ssh_pubkey
+      File.read(server_ssh_pubkey_path)
     end
 
     def node_attributes=(attributes)
