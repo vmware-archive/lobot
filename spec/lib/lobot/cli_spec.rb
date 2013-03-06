@@ -161,9 +161,12 @@ describe Lobot::CLI do
         cli.create
       end
 
+      before do
+        amazon.stub(:with_key_pair).and_yield("unique-key-pair-name")
+      end
+
       it "uses the configured key pair" do
-        cli.lobot_config.keypair_name = 'my_key_pair'
-        amazon.should_receive(:add_key_pair).with("my_key_pair", cli.lobot_config.server_ssh_pubkey)
+        amazon.should_receive(:with_key_pair).with(cli.lobot_config.server_ssh_pubkey)
         cli.create
       end
 

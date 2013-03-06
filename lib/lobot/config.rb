@@ -12,7 +12,6 @@ module Lobot
     property :ssh_port, :default => 22
     property :server_ssh_key, :default => "~/.ssh/id_rsa"
     property :github_ssh_key, :default => "~/.ssh/id_rsa"
-    property :keypair_name, :default => "lobot"
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks']
     property :node_attributes, :default => {

@@ -79,6 +79,7 @@ describe Lobot::Amazon, :slow => true do
 
     before do
       system "ssh-keygen -q -f #{key_pair_path} -P ''"
+      amazon.delete_key_pair("eating_my_cookie")
       amazon.add_key_pair("eating_my_cookie", key_pair_pub)
       amazon.create_security_group("chump_of_change")
     end

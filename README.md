@@ -79,9 +79,6 @@ In your config/lobot.yml, there are defaults set for values that have the recomm
 
 You can save on EC2 costs by using a tool like [projectmonitor](https://github.com/pivotal/projectmonitor) or ylastic to schedule when your instances are online.
 
-Additional Options:
-	keypair_name: The name of the aws key pair (default: "lobot").  If you aren't able to ssh into a new instance, try changing this from lobot to something else.
-
 ## Commit and push your changes
 
 At this point you will need to create a commit of the files generated or modified and push those changes to your remote git repository so Jenkins can execute the build script when it pulls down your repo for the first time.

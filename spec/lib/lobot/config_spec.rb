@@ -100,8 +100,6 @@ describe Lobot::Config do
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks'] }
     its(:instance_size) { should == 'c1.medium' }
-    its(:keypair_name) { should == 'lobot' }
-
 
     describe "#node_attributes" do
       it "defaults to overwriting the travis build environment" do

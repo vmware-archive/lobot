@@ -50,6 +50,14 @@ module Lobot
       fog_key_pairs.create(:name => key_pair_name, :public_key => public_key) unless fog_key_pairs.get(key_pair_name)
     end
 
+    def with_key_pair(pubkey)
+      unique_key_pair_name = "LOBOT-#{Time.now.to_i}"
+      add_key_pair(unique_key_pair_name, pubkey)
+      yield unique_key_pair_name if block_given?
+    ensure
+      delete_key_pair(unique_key_pair_name)
+    end
+
     def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium")
       fog_servers.create(
         :image_id => "ami-a29943cb",
