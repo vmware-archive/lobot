@@ -53,6 +53,25 @@ describe Lobot::Config do
           config.ssh_port.should == 22
         end
       end
+
+      context "handles deprecated keypair_name attribute" do
+        let(:tempfile) do
+          Tempfile.new('lobot-config').tap do |file|
+            file.write <<-YAML
+---
+ssh_port: 42
+keypair_name: lobot
+            YAML
+            file.close
+          end
+        end
+        let(:config) { Lobot::Config.from_file(tempfile.path) }
+
+        it "silently removes it from the configuration" do
+          config.ssh_port.should == 42
+        end
+
+      end
     end
 
     describe "#save" do

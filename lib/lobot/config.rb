@@ -126,6 +126,7 @@ module Lobot
     def self.from_file(yaml_file)
       config = {:path => yaml_file}
       config.merge!(read_config(yaml_file)) if File.exists?(yaml_file)
+      config.delete('keypair_name')
       self.new(config)
     end
 
