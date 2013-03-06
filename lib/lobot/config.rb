@@ -116,7 +116,7 @@ module Lobot
       {
         "ssh_port" => ssh_port,
         "master" => master,
-        "server_ssh_key" => server_ssh_key,
+        "server_ssh_key" => server_ssh_key_path,
         "recipes" => recipes,
         "cookbook_paths" => cookbook_paths,
         "node_attributes" => node_attributes

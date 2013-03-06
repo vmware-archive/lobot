@@ -9,7 +9,7 @@ module Lobot
     end
 
     def has_key?(key_name)
-      system("sudo security find-certificate -c \"#{key_name}\" #{path} 2>&1 > /dev/null")
+      system("sudo security find-certificate -c \"#{key_name}\" #{path} > /dev/null 2>&1")
     end
 
     def fetch_remote_certificate(host)
@@ -17,9 +17,10 @@ module Lobot
     end
 
     def add_certificate(certificate)
-      certificate_file = Tempfile.new("lobot.crt")
-      certificate_file.write(certificate)
-      certificate_file.close
+      certificate_file = Tempfile.new("lobot.crt").tap do |f|
+        f.write(certificate)
+        f.close
+      end
 
       system("sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain #{certificate_file.path}")
     end
