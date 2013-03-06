@@ -29,15 +29,13 @@ end
 describe Lobot::CLI do
   let(:cli) { subject }
   let(:sobo) { Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key_path) }
-  let!(:key_pair_path) do
-    Tempfile.new("ssh_key").tap do |tempfile|
-      tempfile.close
-      system "rm #{tempfile.path}; ssh-keygen -q -f #{tempfile.path} -P ''"
-    end.path
-  end
 
   before do
     cli.stub(:lobot_config).and_return(lobot_config) # lobot_config must be defined in each context below
+  end
+
+  after do
+    cleanup_temporary_ssh_keys
   end
 
   context 'with Amazon' do

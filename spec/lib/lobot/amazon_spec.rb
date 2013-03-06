@@ -1,61 +1,66 @@
 require "spec_helper"
 
-describe Lobot::Amazon, :slow => true do
+describe Lobot::Amazon, :slow do
   subject(:amazon) { Lobot::Amazon.new(ENV["EC2_KEY"], ENV["EC2_SECRET"]) }
   let(:tempdir) { Dir.mktmpdir }
   let(:fog) { amazon.send(:fog) }
 
-  before do
-    pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
-  end
+  before { pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET") }
+  after { cleanup_temporary_ssh_keys }
 
   describe "#create_security_group" do
     context "when there is no existing security group" do
+      let(:security_group) { "totally_not_a_honeypot" }
+
+      after { amazon.fog_security_groups.get(security_group).destroy }
+
       it "creates a security group" do
-        amazon.create_security_group("totally_not_a_honeypot")
-        amazon.fog_security_groups.map(&:name).should include "totally_not_a_honeypot"
+        amazon.create_security_group(security_group)
+        amazon.fog_security_groups.map(&:name).should include security_group
       end
     end
 
     context "when the security group already exists" do
-      before { amazon.create_security_group("bart_police") }
+      let(:security_group) { "bart_police" }
+
+      before { amazon.create_security_group(security_group) }
+      after { amazon.fog_security_groups.get(security_group).destroy }
 
       it "does not complain" do
-        expect { amazon.create_security_group("bart_police") }.not_to raise_error
+        expect { amazon.create_security_group(security_group) }.not_to raise_error
       end
     end
   end
 
   describe "#open_port" do
-    before { amazon.create_security_group("bag_of_weasels") }
+    let(:security_group) { "bag_of_weasels" }
+    let(:group) { amazon.fog_security_groups.get(security_group) }
 
-    let(:group) { amazon.fog_security_groups.get("bag_of_weasels") }
+    before { amazon.create_security_group(security_group) }
+    after { amazon.fog_security_groups.get(security_group).destroy }
 
-    def includes_port?(permissions, ports)
-      permissions.any? { |p| (p["fromPort"]..p["toPort"]).include?(80) }
+    def includes_port?(permissions, port)
+      permissions.any? { |p| (p["fromPort"]..p["toPort"]).include?(port) }
     end
 
     it "opens a port for business" do
       group.ip_permissions.should_not include "80"
-      amazon.open_port("bag_of_weasels", 80)
+      amazon.open_port(security_group, 80)
       includes_port?(group.reload.ip_permissions, 80).should be_true
     end
 
     it "takes a bunch of ports" do
-      amazon.open_port("bag_of_weasels", 22, 443)
+      amazon.open_port(security_group, 22, 443)
       includes_port?(group.reload.ip_permissions, 22).should be_true
       includes_port?(group.reload.ip_permissions, 443).should be_true
     end
   end
 
   describe "#add_key_pair" do
-    let(:key_pair_path) { "#{tempdir}/supernuts" }
     let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
 
-    before do
-      system "ssh-keygen -q -f #{key_pair_path} -P ''"
-      amazon.delete_key_pair("is_supernuts")
-    end
+    before { amazon.delete_key_pair("is_supernuts") }
+    after { amazon.delete_key_pair("is_supernuts") }
 
     it "uploads the key" do
       amazon.add_key_pair("is_supernuts", key_pair_pub)
@@ -74,17 +79,23 @@ describe Lobot::Amazon, :slow => true do
   end
 
   describe "things which launch instances" do
-    let(:key_pair_path) { "#{tempdir}/cookie" }
+    let(:key_pair_name) { "eating_my_cookie" }
+    let(:security_group) { "chump_of_change" }
     let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
+    let(:freshly_launched_server) { amazon.launch_server(key_pair_name, security_group, "t1.micro") }
 
     before do
-      system "ssh-keygen -q -f #{key_pair_path} -P ''"
-      amazon.delete_key_pair("eating_my_cookie")
-      amazon.add_key_pair("eating_my_cookie", key_pair_pub)
-      amazon.create_security_group("chump_of_change")
+      amazon.delete_key_pair(key_pair_name)
+      amazon.add_key_pair(key_pair_name, key_pair_pub)
+      amazon.create_security_group(security_group)
     end
 
-    let(:freshly_launched_server) { amazon.launch_server("eating_my_cookie", "chump_of_change", "t1.micro") }
+    after do
+      freshly_launched_server.destroy
+      amazon.elastic_ip_address.destroy rescue nil
+      amazon.delete_key_pair(key_pair_name)
+      amazon.fog_security_groups.get(security_group).destroy rescue nil
+    end
 
     describe "#launch_instance" do
       it "creates an instance" do
@@ -93,12 +104,9 @@ describe Lobot::Amazon, :slow => true do
         freshly_launched_server.availability_zone.should =~ /us-east-1[abcd]/
         freshly_launched_server.flavor_id.should == "t1.micro"
         freshly_launched_server.tags.should == {"lobot"=>Lobot::VERSION, "Name"=>"Lobot"}
-        freshly_launched_server.key_name.should == "eating_my_cookie"
-        freshly_launched_server.groups.should == ["chump_of_change"]
+        freshly_launched_server.key_name.should == key_pair_name
+        freshly_launched_server.groups.should == [security_group]
         freshly_launched_server.public_ip_address.should == amazon.elastic_ip_address.public_ip
-
-        freshly_launched_server.destroy
-        amazon.elastic_ip_address.destroy
       end
     end
 
