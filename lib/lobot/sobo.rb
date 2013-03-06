@@ -73,7 +73,7 @@ module Lobot
     end
 
     def upload(from, to, opts = "--exclude .git")
-      Kernel.system("rsync -e 'ssh -i #{key}' -avz --delete #{from} #{user}@#{ip}:#{to} #{opts}")
+      Kernel.system("rsync --rsh='ssh -i #{key}' --archive --compress --delete #{from} #{user}@#{ip}:#{to} #{opts}")
     end
   end
 end
