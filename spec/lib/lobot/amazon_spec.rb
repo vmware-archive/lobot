@@ -130,6 +130,7 @@ describe Lobot::Amazon, :slow do
         it "stops the named instances" do
           expect do
             amazon.destroy_ec2(proc, freshly_launched_server.id)
+            freshly_launched_server.wait_for { !ready? }
           end.to change { freshly_launched_server.reload.state }.from("running")
           fog.addresses.get(server_ip).should_not be
         end
