@@ -3,11 +3,11 @@ require "thor/group"
 require "pp"
 require "tempfile"
 require "json"
-require "lobot/clippy"
+require "lobot/configuration_wizard"
 
 module Lobot
   class CLI < ::Thor
-    register(Clippy, "clippy", "clippy", "One of the worst software design blunders in the annals of computing.")
+    register(ConfigurationWizard, "setup", "setup", ConfigurationWizard::DESCRIPTION_TEXT)
 
     desc "ssh", "SSH into Lobot"
     def ssh

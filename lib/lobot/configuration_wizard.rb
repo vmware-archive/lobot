@@ -2,11 +2,13 @@ require "thor"
 require "godot"
 
 module Lobot
-  class Clippy < ::Thor
-    default_task :clippy
+  class ConfigurationWizard < ::Thor
+    DESCRIPTION_TEXT = "Sets up lobot through a series of questions"
 
-    desc "clippy", "One of the worst software design blunders in the annals of computing"
-    def clippy
+    default_task :setup
+
+    desc "setup", DESCRIPTION_TEXT
+    def setup
       return unless yes?("It looks like you're trying to set up a CI Box. Can I help?")
       prompt_for_aws
       prompt_for_basic_auth
