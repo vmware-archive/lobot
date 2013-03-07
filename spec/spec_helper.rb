@@ -7,11 +7,7 @@ require "tempfile"
 module SpecHelpers
   def key_pair_path
     @key_pair_path ||= begin
-      path = ""
-      Tempfile.new("ssh_key").tap do |tempfile|
-        path = tempfile.path
-        tempfile.close!
-      end
+      path = unique_path
       system "ssh-keygen -q -f #{path} -P ''"
       path
     end
@@ -22,6 +18,17 @@ module SpecHelpers
       File.delete(@key_pair_path)
       File.delete(@key_pair_path+".pub")
     end
+  end
+
+  private
+
+  # Tempfile will normally unlink the file during garbage collection
+  # We want a unique path, but we don't want the actual file to stick around
+  def unique_path
+    tempfile = Tempfile.new("ssh_key")
+    path = tempfile.path
+    tempfile.close!
+    path
   end
 end
 

@@ -58,21 +58,22 @@ describe Lobot::Amazon, :slow do
 
   describe "#add_key_pair" do
     let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
+    let(:key_pair_name) { "is_supernuts" }
 
-    before { amazon.delete_key_pair("is_supernuts") }
-    after { amazon.delete_key_pair("is_supernuts") }
+    before { amazon.delete_key_pair(key_pair_name) }
+    after { amazon.delete_key_pair(key_pair_name) }
 
     it "uploads the key" do
-      amazon.add_key_pair("is_supernuts", key_pair_pub)
-      amazon.fog_key_pairs.map(&:name).should include "is_supernuts"
+      amazon.add_key_pair(key_pair_name, key_pair_pub)
+      amazon.fog_key_pairs.map(&:name).should include key_pair_name
     end
 
     context "when the key is already there" do
-      before { amazon.add_key_pair("is_supernuts", key_pair_pub) }
+      before { amazon.add_key_pair(key_pair_name, key_pair_pub) }
 
       it "doesn't reupload" do
         expect do
-          amazon.add_key_pair("is_supernuts", key_pair_pub)
+          amazon.add_key_pair(key_pair_name, key_pair_pub)
         end.not_to raise_error
       end
     end
@@ -92,8 +93,10 @@ describe Lobot::Amazon, :slow do
 
     after do
       freshly_launched_server.destroy
-      amazon.elastic_ip_address.destroy rescue nil
       amazon.delete_key_pair(key_pair_name)
+      # Make a best effort attempt to clean up after the tests have completed
+      # EC2 does not always reap these resources fast enough for our tests, we could wait, but why bother?
+      amazon.elastic_ip_address.destroy rescue nil
       amazon.fog_security_groups.get(security_group).destroy rescue nil
     end
 
