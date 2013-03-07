@@ -1,0 +1,3 @@
+This directory should remain empty, it is used by consumers of
+Lobot, so when we deploy a lobot CI instance for testing, this
+matches an end user's experience.
