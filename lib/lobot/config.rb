@@ -1,5 +1,4 @@
 require "hashie"
-require "haddock"
 
 module Lobot
   class Config < Hashie::Dash
@@ -134,7 +133,7 @@ module Lobot
         },
         :nginx => {
           :basic_auth_user => "ci",
-          :basic_auth_password => Haddock::Password.generate
+          :basic_auth_password => Lobot::Password.generate
         },
         :jenkins => {
           :builds => []
