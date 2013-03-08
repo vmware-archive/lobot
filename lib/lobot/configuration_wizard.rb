@@ -17,7 +17,10 @@ module Lobot
       prompt_for_build
       config.save
       say config.display
-      provision_server if prompt_for_and_create_instance == :created
+      if user_wants_to_create_instance?
+        create_instance
+        provision_server
+      end
     end
 
     no_tasks do
@@ -56,13 +59,15 @@ module Lobot
         }
       end
 
-      def prompt_for_and_create_instance
+      def user_wants_to_create_instance?
         return unless config.master.nil?
-        return unless yes?("Would you like to start an instance on AWS now? (Yes/No)")
+        yes?("Would you like to start an instance on AWS now? (Yes/No)")
+      end
+
+      def create_instance
         cli.create
         Godot.new(config.reload.master, 22, :timeout => 180).wait!
         say("Instance launched.")
-        return :created
       end
 
       def provision_server
