@@ -97,6 +97,11 @@ describe Lobot::ConfigurationWizard do
       wizard.setup
     end
 
+    it "confirms the entered configuration values" do
+      wizard.config.should_receive(:display)
+      wizard.setup
+    end
+
     it "saves the config" do
       wizard.config.should_receive(:save)
       wizard.setup

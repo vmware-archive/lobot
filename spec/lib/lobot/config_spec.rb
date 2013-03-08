@@ -1,7 +1,66 @@
+# encoding: UTF-8
 require "spec_helper"
 
 describe Lobot::Config do
   let(:default_config) { Lobot::Config.new }
+
+  describe "#add_build" do
+    let(:name) { "bob" }
+    let(:repository) { "http://github.com/mkocher/soloist.git" }
+    let(:branch) { "master" }
+    let(:command) { "script/ci_build.sh" }
+
+    let(:build_params) { {
+      "name" => name,
+      "repository" => repository,
+      "command" => command,
+      "branch" => branch,
+      "junit_publisher" => true
+    } }
+
+    it "adds a build to the node attributes" do
+      subject.add_build(name, repository, branch, command)
+      subject.node_attributes.jenkins.builds.should =~ [build_params]
+    end
+
+    it "does not add a build twice with identical parameters" do
+      subject.add_build(name, repository, branch, command)
+      subject.add_build(name, repository, branch, command)
+      subject.node_attributes.jenkins.builds.should =~ [build_params]
+    end
+  end
+
+  describe "#display" do
+    before do
+      subject.add_build("default", "repos", "branch", "command")
+      subject.add_build("integration", "repos", "branch", "command")
+      subject.add_build("enemy", "repos", "branch", "command")
+    end
+
+    context "without a running instance" do
+      it "returns a pretty-printed string version of the config" do
+        subject.display.should == <<OOTPÜT
+-- ciborg configuration --
+  Instance ID:
+  IP Address:
+  Instance size:      #{subject.instance_size}
+
+  Builds:
+    default
+    integration
+    enemy
+
+  Web URL:
+  User name:          #{subject.basic_auth_user}
+  User password:      #{subject.basic_auth_password}
+
+  RSS feed URL:
+  CC Menu URL:
+OOTPÜT
+      end
+    end
+
+  end
 
   describe "with a file" do
     let(:config_contents) { {ssh_port: 42} }
@@ -122,7 +181,7 @@ keypair_name: lobot
 
     describe "#node_attributes" do
       it "defaults to overwriting the travis build environment" do
-        subject.node_attributes.travis_build_environment.to_hash.should ==  {
+        subject.node_attributes.travis_build_environment.to_hash.should == {
           "user" => "jenkins",
           "group" => "nogroup",
           "home" => "/var/lib/jenkins"

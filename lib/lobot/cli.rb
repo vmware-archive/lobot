@@ -99,16 +99,7 @@ module Lobot
     def add_build(name, repository, branch, command)
       raise lobot_config.errors.join(" and ") unless lobot_config.valid?
 
-      build = {
-        "name" => name,
-        "repository" => repository,
-        "branch" => branch,
-        "command" => command,
-        "junit_publisher" => true
-      }
-      lobot_config.node_attributes = lobot_config.node_attributes.tap do |config|
-        config.jenkins.builds << build unless config.jenkins.builds.include?(build)
-      end
+      lobot_config.add_build(name, repository, branch, command)
       lobot_config.save
     end
 

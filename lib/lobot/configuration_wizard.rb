@@ -16,6 +16,7 @@ module Lobot
       prompt_for_github_key
       prompt_for_build
       config.save
+      say config.display
       prompt_for_amazon_create
       provision_server
     end
@@ -90,6 +91,7 @@ module Lobot
     end
 
     private
+
     def lobot_config_path
       FileUtils.mkdir_p(File.join(Dir.pwd, "config"))
       File.expand_path("config/lobot.yml", Dir.pwd)

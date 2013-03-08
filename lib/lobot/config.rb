@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require "hashie"
 
 module Lobot
@@ -19,6 +20,19 @@ module Lobot
     def initialize(attributes = {})
       super
       self["node_attributes"] = Hashie::Mash.new(node_attributes)
+    end
+
+    def add_build(name, repository, branch, command)
+      build = {
+        "name" => name,
+        "repository" => repository,
+        "branch" => branch,
+        "command" => command,
+        "junit_publisher" => true
+      }
+      self.node_attributes = self.node_attributes.tap do |config|
+        config.jenkins.builds << build unless config.jenkins.builds.include?(build)
+      end
     end
 
     def github_ssh_key_path
@@ -111,6 +125,25 @@ module Lobot
       }.merge(hash)
     end
 
+    def display
+      <<OOTPÜT
+-- ciborg configuration --
+  Instance ID:
+  IP Address:
+  Instance size:      #{instance_size}
+
+  Builds:
+#{builds}
+
+  Web URL:
+  User name:          #{basic_auth_user}
+  User password:      #{basic_auth_password}
+
+  RSS feed URL:
+  CC Menu URL:
+OOTPÜT
+    end
+
     def self.from_file(yaml_file)
       config = {:path => yaml_file}
       config.merge!(read_config(yaml_file)) if File.exists?(yaml_file)
@@ -122,7 +155,22 @@ module Lobot
       File.open(yaml_file, "r") { |file| YAML.load(file.read) }
     end
 
-  private
+    def basic_auth_user
+      node_attributes[:nginx][:basic_auth_user]
+    end
+
+    def basic_auth_password
+      node_attributes[:nginx][:basic_auth_password]
+    end
+
+    def builds
+      node_attributes[:jenkins][:builds].
+        map { |build| build[:name] }    .
+        map { |build| "    #{build}" }  .
+        join("\n")
+    end
+
+    private
 
     def self.default_node_attributes
       {

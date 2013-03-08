@@ -110,25 +110,6 @@ describe Lobot::CLI do
       end
 
       context "when the configuration is valid" do
-        let(:build_params) { {
-            "name" => name,
-            "repository" => repository,
-            "command" => command,
-            "branch" => branch,
-            "junit_publisher" => true
-        } }
-
-        it "adds a build to the node attributes" do
-          cli.add_build(name, repository, branch, command)
-          lobot_config.node_attributes.jenkins.builds.should =~ [build_params]
-        end
-
-        it "does not add a build twice with identical parameters" do
-          cli.add_build(name, repository, branch, command)
-          cli.add_build(name, repository, branch, command)
-          lobot_config.node_attributes.jenkins.builds.should =~ [build_params]
-        end
-
         context "with persisted configuration data" do
           let(:tempfile) do
             Tempfile.new('lobot-config').tap do |file|
