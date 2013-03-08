@@ -9,7 +9,7 @@ module Lobot
 
     desc "setup", DESCRIPTION_TEXT
     def setup
-      return unless yes?("It looks like you're trying to set up a CI Box. Can I help?")
+      return unless yes?("It looks like you're trying to set up a CI Box. Can I help? (Yes/No)")
       prompt_for_aws
       prompt_for_basic_auth
       prompt_for_ssh_key

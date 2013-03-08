@@ -131,6 +131,10 @@ keypair_name: lobot
     end
 
     describe "#soloistrc" do
+      before do
+        Haddock::Password.stub(:generate).and_return('a_secure_password')
+      end
+
       it "defaults to recipes and nginx basic auth" do
         subject.soloistrc.should == {
           "recipes" => subject.recipes,
@@ -138,6 +142,7 @@ keypair_name: lobot
           "node_attributes" => {
             "nginx" => {
               "basic_auth_user" => "ci",
+              "basic_auth_password" => 'a_secure_password'
             },
             "travis_build_environment" => {
               "user" => "jenkins",

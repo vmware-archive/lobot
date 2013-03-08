@@ -67,7 +67,7 @@ describe Lobot::ConfigurationWizard do
     end
 
     it "Says that you're trying to set up a ci box" do
-      question = "It looks like you're trying to set up a CI Box. Can I help?"
+      question = "It looks like you're trying to set up a CI Box. Can I help? (Yes/No)"
       wizard.should_receive(:yes?).with(question)
       wizard.setup
     end

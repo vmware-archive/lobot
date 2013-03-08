@@ -1,4 +1,5 @@
 require "hashie"
+require "haddock"
 
 module Lobot
   class Config < Hashie::Dash
@@ -14,19 +15,7 @@ module Lobot
     property :github_ssh_key, :default => "~/.ssh/id_rsa"
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks']
-    property :node_attributes, :default => {
-      :travis_build_environment => {
-        :user => "jenkins",
-        :group => "nogroup",
-        :home => "/var/lib/jenkins"
-      },
-      :nginx => {
-        :basic_auth_user => "ci",
-      },
-      :jenkins => {
-        :builds => []
-      }
-    }
+    property :node_attributes, :default => Proc.new {default_node_attributes}
 
     def initialize(attributes = {})
       super
@@ -132,6 +121,25 @@ module Lobot
 
     def self.read_config(yaml_file)
       File.open(yaml_file, "r") { |file| YAML.load(file.read) }
+    end
+
+  private
+
+    def self.default_node_attributes
+      {
+        :travis_build_environment => {
+          :user => "jenkins",
+          :group => "nogroup",
+          :home => "/var/lib/jenkins"
+        },
+        :nginx => {
+          :basic_auth_user => "ci",
+          :basic_auth_password => Haddock::Password.generate
+        },
+        :jenkins => {
+          :builds => []
+        }
+      }
     end
   end
 end
