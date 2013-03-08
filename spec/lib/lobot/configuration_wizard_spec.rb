@@ -276,11 +276,6 @@ describe Lobot::ConfigurationWizard do
       cli.should_receive(:create)
       wizard.create_instance
     end
-
-    it "waits for the amazon instance to be alive" do
-      Godot.any_instance.should_receive(:wait!)
-      wizard.create_instance
-    end
   end
 
   describe "#provision_server" do

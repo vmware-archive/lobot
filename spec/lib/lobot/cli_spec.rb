@@ -1,31 +1,5 @@
 require "spec_helper"
 
-shared_examples_for "a start command that updates known_hosts" do
-  let(:key) { "AAAAB3NzaC1yc2EAAAADAQABAAABAQDjhJ/xZCgVhq9Xk+3DKJZ6tcgyIHcIXKSzu6Z/EK1uykyHeP/i7CwwKgiAv7lAV7B4UiUMHUm2nEiguog9VtYc6mc0g1N829lnuMhPRyOTb0SSYTNEN7Uuwy10cuq3Rd/9QAdxNV/voQW3Rl60BFzZvzp8UxJzCXFT1NmB+0W45X7Ypstv0oVV/EdyJJUuoPijQ097A4kHt6KUThKzxhagh1UrVTCE6eccscxuuRPX3yCEf8cUaVrKtuSE3vZnBcmSOY92zA4NV/YdJYNPIrKyCvWb/R+nC4R0pQNqv1gSEqPT51wYxKnvmIPFGntKaJSN2qmMlvs/AlFnFOeUsUFN" }
-  let!(:known_hosts_path) { Tempfile.new("known_hosts").tap {|f| f.close}.path }
-
-  def known_hosts_contents
-    File.read(File.expand_path(known_hosts_path))
-  end
-
-  before do
-    cli.stub(:known_hosts_path) { known_hosts_path }
-  end
-
-  it "clears out the entry in knownhosts as this is a new box but the ip may be recycled" do
-    system "echo '#{ip_address} ssh-rsa #{key}' >> #{known_hosts_path}"
-    create_instance # Our vagrant box resets the first ssh connection. :-(
-    create_instance
-    known_hosts_contents.should_not include(key)
-    known_hosts_contents.should include(ip_address)
-  end
-
-  it "doesn't mess with other entries" do
-    create_instance
-    expect { create_instance }.not_to change { known_hosts_contents }
-  end
-end
-
 describe Lobot::CLI do
   let(:cli) { subject }
   let(:sobo) { Lobot::Sobo.new(lobot_config.master, lobot_config.server_ssh_key_path) }
@@ -153,12 +127,6 @@ describe Lobot::CLI do
           cli.create
         end
 
-        it_behaves_like "a start command that updates known_hosts" do
-          def create_instance
-            cli.create
-          end
-        end
-
         context "with a custom instance size", :slow => false do
           before { cli.lobot_config.instance_size = 'really_big_instance' }
 
@@ -260,16 +228,6 @@ describe Lobot::CLI do
 
       it "updates the config master ip address" do
         expect { cli.create_vagrant }.to change { lobot_config.master }.to('192.168.33.10')
-      end
-
-      context "known_hosts" do
-        it_behaves_like "a start command that updates known_hosts" do
-          let(:ip_address) { "192.168.33.10" }
-
-          def create_instance
-            cli.create_vagrant
-          end
-        end
       end
     end
 

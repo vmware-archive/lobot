@@ -1,5 +1,4 @@
 require "thor"
-require "godot"
 
 module Lobot
   class ConfigurationWizard < ::Thor
@@ -66,7 +65,6 @@ module Lobot
 
       def create_instance
         cli.create
-        Godot.new(config.reload.master, 22, :timeout => 180).wait!
         say("Instance launched.")
       end
 

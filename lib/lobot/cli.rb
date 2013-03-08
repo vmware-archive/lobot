@@ -4,6 +4,7 @@ require "pp"
 require "tempfile"
 require "json"
 require "lobot/configuration_wizard"
+require "godot"
 
 module Lobot
   class CLI < ::Thor
@@ -26,10 +27,9 @@ module Lobot
         amazon.open_port("lobot", 22, 443)
         amazon.launch_server(keypair_name, "lobot", lobot_config.instance_size)
       end
+      Godot.new(server.public_ip_address, 22, :timeout => 180).wait!
 
       say("Writing ip address for ec2: #{server.public_ip_address}")
-
-      known_hosts.update(server.public_ip_address)
 
       lobot_config.update(master: server.public_ip_address, instance_id: server.id)
     end
@@ -42,8 +42,6 @@ module Lobot
 
       amazon.destroy_ec2(confirmation_proc(options['force']), instance) do |server|
         say("Clearing ip address for ec2: #{server.public_ip_address}")
-
-        known_hosts.remove(lobot_config.master)
 
         lobot_config.update(master: nil, instance_id: nil)
       end
@@ -61,8 +59,6 @@ module Lobot
       vagrant_ip = "192.168.33.10"
 
       say("Writing ip address for vagrant: #{vagrant_ip}")
-
-      known_hosts.update(vagrant_ip)
 
       lobot_config.update(master: vagrant_ip)
     end
@@ -157,14 +153,6 @@ module Lobot
 
     def lobot_config_path
       File.expand_path("config/lobot.yml", Dir.pwd)
-    end
-
-    def known_hosts_path
-      File.expand_path('~/.ssh/known_hosts')
-    end
-
-    def known_hosts
-      Lobot::KnownHosts.new(known_hosts_path)
     end
 
     # The proc is given a Fog server object and must return true/false

@@ -31,7 +31,7 @@ module Lobot
     end
 
     def ssh_popen4!(command, streaming_output = false)
-      ssh = Net::SSH.start(ip, user, :keys => [key], :timeout => timeout)
+      ssh = Net::SSH.start(ip, user, :keys => [key], :timeout => timeout, paranoid: false)
       stdout_data = ""
       stderr_data = ""
       exit_code = nil
@@ -73,7 +73,7 @@ module Lobot
     end
 
     def upload(from, to, opts = "--exclude .git")
-      Kernel.system("rsync --rsh='ssh -i #{key}' --archive --compress --delete #{from} #{user}@#{ip}:#{to} #{opts}")
+      Kernel.system(%Q{rsync --rsh="ssh -o 'StrictHostKeyChecking no' -i #{key}" --archive --compress --delete #{from} #{user}@#{ip}:#{to} #{opts}})
     end
   end
 end
