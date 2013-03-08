@@ -108,7 +108,7 @@ describe Lobot::ConfigurationWizard do
     end
 
     it "prompts to start an instance on amazon" do
-      wizard.should_receive(:prompt_for_amazon_create)
+      wizard.should_receive(:prompt_for_and_create_instance)
       wizard.setup
     end
 
@@ -232,23 +232,23 @@ describe Lobot::ConfigurationWizard do
     end
   end
 
-  describe "#prompt_for_amazon_create" do
+  describe "#prompt_for_and_create_instance" do
     before { wizard.stub(:yes? => true, :say => nil) }
 
     context "when there is not an instance in the config" do
       it "asks to start an amazon instance" do
         wizard.should_receive(:yes?).and_return(false)
-        wizard.prompt_for_amazon_create
+        wizard.prompt_for_and_create_instance
       end
 
       it "calls create on CLI" do
         cli.should_receive(:create)
-        wizard.prompt_for_amazon_create
+        wizard.prompt_for_and_create_instance
       end
 
       it "waits for the amazon instance to be alive" do
         Godot.any_instance.should_receive(:wait!)
-        wizard.prompt_for_amazon_create
+        wizard.prompt_for_and_create_instance
       end
     end
 
@@ -257,12 +257,12 @@ describe Lobot::ConfigurationWizard do
 
       it "does not ask to start an instance" do
         wizard.should_not_receive(:yes?)
-        wizard.prompt_for_amazon_create
+        wizard.prompt_for_and_create_instance
       end
 
       it "does not create an instance" do
         cli.should_not_receive(:create)
-        wizard.prompt_for_amazon_create
+        wizard.prompt_for_and_create_instance
       end
     end
   end
