@@ -39,6 +39,9 @@ describe Lobot::Config do
 
     context "without a running instance" do
       it "returns a pretty-printed string version of the config" do
+        # The basic_auth_password will be blank on CI, so we force it
+        subject.stub(:basic_auth_password).and_return('password')
+
         subject.display.should == <<OOTPÜT
 -- ciborg configuration --
   Instance ID:
