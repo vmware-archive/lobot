@@ -54,12 +54,41 @@ describe Lobot::Config do
   User name:          #{subject.basic_auth_user}
   User password:      #{subject.basic_auth_password}
 
-  RSS feed URL:
   CC Menu URL:
 OOTPÜT
       end
     end
 
+    context "with a running instance" do
+      subject do
+        Lobot::Password.stub(:generate).and_return('password')
+        Lobot::Config.new({instance_id: 'i-xxxxxx',
+                                   master: '127.0.0.1',
+                                   instance_size: 'c9.humungous'
+                                  })
+      end
+
+      it "returns a pretty-printed string version of the config" do
+
+        subject.display.should == <<OOTPÜT
+-- ciborg configuration --
+  Instance ID:        i-xxxxxx
+  IP Address:         127.0.0.1
+  Instance size:      c9.humungous
+
+  Builds:
+    default           https://127.0.0.1/job/default/rssAll
+    integration       https://127.0.0.1/job/integration/rssAll
+    enemy             https://127.0.0.1/job/enemy/rssAll
+
+  Web URL:            https://127.0.0.1
+  User name:          ci
+  User password:      password
+
+  CC Menu URL:        https://ci:password@127.0.0.1/cc.xml
+OOTPÜT
+      end
+    end
   end
 
   describe "with a file" do

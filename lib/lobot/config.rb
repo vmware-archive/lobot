@@ -67,6 +67,18 @@ module Lobot
       File.read(server_ssh_pubkey_path)
     end
 
+    def master_url
+      "https://#{master}" if master
+    end
+
+    def cc_menu_url
+      "https://#{basic_auth_user}:#{basic_auth_password}@#{master}/cc.xml" if master
+    end
+
+    def rss_url(job_name)
+      master_url + "/job/#{job_name}/rssAll" if master_url
+    end
+
     def node_attributes=(attributes)
       self["node_attributes"] = Hashie::Mash.new(attributes)
     end
@@ -126,21 +138,21 @@ module Lobot
     end
 
     def display
-      <<OOTPÜT
+      <<OOTPÜT.gsub(/(\S)\s+$/, '\1').gsub(/^\./, '')
 -- ciborg configuration --
-  Instance ID:
-  IP Address:
+  Instance ID:        #{instance_id}
+  IP Address:         #{master}
   Instance size:      #{instance_size}
-
+.
   Builds:
 #{builds}
-
-  Web URL:
+.
+  Web URL:            #{master_url}
   User name:          #{basic_auth_user}
   User password:      #{basic_auth_password}
-
-  RSS feed URL:
-  CC Menu URL:
+.
+  CC Menu URL:        #{cc_menu_url}
+.
 OOTPÜT
     end
 
@@ -166,7 +178,7 @@ OOTPÜT
     def builds
       node_attributes[:jenkins][:builds].
         map { |build| build[:name] }    .
-        map { |build| "    #{build}" }  .
+        map { |build| "    %-17s %s" % [build, rss_url(build)] }  .
         join("\n")
     end
 

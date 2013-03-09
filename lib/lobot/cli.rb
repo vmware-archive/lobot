@@ -65,7 +65,7 @@ module Lobot
 
     desc "config", "Dumps all configuration data for Lobot"
     def config
-      say(lobot_config.to_hash.inspect)
+      say lobot_config.display
     end
 
     desc "certificate", "Dump the certificate"
