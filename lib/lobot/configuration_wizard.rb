@@ -15,7 +15,7 @@ module Lobot
       prompt_for_github_key
       prompt_for_build
       config.save
-      say config.display
+      say config.reload.display
       if user_wants_to_create_instance?
         create_instance
         provision_server

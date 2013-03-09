@@ -98,7 +98,11 @@ describe Lobot::ConfigurationWizard do
     end
 
     it "confirms the entered configuration values" do
-      wizard.config.should_receive(:display)
+      reloaded_config = double("reloaded_config")
+      wizard.config.should_receive(:reload).and_return(reloaded_config)
+      reloaded_config.should_receive(:display)
+      wizard.stub(:user_wants_to_create_instance?).and_return(false)
+
       wizard.setup
     end
 
