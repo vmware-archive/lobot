@@ -47,7 +47,7 @@ module Lobot
       end
     end
 
-    desc "create_vagrant", "Lowers the price of heroin to reasonable levels"
+    desc "create_vagrant", "Creates a vagrant instance"
     def create_vagrant
       spawn_env = {"LOBOT_SSH_KEY" => lobot_config.server_ssh_pubkey_path,
                    "VAGRANT_HOME" => File.expand_path("~")}
