@@ -17,12 +17,12 @@ module Lobot
       @timeout || 10000
     end
 
-    def system(command)
-      ssh_popen4!(command, true)[2]
+    def system(command, options = {})
+      ssh_popen4!(command, options)[2]
     end
 
-    def system!(command)
-      result = ssh_popen4!(command, true)
+    def system!(command, options = {})
+      result = ssh_popen4!(command, options)
       raise(CommandFailed, "Failed: #{command}\n#{result[0]}\n\n#{result[1]}") unless result[2] == 0
     end
 
@@ -30,7 +30,10 @@ module Lobot
       ssh_popen4!(command)[0]
     end
 
-    def ssh_popen4!(command, streaming_output = false)
+    def ssh_popen4!(command, options = {})
+      logfile_path = options.fetch(:logfile, nil)
+      logfile = File.open(logfile_path, 'w') if logfile_path
+
       ssh = Net::SSH.start(ip, user, :keys => [key], :timeout => timeout, paranoid: false)
       stdout_data = ""
       stderr_data = ""
@@ -44,22 +47,22 @@ module Lobot
           end
 
           channel.on_data do |ch,data|
-            if streaming_output
-              STDOUT << data
-              STDOUT.flush
+            if logfile
+              logfile << data
+              logfile.flush
             end
             stdout_data += data
           end
 
           channel.on_extended_data do |ch,type,data|
-            if streaming_output
-              STDERR << data
-              STDERR.flush
+            if logfile
+              logfile << data
+              logfile.flush
             end
             stderr_data += data
           end
 
-          channel.on_request("exit-status") do |ch,data|
+          channel.on_request("exit-status") do |ch, data|
             exit_code = data.read_long
           end
 
@@ -69,6 +72,12 @@ module Lobot
         end
       end
       ssh.loop
+
+      if logfile
+        logfile.close
+        File.delete(logfile_path) if exit_code == 0
+      end
+
       [stdout_data, stderr_data, exit_code, exit_signal]
     end
 
