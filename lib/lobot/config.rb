@@ -71,8 +71,12 @@ module Lobot
       "https://#{master}" if master
     end
 
+    def jenkins_url
+      "https://#{basic_auth_user}:#{basic_auth_password}@#{master}" if master
+    end
+
     def cc_menu_url
-      "https://#{basic_auth_user}:#{basic_auth_password}@#{master}/cc.xml" if master
+      "#{jenkins_url}/cc.xml" if master
     end
 
     def rss_url(job_name)

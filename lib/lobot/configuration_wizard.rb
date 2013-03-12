@@ -19,6 +19,7 @@ module Lobot
       if user_wants_to_create_instance?
         create_instance
         provision_server
+        say("Setup complete! You may now access your new CI server at #{config.reload.jenkins_url}")
       end
     end
 
@@ -75,7 +76,6 @@ module Lobot
           script installs the packages necessary to compile ruby, installs RVM, and
           adds the ubuntu user to the rvm group.
 
-          Bootstrapping the instance now.
         OOTSTRAP
         cli.bootstrap
 
@@ -84,7 +84,6 @@ module Lobot
           recipes, and invoking chef-solo via soloist.  Chef will then converge, using
           the pivotal_ci cookbook and the travis-ci ci_environment cookbooks.
 
-          Running chef-solo now.
         HEF
         cli.chef
       end
