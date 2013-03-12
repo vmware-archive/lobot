@@ -11,8 +11,8 @@ module Lobot
 
     property :instance_size, :default => 'c1.medium'
     property :ssh_port, :default => 22
-    property :server_ssh_key, :default => "~/.ssh/id_rsa"
-    property :github_ssh_key, :default => "~/.ssh/id_rsa"
+    property :server_ssh_key, :default => Proc.new { default_ssh_key }
+    property :github_ssh_key, :default => Proc.new { default_ssh_key }
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks']
     property :node_attributes, :default => Proc.new {default_node_attributes}
@@ -36,11 +36,11 @@ module Lobot
     end
 
     def github_ssh_key_path
-      File.expand_path(self["github_ssh_key"])
+      File.expand_path(self["github_ssh_key"]) if self["github_ssh_key"]
     end
 
     def github_ssh_pubkey_path
-      github_ssh_key_path + ".pub"
+      github_ssh_key_path + ".pub" if self["github_ssh_key"]
     end
 
     def github_ssh_key
@@ -52,11 +52,11 @@ module Lobot
     end
 
     def server_ssh_key_path
-      File.expand_path(self["server_ssh_key"])
+      File.expand_path(self["server_ssh_key"]) if self["server_ssh_key"]
     end
 
     def server_ssh_pubkey_path
-      server_ssh_key_path + ".pub"
+      server_ssh_key_path + ".pub" if self["server_ssh_key"]
     end
 
     def server_ssh_key
@@ -187,6 +187,10 @@ OOTPÜT
     end
 
     private
+
+    def self.default_ssh_key
+      "~/.ssh/id_rsa" if File.exists?(File.expand_path("~/.ssh/id_rsa"))
+    end
 
     def self.default_node_attributes
       {

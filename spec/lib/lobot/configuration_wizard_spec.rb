@@ -167,7 +167,7 @@ describe Lobot::ConfigurationWizard do
     end
   end
 
-  describe "#prompt_for_server_ssh_key" do
+  describe "#prompt_for_ssh_key" do
     it "prompts for the path" do
       wizard.should_receive(:ask).and_return("~/.ssh/top_secret_rsa")
 

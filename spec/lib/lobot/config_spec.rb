@@ -211,6 +211,20 @@ keypair_name: lobot
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks'] }
     its(:instance_size) { should == 'c1.medium' }
 
+    context 'when id_rsa exists' do
+      before { File.stub(:exists?).and_return(true) }
+
+      its(:server_ssh_key_path) { should == File.expand_path('~/.ssh/id_rsa')}
+      its(:github_ssh_key_path) { should == File.expand_path('~/.ssh/id_rsa')}
+    end
+
+    context 'when id_rsa does not exist' do
+      before { File.stub(:exists?).and_return(false) }
+
+      its(:server_ssh_key_path) { should_not be }
+      its(:github_ssh_key_path) { should_not be }
+    end
+
     describe "#node_attributes" do
       it "defaults to overwriting the travis build environment" do
         subject.node_attributes.travis_build_environment.to_hash.should == {
@@ -249,6 +263,10 @@ keypair_name: lobot
     end
 
     describe 'ssh key accessors' do
+      before do
+        File.stub(:exists?).with(File.expand_path('~/.ssh/id_rsa')).and_return(true)
+      end
+
       context 'github' do
         before do
           File.stub(:read).with(subject.github_ssh_key_path) { "---GITHUB PRIVATE---" }
