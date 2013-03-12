@@ -19,7 +19,7 @@ describe Lobot::CLI do
         :server_ssh_key => key_pair_path)
     }
 
-    describe '#create & #destroy', :slow, :ec2 do
+    describe '#create & #destroy_ec2', :slow, :ec2 do
       it "launches an instance and associates elastic ip" do
         pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
         cli.lobot_config.instance_size = 't1.micro'
@@ -167,7 +167,7 @@ describe Lobot::CLI do
           end
 
           it 'prompts for confirmation' do
-            cli.should_receive(:ask).and_return(true)
+            cli.should_receive(:yes?).and_return(true)
             amazon.should_receive(:destroy_ec2).with(a_kind_of(Proc), instance_id) do |confirm_proc, instance_id|
               confirm_proc.call(mock("SERVER").as_null_object)
             end

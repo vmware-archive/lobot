@@ -168,7 +168,7 @@ module Lobot
         ->(_) { true }
       else
         ->(server) {
-          ask("DESTROY #{server.id} (#{server.public_ip_address})?", :limited_to => ["", "YES", "NO"]) == "YES"
+          yes?("DESTROY #{server.id} (#{server.public_ip_address})?")
         }
       end
     end
