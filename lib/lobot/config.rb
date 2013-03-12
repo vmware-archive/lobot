@@ -72,7 +72,7 @@ module Lobot
     end
 
     def jenkins_url
-      "https://#{basic_auth_user}:#{basic_auth_password}@#{master}" if master
+      "https://#{CGI.escape(basic_auth_user)}:#{CGI.escape(basic_auth_password)}@#{master}" if master
     end
 
     def cc_menu_url
