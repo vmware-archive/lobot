@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "fog", "~> 1.6"
   s.add_dependency "ci_reporter", "~> 1.7"
   s.add_dependency "thor"
-  s.add_dependency "hashie", "~> 2.0.2"
+  s.add_dependency "hashie"
   s.add_dependency "net-ssh"
   s.add_dependency "httpclient"
   s.add_dependency "godot"
