@@ -188,32 +188,63 @@ describe Lobot::ConfigurationWizard do
   end
 
   describe "#prompt_for_build" do
-    before { wizard.stub(:ask) }
+    def first_jenkins_build
+      wizard.config.node_attributes.jenkins.builds.first
+    end
+
+    before do
+      wizard.stub(:ask)
+      wizard.stub(:this_is_a_rails_project?).and_return(false)
+    end
 
     context "when there are no builds" do
       it "asks you for the build name" do
         wizard.should_receive(:ask).and_return("fancy-build")
         wizard.prompt_for_build
-        wizard.config.node_attributes.jenkins.builds.first["name"].should == "fancy-build"
+        first_jenkins_build["name"].should == "fancy-build"
       end
 
       it "asks you for the git repository" do
         wizard.should_receive(:ask)
-        wizard.should_receive(:ask).and_return("earwax-under-my-pillow")
+        wizard.should_receive(:ask).and_return("Fort-Knox")
         wizard.prompt_for_build
-        wizard.config.node_attributes.jenkins.builds.first["repository"].should == "earwax-under-my-pillow"
-      end
-
-      it "asks you for the build command" do
-        wizard.should_receive(:ask).twice
-        wizard.should_receive(:ask).and_return("unit-tested-bash")
-        wizard.prompt_for_build
-        wizard.config.node_attributes.jenkins.builds.first["command"].should == "unit-tested-bash"
+        first_jenkins_build["repository"].should == "Fort-Knox"
       end
 
       it "always builds the master branch" do
         wizard.prompt_for_build
-        wizard.config.node_attributes.jenkins.builds.first["branch"].should == "master"
+        first_jenkins_build["branch"].should == "master"
+      end
+
+      context "when the project is a rails project" do
+        before do
+          wizard.should_receive(:this_is_a_rails_project?).and_return(true)
+        end
+
+        it "asks whether you would like to use the sample rails build script" do
+          wizard.should_receive(:yes?)
+          wizard.prompt_for_build
+        end
+
+        context "and when the user wants to use the sample build script" do
+          before do
+            wizard.stub(:yes?).and_return(true)
+          end
+
+          it 'generates a ci_build.sh file' do
+            wizard.should_receive(:copy_file)
+            wizard.prompt_for_build
+          end
+        end
+      end
+
+      context "when it is not a rails project or the user does not want the sample build script" do
+        it "asks you for the build command" do
+          wizard.should_receive(:ask).twice
+          wizard.should_receive(:ask).and_return("unit-tested-bash")
+          wizard.prompt_for_build
+          first_jenkins_build["command"].should == "unit-tested-bash"
+        end
       end
     end
 

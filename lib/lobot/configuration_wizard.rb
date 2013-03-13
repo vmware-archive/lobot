@@ -2,6 +2,8 @@ require "thor"
 
 module Lobot
   class ConfigurationWizard < ::Thor
+    include Actions
+
     DESCRIPTION_TEXT = "Sets up lobot through a series of questions"
 
     default_task :setup
@@ -51,10 +53,18 @@ module Lobot
 
       def prompt_for_build
         build = config.node_attributes.jenkins.builds.first || {}
+
+        if this_is_a_rails_project? && prompt_for_default_rails_script
+          build_command = Proc.new { "script/ci_build.sh" }
+          copy_file('default_rails_build_script.sh', 'script/ci_build.sh')
+        else
+          build_command = Proc.new { ask_with_default("What command should be run during the build?", build["command"]) }
+        end
+
         config.node_attributes.jenkins.builds[0] = {
           "name" => ask_with_default("What would you like to name your build?", build["name"]),
           "repository" => ask_with_default("What is the address of your git repository?", build["repository"]),
-          "command" => ask_with_default("What command should be run during the build?", build["command"]),
+          "command" => build_command.call,
           "branch" => "master"
         }
       end
@@ -94,6 +104,19 @@ module Lobot
     end
 
     private
+
+    def source_paths
+      [File.join(File.expand_path(File.dirname(__FILE__)), "templates")] + super
+    end
+
+    def prompt_for_default_rails_script
+      return false if File.exists?('script/ci_build.sh')
+      yes?("It looks like this is a Rails project.  Would you like to use the default Rails build script?")
+    end
+
+    def this_is_a_rails_project?
+      File.exists?('script/rails')
+    end
 
     def lobot_config_path
       FileUtils.mkdir_p(File.join(Dir.pwd, "config"))
