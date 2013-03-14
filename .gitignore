@@ -4,3 +4,4 @@
 Gemfile.lock
 /config
 /pkg
+.env*
