@@ -111,7 +111,7 @@ module Lobot
 
     def prompt_for_default_rails_script
       return false if File.exists?('script/ci_build.sh')
-      yes?("It looks like this is a Rails project.  Would you like to use the default Rails build script?")
+      yes?("It looks like this is a Rails project.  Would you like to use the default Rails build script? (Yes/No)")
     end
 
     def this_is_a_rails_project?
