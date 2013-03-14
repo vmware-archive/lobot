@@ -1,8 +1,6 @@
-Lobot: Your Chief Administrative Aide on Cloud City
-============================
+# Lobot: Your Chief Administrative Aide on Cloud City
 
 ![Lobot](http://cheffiles.pivotallabs.com/lobot/logo.png)
-
 
 [![Code Climate](https://codeclimate.com/github/pivotal/lobot.png)](https://codeclimate.com/github/pivotal/lobot)
 [![Build Status](https://travis-ci.org/pivotal/lobot.png?branch=master)](https://travis-ci.org/pivotal/lobot)
@@ -22,7 +20,7 @@ Please note these instructions are the for the *prerelease Lobot 2.0*.  Please r
 * The full [Travis CI](http://travis-ci.org) environment on Ubuntu 12.04
 * A Jenkins frontend for monitoring your builds
 
-After you add `gem "lobot"` to your Gemfile, all you'll need to do is run the following commands:
+After you install `lobot`, all you'll need to do is run the following commands:
 
     [lobot configure] - COMING SOON - See Setup for now.
     lobot create
@@ -35,9 +33,13 @@ Read on for an explanation of what each one of these steps does.
 
 ## Install
 
-Add lobot to your Gemfile, in the development group:
+Choose one:
 
-    gem "lobot", :group => :development
+* Add lobot to your Gemfile, in the development group:
+
+        gem "lobot", :group => :development
+
+* Or, simply, `gem install lobot` to bypass your Gemfile altogether (if there are any dependency conflicts with your project).
 
 ## Setup
 
