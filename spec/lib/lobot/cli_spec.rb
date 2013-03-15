@@ -120,6 +120,7 @@ describe Lobot::CLI do
       describe "#create" do
         before do
           amazon.stub(:with_key_pair).and_yield("unique-key-pair-name")
+          cli.should_receive(:wait_for_server)
         end
 
         it "uses the configured key pair" do

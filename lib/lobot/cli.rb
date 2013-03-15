@@ -27,7 +27,7 @@ module Lobot
         amazon.open_port("lobot", 22, 443)
         amazon.launch_server(keypair_name, "lobot", lobot_config.instance_size)
       end
-      Godot.new(server.public_ip_address, 22, :timeout => 180).wait!
+      wait_for_server(server)
 
       say("Writing ip address for ec2: #{server.public_ip_address}")
 
@@ -160,6 +160,10 @@ module Lobot
 
     def lobot_config_path
       File.expand_path("config/lobot.yml", Dir.pwd)
+    end
+
+    def wait_for_server(server)
+      Godot.new(server.public_ip_address, 22, :timeout => 180).wait!
     end
 
     # The proc is given a Fog server object and must return true/false
