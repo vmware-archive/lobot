@@ -15,7 +15,7 @@ module Lobot
     property :github_ssh_key, :default => Proc.new { default_ssh_key }
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks']
-    property :node_attributes, :default => Proc.new {default_node_attributes}
+    property :node_attributes, :default => Proc.new { default_node_attributes }
 
     def initialize(attributes = {})
       super
