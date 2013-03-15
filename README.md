@@ -142,11 +142,14 @@ end
 
 ## Dependencies
 
-* fog
 * ci_reporter
-* thor
+* fog
+* godot
+* haddock
 * hashie
+* httpclient
 * net-ssh
+* thor
 
 ## Forking
 
