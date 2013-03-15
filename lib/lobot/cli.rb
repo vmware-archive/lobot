@@ -108,7 +108,6 @@ module Lobot
 
     desc "trust_certificate", "Adds the current master's certificate to your OSX keychain"
     def trust_certificate
-      keychain = Keychain.new("/Library/Keychains/System.keychain")
       certificate_contents = keychain.fetch_remote_certificate("https://#{lobot_config.master}/")
       keychain.add_certificate(certificate_contents)
     end
