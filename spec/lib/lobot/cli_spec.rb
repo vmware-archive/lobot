@@ -48,7 +48,7 @@ describe Lobot::CLI do
       end
 
       it "opens a web browser with the lobot page" do
-        cli.should_receive(:exec).with("open -a /Applications/Safari.app https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
+        cli.should_receive(:exec).with("open https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
         cli.open
       end
     end
