@@ -6,7 +6,6 @@ describe Lobot::Amazon, :slow do
   let(:fog) { amazon.send(:fog) }
 
   before { pending "Missing EC2 Credentials" unless SpecHelpers::ec2_credentials_present? }
-  after { cleanup_temporary_ssh_keys }
 
   describe "#create_security_group" do
     after { amazon.fog_security_groups.get(security_group).destroy if SpecHelpers::ec2_credentials_present? }
@@ -55,7 +54,7 @@ describe Lobot::Amazon, :slow do
   end
 
   describe "#add_key_pair" do
-    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub")) }
+    let(:key_pair_pub) { File.read(File.expand_path(ssh_key_pair_path + ".pub")) }
     let(:key_pair_name) { "is_supernuts" }
 
     before { amazon.delete_key_pair(key_pair_name) }
@@ -80,7 +79,7 @@ describe Lobot::Amazon, :slow do
   describe "things which launch instances" do
     let(:key_pair_name) { "eating_my_cookie" }
     let(:security_group) { "chump_of_change" }
-    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub")) }
+    let(:key_pair_pub) { File.read(File.expand_path(ssh_key_pair_path + ".pub")) }
     let(:freshly_launched_server) { amazon.launch_server(key_pair_name, security_group, "t1.micro") }
 
     before do
