@@ -13,7 +13,8 @@ describe Lobot::CLI do
   end
 
   context 'with Amazon' do
-    let(:lobot_config) { Lobot::Config.new(
+    let(:lobot_config) {
+      Lobot::Config.new(
         :aws_key => ENV["EC2_KEY"],
         :aws_secret => ENV["EC2_SECRET"],
         :server_ssh_key => key_pair_path)
@@ -21,7 +22,7 @@ describe Lobot::CLI do
 
     describe '#create & #destroy_ec2', :slow, :ec2 do
       it "launches an instance and associates elastic ip" do
-        pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
+        pending "Missing EC2 Credentials" unless SpecHelpers::ec2_credentials_present?
         cli.lobot_config.instance_size = 't1.micro'
         expect { cli.create }.to change { lobot_config.master }.from(nil)
 

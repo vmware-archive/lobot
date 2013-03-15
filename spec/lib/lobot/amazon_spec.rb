@@ -5,14 +5,14 @@ describe Lobot::Amazon, :slow do
   let(:tempdir) { Dir.mktmpdir }
   let(:fog) { amazon.send(:fog) }
 
-  before { pending "Missing EC2 Credentials" unless ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET") }
+  before { pending "Missing EC2 Credentials" unless SpecHelpers::ec2_credentials_present? }
   after { cleanup_temporary_ssh_keys }
 
   describe "#create_security_group" do
+    after { amazon.fog_security_groups.get(security_group).destroy if SpecHelpers::ec2_credentials_present? }
+
     context "when there is no existing security group" do
       let(:security_group) { "totally_not_a_honeypot" }
-
-      after { amazon.fog_security_groups.get(security_group).destroy }
 
       it "creates a security group" do
         amazon.create_security_group(security_group)
@@ -22,9 +22,7 @@ describe Lobot::Amazon, :slow do
 
     context "when the security group already exists" do
       let(:security_group) { "bart_police" }
-
       before { amazon.create_security_group(security_group) }
-      after { amazon.fog_security_groups.get(security_group).destroy }
 
       it "does not complain" do
         expect { amazon.create_security_group(security_group) }.not_to raise_error
@@ -37,7 +35,7 @@ describe Lobot::Amazon, :slow do
     let(:group) { amazon.fog_security_groups.get(security_group) }
 
     before { amazon.create_security_group(security_group) }
-    after { amazon.fog_security_groups.get(security_group).destroy }
+    after { amazon.fog_security_groups.get(security_group).destroy if SpecHelpers::ec2_credentials_present? }
 
     def includes_port?(permissions, port)
       permissions.any? { |p| (p["fromPort"]..p["toPort"]).include?(port) }
@@ -57,11 +55,11 @@ describe Lobot::Amazon, :slow do
   end
 
   describe "#add_key_pair" do
-    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
+    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub")) }
     let(:key_pair_name) { "is_supernuts" }
 
     before { amazon.delete_key_pair(key_pair_name) }
-    after { amazon.delete_key_pair(key_pair_name) }
+    after { amazon.delete_key_pair(key_pair_name) if SpecHelpers::ec2_credentials_present? }
 
     it "uploads the key" do
       amazon.add_key_pair(key_pair_name, key_pair_pub)
@@ -82,7 +80,7 @@ describe Lobot::Amazon, :slow do
   describe "things which launch instances" do
     let(:key_pair_name) { "eating_my_cookie" }
     let(:security_group) { "chump_of_change" }
-    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub"))}
+    let(:key_pair_pub) { File.read(File.expand_path(key_pair_path + ".pub")) }
     let(:freshly_launched_server) { amazon.launch_server(key_pair_name, security_group, "t1.micro") }
 
     before do
@@ -92,12 +90,14 @@ describe Lobot::Amazon, :slow do
     end
 
     after do
-      freshly_launched_server.destroy
-      amazon.delete_key_pair(key_pair_name)
-      # Make a best effort attempt to clean up after the tests have completed
-      # EC2 does not always reap these resources fast enough for our tests, we could wait, but why bother?
-      amazon.elastic_ip_address.destroy rescue nil
-      amazon.fog_security_groups.get(security_group).destroy rescue nil
+      if SpecHelpers::ec2_credentials_present?
+        freshly_launched_server.destroy
+        amazon.delete_key_pair(key_pair_name)
+        # Make a best effort attempt to clean up after the tests have completed
+        # EC2 does not always reap these resources fast enough for our tests, we could wait, but why bother?
+        amazon.elastic_ip_address.destroy rescue nil
+        amazon.fog_security_groups.get(security_group).destroy rescue nil
+      end
     end
 
     describe "#launch_instance" do
@@ -106,7 +106,7 @@ describe Lobot::Amazon, :slow do
 
         freshly_launched_server.availability_zone.should =~ /us-east-1[abcd]/
         freshly_launched_server.flavor_id.should == "t1.micro"
-        freshly_launched_server.tags.should == {"lobot"=>Lobot::VERSION, "Name"=>"Lobot"}
+        freshly_launched_server.tags.should == {"lobot" => Lobot::VERSION, "Name" => "Lobot"}
         freshly_launched_server.key_name.should == key_pair_name
         freshly_launched_server.groups.should == [security_group]
         freshly_launched_server.public_ip_address.should == amazon.elastic_ip_address.public_ip
