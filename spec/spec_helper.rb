@@ -9,30 +9,8 @@ module SpecHelpers
     ENV.has_key?("EC2_KEY") && ENV.has_key?("EC2_SECRET")
   end
 
-  def key_pair_path
-    @key_pair_path ||= begin
-      path = unique_path
-      system "ssh-keygen -q -f #{path} -P ''"
-      path
-    end
-  end
-
-  def cleanup_temporary_ssh_keys
-    if @key_pair_path
-      File.delete(@key_pair_path)
-      File.delete(@key_pair_path+".pub")
-    end
-  end
-
-  private
-
-  # Tempfile will normally unlink the file during garbage collection
-  # We want a unique path, but we don't want the actual file to stick around
-  def unique_path
-    tempfile = Tempfile.new("ssh_key")
-    path = tempfile.path
-    tempfile.close!
-    path
+  def ssh_key_pair_path
+    File.join(File.dirname(__FILE__), 'fixtures', 'ssh_keys', 'vagrant_test_key')
   end
 end
 

@@ -7,7 +7,7 @@ Vagrant::Config.run do |config|
 
   config.vm.provision :shell do |shell|
     shell.inline = "echo $@ | sudo tee /etc/skel/.ssh/authorized_keys"
-    ssh_key = ENV['LOBOT_SSH_KEY'] || File.expand_path("~/.ssh/id_rsa.pub")
+    ssh_key = File.join(File.dirname(__FILE__), 'spec', 'fixtures', 'ssh_keys', 'vagrant_test_key.pub')
     shell.args = File.read(ssh_key)
   end
 

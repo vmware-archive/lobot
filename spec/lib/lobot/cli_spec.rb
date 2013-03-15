@@ -8,16 +8,12 @@ describe Lobot::CLI do
     cli.stub(:lobot_config).and_return(lobot_config) # lobot_config must be defined in each context below
   end
 
-  after do
-    cleanup_temporary_ssh_keys
-  end
-
   context 'with Amazon' do
     let(:lobot_config) {
       Lobot::Config.new(
         :aws_key => ENV["EC2_KEY"],
         :aws_secret => ENV["EC2_SECRET"],
-        :server_ssh_key => key_pair_path)
+        :server_ssh_key => ssh_key_pair_path)
     }
 
     describe '#create & #destroy_ec2', :slow, :ec2 do
@@ -217,8 +213,8 @@ describe Lobot::CLI do
                   "basic_auth_password" => "secret"
               }
           },
-          "server_ssh_key" => key_pair_path,
-          "github_ssh_key" => key_pair_path
+          "server_ssh_key" => ssh_key_pair_path,
+          "github_ssh_key" => ssh_key_pair_path
       )
     }
 
