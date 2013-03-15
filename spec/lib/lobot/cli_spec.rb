@@ -201,7 +201,7 @@ describe Lobot::CLI do
     end
   end
 
-  context 'with Vagrant' do
+  context 'with Vagrant', :vagrant do
     let(:lobot_config) {
       Lobot::Config.new(
           "node_attributes" => {
@@ -218,7 +218,7 @@ describe Lobot::CLI do
       )
     }
 
-    describe "#create_vagrant", :vagrant do
+    describe "#create_vagrant" do
       it "starts a virtual machine" do
         cli.create_vagrant
         Godot.wait('192.168.33.10', 22).should be
