@@ -34,7 +34,7 @@ module Lobot
       lobot_config.update(master: server.public_ip_address, instance_id: server.id)
     end
 
-    desc "destroy_ec2", "Destroys all the lobot resources that we can find on ec2.  Be Careful!"
+    desc "destroy_ec2", "Destroys all the lobot resources on EC2"
     method_option :all, default: false
     method_option :force, default: false
     def destroy_ec2
