@@ -20,7 +20,7 @@ then
 	sudo apt-get install -y $to_install
 fi
 
-test -d /usr/local/rvm || curl -L https://get.rvm.io | sudo bash -s stable
+test -d /usr/local/rvm || curl --location https://get.rvm.io | sudo bash -s stable
 
 sudo tee /etc/profile.d/rvm.sh > /dev/null <<RVMSH_CONTENT
 [[ -s "/usr/local/rvm/scripts/rvm" ]] && source "/usr/local/rvm/scripts/rvm"
