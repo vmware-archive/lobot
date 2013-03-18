@@ -264,7 +264,7 @@ describe Lobot::CLI do
       let(:branch) { "master" }
       let(:command) { "exit 0" }
 
-      let(:godot) { Godot.new(cli.master_server.ip, 8080) }
+      let(:godot) { Godot.new(cli.master_server.ip, 8080, timeout: 180) }
       let(:jenkins) { Lobot::Jenkins.new(lobot_config) }
 
       before do
