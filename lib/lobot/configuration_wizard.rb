@@ -21,7 +21,6 @@ module Lobot
       if user_wants_to_create_instance?
         create_instance
         provision_server
-        say("Setup complete! You may now access your new CI server at #{config.reload.jenkins_url}")
       end
     end
 

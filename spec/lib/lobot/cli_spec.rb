@@ -248,13 +248,10 @@ describe Lobot::CLI do
       end
 
       context 'when there are errors' do
-        it "keeps the log file and displays a message" do
-          cli.should_receive(:say).with{|message| message.match(/Bootstrapping/)}
-          cli.should_receive(:say).with("ERROR! Errors logged in bootstrap.log")
-          Net::SSH.stub(:start).and_raise(Lobot::Sobo::CommandFailed)
-          cli.bootstrap
+        it "keeps the log file" do
+          Net::SSH.stub(:start).and_raise
+          expect{ cli.bootstrap }.to raise_error
           File.exists?('bootstrap.log').should be
-          File.delete('bootstrap.log')
         end
       end
     end
@@ -293,17 +290,6 @@ describe Lobot::CLI do
 
         godot.wait!
         godot.match!(/Bob/, 'api/json')
-      end
-
-      context 'when there are errors' do
-        it "keeps the log file and displays a message" do
-          cli.should_receive(:say).with{|message| message.match(/chef/)}
-          cli.should_receive(:say).with("ERROR! Errors logged in chef_run.log")
-          Net::SSH.stub(:start).and_raise(Lobot::Sobo::CommandFailed)
-          cli.chef
-          File.exists?('chef_run.log').should be
-          File.delete('chef_run.log')
-        end
       end
     end
   end
