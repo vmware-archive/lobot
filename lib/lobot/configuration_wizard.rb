@@ -81,20 +81,7 @@ module Lobot
 
       def provision_server
         return if config.reload.master.nil?
-        say <<-OOTSTRAP.gsub(/^\s*/, '')
-          To bootstrap an instance, we upload the bootstrap_server.sh script. This
-          script installs the packages necessary to compile ruby, installs RVM, and
-          adds the ubuntu user to the rvm group.
-
-        OOTSTRAP
         cli.bootstrap
-
-        say <<-HEF.gsub(/^\s*/, '')
-          Next we'll go ahead and chef the instance.  This involves uploading the chef
-          recipes, and invoking chef-solo via soloist.  Chef will then converge, using
-          the pivotal_ci cookbook and the travis-ci ci_environment cookbooks.
-
-        HEF
         cli.chef
       end
 
