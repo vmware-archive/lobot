@@ -10,7 +10,9 @@ module SpecHelpers
   end
 
   def ssh_key_pair_path
-    File.join(File.dirname(__FILE__), 'fixtures', 'ssh_keys', 'vagrant_test_key')
+    File.join(File.dirname(__FILE__), 'fixtures', 'ssh_keys', 'vagrant_test_key').tap do |path|
+      File.chmod(0400, path)
+    end
   end
 end
 
