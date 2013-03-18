@@ -198,17 +198,27 @@ describe Lobot::ConfigurationWizard do
     end
 
     context "when there are no builds" do
+      before do
+        wizard.should_receive(:ask_with_default).with("What is the address of your git repository?", nil).ordered.and_return("Fort-Knox")
+        wizard.should_receive(:ask_with_default).with("What would you like to name your build?", nil).ordered.and_return("fancy-build")
+        wizard.should_receive(:ask_with_default).with("What command should be run during the build?", nil).ordered.and_return("build.sh")
+      end
+
       it "asks you for the build name" do
-        wizard.should_receive(:ask).and_return("fancy-build")
         wizard.prompt_for_build
         first_jenkins_build["name"].should == "fancy-build"
       end
 
       it "asks you for the git repository" do
-        wizard.should_receive(:ask)
-        wizard.should_receive(:ask).and_return("Fort-Knox")
         wizard.prompt_for_build
         first_jenkins_build["repository"].should == "Fort-Knox"
+      end
+
+      context "when it is not a rails project or the user does not want the sample build script" do
+        it "asks you for the build command" do
+          wizard.prompt_for_build
+          first_jenkins_build["command"].should == "build.sh"
+        end
       end
 
       it "always builds the master branch" do
@@ -216,34 +226,23 @@ describe Lobot::ConfigurationWizard do
         first_jenkins_build["branch"].should == "master"
       end
 
-      context "when the project is a rails project" do
-        before do
-          wizard.should_receive(:this_is_a_rails_project?).and_return(true)
-        end
+    end
 
-        it "asks whether you would like to use the sample rails build script" do
-          wizard.should_receive(:yes?)
-          wizard.prompt_for_build
-        end
-
-        context "and when the user wants to use the sample build script" do
-          before do
-            wizard.stub(:yes?).and_return(true)
-          end
-
-          it 'generates a ci_build.sh file' do
-            wizard.should_receive(:copy_file)
-            wizard.prompt_for_build
-          end
-        end
+    context "when the project is a rails project" do
+      before do
+        wizard.should_receive(:this_is_a_rails_project?).and_return(true)
       end
 
-      context "when it is not a rails project or the user does not want the sample build script" do
-        it "asks you for the build command" do
-          wizard.should_receive(:ask).twice
-          wizard.should_receive(:ask).and_return("unit-tested-bash")
+      it "asks whether you would like to use the sample rails build script" do
+        wizard.should_receive(:yes?).with("It looks like this is a Rails project.  Would you like to use the default Rails build script? (Yes/No)").and_return(true)
+        wizard.prompt_for_build
+      end
+
+      context "and when the user wants to use the sample build script" do
+        it 'generates a ci_build.sh file' do
+          wizard.should_receive(:yes?).with("It looks like this is a Rails project.  Would you like to use the default Rails build script? (Yes/No)").and_return(true)
+          wizard.should_receive(:copy_file)
           wizard.prompt_for_build
-          first_jenkins_build["command"].should == "unit-tested-bash"
         end
       end
     end
@@ -268,19 +267,17 @@ describe Lobot::ConfigurationWizard do
       end
 
       it "prompts for the name using the first build as a default" do
-        wizard.should_receive(:ask_with_default).with(anything, "first-post")
+        wizard.should_receive(:ask_with_default).with("What would you like to name your build?", "first-post")
         wizard.prompt_for_build
       end
 
       it "prompts for the repository using the first build as a default" do
-        wizard.should_receive(:ask_with_default)
-        wizard.should_receive(:ask_with_default).with(anything, "what")
+        wizard.should_receive(:ask_with_default).with("What is the address of your git repository?", "what")
         wizard.prompt_for_build
       end
 
       it "prompts for the repository using the first build as a default" do
-        wizard.should_receive(:ask_with_default).twice
-        wizard.should_receive(:ask_with_default).with(anything, "hot-grits")
+        wizard.should_receive(:ask_with_default).with("What command should be run during the build?", "hot-grits")
         wizard.prompt_for_build
       end
     end

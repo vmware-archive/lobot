@@ -11,11 +11,11 @@ module Lobot
     desc "setup", DESCRIPTION_TEXT
     def setup
       return unless yes?("It looks like you're trying to set up a CI Box. Can I help? (Yes/No)")
+      prompt_for_build
+      prompt_for_github_key
+      prompt_for_ssh_key
       prompt_for_aws
       prompt_for_basic_auth
-      prompt_for_ssh_key
-      prompt_for_github_key
-      prompt_for_build
       config.save
       say config.reload.display
       if user_wants_to_create_instance?
@@ -61,12 +61,12 @@ module Lobot
           build_command = Proc.new { ask_with_default("What command should be run during the build?", build["command"]) }
         end
 
-        config.node_attributes.jenkins.builds[0] = {
-          "name" => ask_with_default("What would you like to name your build?", build["name"]),
-          "repository" => ask_with_default("What is the address of your git repository?", build["repository"]),
-          "command" => build_command.call,
-          "branch" => "master"
-        }
+        repository = ask_with_default("What is the address of your git repository?", build["repository"])
+        name = ask_with_default("What would you like to name your build?", build["name"])
+        command = build_command.call
+        branch = "master"
+
+        config.add_build name, repository, branch, command
       end
 
       def user_wants_to_create_instance?
@@ -75,6 +75,7 @@ module Lobot
       end
 
       def create_instance
+        say("Creating instance #{config.instance_size}")
         cli.create
         say("Instance launched.")
       end
