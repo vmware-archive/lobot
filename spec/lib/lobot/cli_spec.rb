@@ -45,7 +45,8 @@ describe Lobot::CLI do
       end
 
       it "opens a web browser with the lobot page" do
-        cli.should_receive(:exec).with("open https://#{cli.lobot_config.node_attributes.nginx.basic_auth_user}:#{cli.lobot_config.node_attributes.nginx.basic_auth_password}@#{cli.lobot_config.master}/")
+        lobot_config.master = "127.0.0.1"
+        cli.should_receive(:exec).with("open https://ci:secret@127.0.0.1/")
         cli.open
       end
     end

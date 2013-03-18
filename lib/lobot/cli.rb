@@ -17,7 +17,7 @@ module Lobot
 
     desc "open", "Open a browser to Lobot"
     def open
-      exec("open https://#{lobot_config.node_attributes.nginx.basic_auth_user}:#{lobot_config.node_attributes.nginx.basic_auth_password}@#{lobot_config.master}/")
+      exec("open #{lobot_config.jenkins_url}/")
     end
 
     desc "create", "Create a new Lobot server using EC2"
