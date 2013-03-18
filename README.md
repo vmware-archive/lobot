@@ -10,74 +10,66 @@
 
 Lando Calrissian relies on Lobot to keep Cloud City afloat, and now you can rely on Lobot to get your continuous integration server running in the cloud. Lobot is a gem that will help you spin-up, bootstrap, and install Jenkins CI for your Rails app on Amazon EC2.
 
-# Lobot 2.0 Warning
-
-Please note these instructions are the for the *prerelease Lobot 2.0*.  Please report any issues you encounter by opening a github issue.
-
 # What do I get?
 
 * Commands for creating, starting, stopping, or destroying your CI server on EC2
 * The full [Travis CI](http://travis-ci.org) environment on Ubuntu 12.04
 * A Jenkins frontend for monitoring your builds
 
-After you install `lobot`, all you'll need to do is run the following commands:
-
-    [lobot configure] - COMING SOON - See Setup for now.
-    lobot create
-    lobot bootstrap
-    lobot add_build BobTheBuild git@github.com:you/some_repo.git master script/ci_build.sh
-    lobot chef
-    lobot trust_certificate     # only if you're on a mac
+```
+Tasks:
+  lobot add_build <name> <repository> <branch> <command>  # Adds a build to Lobot
+  lobot bootstrap          # Configures Lobot's master node
+  lobot certificate        # Dump the certificate
+  lobot chef               # Uploads chef recipes and runs them
+  lobot config             # Dumps all configuration data for Lobot
+  lobot create             # Create a new Lobot server using EC2
+  lobot create_vagrant     # Creates a vagrant instance
+  lobot destroy_ec2        # Destroys all the lobot resources on EC2
+  lobot help [TASK]        # Describe available tasks or one specific task
+  lobot open               # Open a browser to Lobot
+  lobot setup              # Sets up lobot through a series of questions
+  lobot ssh                # SSH into Lobot
+  lobot trust_certificate  # Adds the current master's certificate to your OSX keychain
+```
 
 Read on for an explanation of what each one of these steps does.
 
 ## Install
 
-Choose one:
+    gem install lobot
 
-* Add lobot to your Gemfile, in the development group:
-
-        gem "lobot", :group => :development
-
-* Or, simply, `gem install lobot` to bypass your Gemfile altogether (if there are any dependency conflicts with your project).
+Lobot runs independently of your project and is not a dependency.
 
 ## Setup
 
-Create a config/lobot.yml file in your project:
+If this is your first time running `lobot` and you do not have configuration file, yet, run:
 
-    ---
-    server_ssh_key: ~/.ssh/id_rsa
-    github_ssh_key: ~/.ssh/id_rsa
-    aws_key: <your AWS Key>
-    aws_secret: <your AWS Secret>
-    node_attributes:
-      jenkins:
-        builds: []
-      travis_build_environment:
-        user: jenkins
-        group: nogroup
-        home: /var/lib/jenkins
-      nginx:
-        basic_auth_user: ci
-        basic_auth_password: password
+    lobot setup
 
-See [https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key](https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key) to generate AWS key/secret.
-
-Then, create a build script in `script/ci_build.sh`:
-
-    #!/bin/bash -l
-    source .rvmrc
-
-    set -e
-
-    gem install bundler --no-ri --no-rdoc && bundle install
-
-    RAILS_ENV=test bundle exec rake db:migrate
-    bundle exec rake
+It will ask you a series of questions that will get you up and running.
 
 ## Adjust Defaults (Optional)
 
-In your config/lobot.yml, there are defaults set for values that have the recommened value. For example, the instance size used for EC2 is set to "c1.medium".
+If you don't like the default, Rails-centric, build script you can create your own:
+
+```sh
+#!/bin/bash -le
+
+source .rvmrc
+
+# install bundler if necessary
+set -e
+
+gem install bundler --no-ri --no-rdoc && bundle install
+
+# debugging info
+echo USER=$USER && ruby --version && which ruby && which bundle
+
+bundle exec rake spec
+```
+
+In your config/lobot.yml, there are defaults set for recommended values. For example, the EC2 instance size is set to "c1.medium".
 
 You can save on EC2 costs by using a tool like [projectmonitor](https://github.com/pivotal/projectmonitor) or ylastic to schedule when your instances are online.
 
@@ -95,7 +87,7 @@ You can modify the chef run list by setting the `recipes` key in config/lobot.ym
 
 Because we're using the cookbooks from Travis CI, you can look through [all the recipes Travis has available](https://github.com/travis-ci/travis-cookbooks/), and add any that you need.
 
-## Starting your lobot instance
+## Manually starting your lobot instance
 
 1. Launch an instance, allocate and associates an elastic IP and updates config/lobot.yml:
 
@@ -109,8 +101,7 @@ Because we're using the cookbooks from Travis CI, you can look through [all the 
 
         lobot chef
 
-Your lobot instance should now be up and running. You will be able to access your CI server at: http://&lt;your instance address&gt;/ with the username and password you chose during configuration.
-For more information about Jenkins CI, see [http://jenkins-ci.org](http://jenkins-ci.org).
+Your lobot instance should now be up and running. You will be able to access your CI server at: http://&lt;your instance address&gt;/ with the username and password you chose during configuration. Or, if you are on a Mac, run `lobot open`. For more information about Jenkins CI, see [http://jenkins-ci.org](http://jenkins-ci.org).
 
 ## Custom Chef Recipes
 
