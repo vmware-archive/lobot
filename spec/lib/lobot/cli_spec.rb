@@ -233,26 +233,11 @@ describe Lobot::CLI do
     describe "#bootstrap", :slow do
       before { cli.create_vagrant }
 
-      it "installs all necessary packages, installs rvm, and sets up the user" do
+      it "installs all necessary packages, installs rvm and sets up the user" do
         cli.bootstrap
         sobo.backtick("dpkg --get-selections").should include("libncurses5-dev")
         sobo.backtick("ls /usr/local/rvm/").should_not be_empty
         sobo.backtick("groups ubuntu").should include("rvm")
-      end
-
-      context 'when there are no errors' do
-        it "writes a log file and cleans it up" do
-          cli.bootstrap
-          File.exists?('bootstrap.log').should_not be
-        end
-      end
-
-      context 'when there are errors' do
-        it "keeps the log file" do
-          Net::SSH.stub(:start).and_raise
-          expect{ cli.bootstrap }.to raise_error
-          File.exists?('bootstrap.log').should be
-        end
       end
     end
 
