@@ -74,24 +74,28 @@ module Lobot
     end
 
     desc "bootstrap", "Configures Lobot's master node"
+    method_option verbose: false
     def bootstrap
       say("Bootstrapping the instance now.  This may take a while.")
       sync_bootstrap_script
-      master_server.system!("bash -l script/bootstrap_server.sh", logfile: 'bootstrap.log')
+      output_stream = Logwriter.new('bootstrap.log', verbose: options.verbose?)
+      master_server.system!("bash -l script/bootstrap_server.sh", io: output_stream)
     rescue Errno::ECONNRESET
       sleep 1
-    rescue Lobot::Sobo::CommandFailed
-      say("ERROR! Errors logged in bootstrap.log")
+    rescue Lobot::Sobo::CommandFailed => e
+      say("ERROR! Errors logged in bootstrap.log #{e.message}")
     end
 
     desc "chef", "Uploads chef recipes and runs them"
+    method_option verbose: false
     def chef
       say "Running chef-solo now.  This may take quite a while."
       sync_chef_recipes
       upload_soloist
       sync_github_ssh_key
       master_server.upload(File.expand_path('../../../templates/Gemfile-remote', __FILE__), 'Gemfile')
-      master_server.system!("bash -l -c 'rvm use 1.9.3; bundle install; soloist'", logfile: 'chef_run.log')
+      output_stream = Logwriter.new('chef_run.log', verbose: options.verbose?)
+      master_server.system!("bash -l -c 'rvm use 1.9.3; bundle install; soloist'", io: output_stream)
     rescue Errno::ECONNRESET
       sleep 1
     rescue Lobot::Sobo::CommandFailed

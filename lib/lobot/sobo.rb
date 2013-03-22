@@ -27,18 +27,18 @@ module Lobot
     end
 
     def backtick(command)
-      ssh_popen4!(command)[0]
+      results = ssh_popen4!(command, io: BlackHoleObject.new)
+      puts %Q|===>results: #{results.inspect}|
+      results[0]
     end
 
     def ssh_popen4!(command, options = {})
-      logfile_path = options.fetch(:logfile, nil)
-      logfile = File.open(logfile_path, 'w') if logfile_path
+      output_stream = options.fetch(:io)
 
       ssh = Net::SSH.start(ip, user, :keys => [key], :timeout => timeout, paranoid: false)
       stdout_data = ""
       stderr_data = ""
       exit_code = nil
-      exit_signal = nil
 
       ssh.open_channel do |channel|
         channel.exec("/bin/bash -lc #{Shellwords.escape(command)}") do |ch, success|
@@ -47,38 +47,26 @@ module Lobot
           end
 
           channel.on_data do |ch,data|
-            if logfile
-              logfile << data
-              logfile.flush
-            end
+            output_stream << data
             stdout_data += data
           end
 
           channel.on_extended_data do |ch,type,data|
-            if logfile
-              logfile << data
-              logfile.flush
-            end
+            output_stream << data
             stderr_data += data
           end
 
           channel.on_request("exit-status") do |ch, data|
             exit_code = data.read_long
           end
-
-          channel.on_request("exit-signal") do |ch, data|
-            exit_signal = data.read_long
-          end
         end
       end
       ssh.loop
 
-      if logfile
-        logfile.close
-        File.delete(logfile_path) if exit_code == 0
-      end
+      output_stream.close
+      output_stream.delete if exit_code == 0
 
-      [stdout_data, stderr_data, exit_code, exit_signal]
+      [stdout_data, stderr_data, exit_code]
     end
 
     def upload(from, to, opts = "--exclude .git")

@@ -258,6 +258,17 @@ describe Lobot::CLI do
           File.delete('bootstrap.log')
         end
       end
+
+      context 'with --verbose' do
+        before do
+          cli.stub_chain(:options, 'verbose?' => true)
+        end
+
+        it 'makes the logwriter verbose' do
+          Lobot::Logwriter.should_receive(:new).with('bootstrap.log', verbose: true).and_return(double.as_null_object)
+          cli.bootstrap
+        end
+      end
     end
 
     describe "#chef", :slow do
