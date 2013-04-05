@@ -15,6 +15,7 @@ module Lobot
       prompt_for_github_key
       prompt_for_ssh_key
       prompt_for_aws
+      prompt_for_security_group
       prompt_for_basic_auth
       config.save
       say config.reload.display
@@ -35,6 +36,11 @@ module Lobot
         say("For your AWS Access Key and Secret, see https://aws-portal.amazon.com/gp/aws/developer/account/index.html?ie=UTF8&action=access-key")
         config.aws_key = ask_with_default("Your AWS key", config.aws_key)
         config.aws_secret = ask_with_default("Your AWS secret key", config.aws_secret)
+      end
+
+      def prompt_for_security_group
+        say("What EC2 security group would you like to use?")
+        config.security_group = ask_with_default("lobot", config.security_group)
       end
 
       def prompt_for_basic_auth
