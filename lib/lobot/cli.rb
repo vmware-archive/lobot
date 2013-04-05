@@ -23,9 +23,9 @@ module Lobot
     desc "create", "Create a new Lobot server using EC2"
     def create
       server = amazon.with_key_pair(lobot_config.server_ssh_pubkey) do |keypair_name|
-        amazon.create_security_group("lobot")
-        amazon.open_port("lobot", 22, 443)
-        amazon.launch_server(keypair_name, "lobot", lobot_config.instance_size)
+        amazon.create_security_group(lobot_config.security_group)
+        amazon.open_port(lobot_config.security_group, 22, 443)
+        amazon.launch_server(keypair_name, lobot_config.security_group, lobot_config.instance_size)
       end
       wait_for_server(server)
 

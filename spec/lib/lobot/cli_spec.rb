@@ -126,6 +126,17 @@ describe Lobot::CLI do
           cli.create
         end
 
+        context "with a custom security group", :slow => false do
+          before { cli.lobot_config.security_group = 'custom_group' }
+
+          it "launches the instance with the configured security group" do
+            amazon.should_receive(:create_security_group).with('custom_group')
+            amazon.should_receive(:open_port).with('custom_group', anything, anything)
+            amazon.should_receive(:launch_server).with(anything, 'custom_group', anything)
+            cli.create
+          end
+        end
+
         context "with a custom instance size", :slow => false do
           before { cli.lobot_config.instance_size = 'really_big_instance' }
 
