@@ -77,6 +77,11 @@ describe Lobot::ConfigurationWizard do
       wizard.setup
     end
 
+    it "prompts for security group" do
+      wizard.should_receive(:prompt_for_security_group)
+      wizard.setup
+    end
+
     it "prompts for nginx basic auth credentials" do
       wizard.should_receive(:prompt_for_basic_auth)
       wizard.setup
@@ -152,6 +157,18 @@ describe Lobot::ConfigurationWizard do
 
       wizard.config.aws_key.should == "aws-key"
       wizard.config.aws_secret.should == "aws-secret-key"
+    end
+  end
+
+  describe "#prompt_for_security_group" do
+    before { wizard.stub(:say) }
+
+    it "reads in security group" do
+      wizard.should_receive(:ask).and_return("lobot")
+
+      wizard.prompt_for_security_group
+
+      wizard.config.security_group.should == "lobot"
     end
   end
 
