@@ -39,8 +39,7 @@ module Lobot
       end
 
       def prompt_for_security_group
-        say("What EC2 security group would you like to use?")
-        config.security_group = ask_with_default("lobot", config.security_group)
+        config.security_group = ask_with_default("What EC2 security group would you like to use?", config.security_group)
       end
 
       def prompt_for_basic_auth
