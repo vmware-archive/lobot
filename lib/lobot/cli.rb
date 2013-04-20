@@ -25,7 +25,7 @@ module Lobot
       server = amazon.with_key_pair(lobot_config.server_ssh_pubkey) do |keypair_name|
         amazon.create_security_group("lobot")
         amazon.open_port("lobot", 22, 443)
-        amazon.launch_server(keypair_name, "lobot", lobot_config.instance_size)
+        amazon.launch_server(keypair_name, "lobot", lobot_config.instance_size, lobot_config.availability_zone)
       end
       wait_for_server(server)
 

@@ -210,6 +210,7 @@ keypair_name: lobot
     its(:recipes) { should == ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"] }
     its(:cookbook_paths) { should == ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks'] }
     its(:instance_size) { should == 'c1.medium' }
+    its(:availability_zone) { should == 'us-east-1b' }
 
     context 'when id_rsa exists' do
       before { File.stub(:exists?).and_return(true) }
