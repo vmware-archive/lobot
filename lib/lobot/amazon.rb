@@ -58,11 +58,11 @@ module Lobot
       delete_key_pair(unique_key_pair_name)
     end
 
-    def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium")
+    def launch_server(key_pair_name, security_group_name, instance_type = "m1.medium", availability_zone = "us-east-1b")
       fog_servers.create(
         :image_id => "ami-a29943cb",
         :flavor_id => instance_type,
-        :availability_zone => "us-east-1b",
+        :availability_zone => availability_zone,
         :tags => {"Name" => "Lobot", "lobot" => Lobot::VERSION},
         :key_name => key_pair_name,
         :groups => [security_group_name]
