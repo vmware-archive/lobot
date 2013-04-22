@@ -2,7 +2,7 @@
 .vagrant
 /spec/reports
 Gemfile.lock
-/config
+/config/*.yml
 /pkg
 .env*
 *.log
