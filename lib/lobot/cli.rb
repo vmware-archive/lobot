@@ -87,7 +87,7 @@ module Lobot
       upload_soloist
       sync_github_ssh_key
       master_server.upload(File.expand_path('../../../templates/Gemfile-remote', __FILE__), 'Gemfile')
-      master_server.system!("bash -l -c 'rvm use 1.9.3; bundle install; soloist'")    rescue Errno::ECONNRESET
+      master_server.system!("rvm autolibs enable; bash -l -c 'rvm use 1.9.3; bundle install; soloist'")    rescue Errno::ECONNRESET
       sleep 1
     end
 
