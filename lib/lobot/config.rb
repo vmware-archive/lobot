@@ -16,6 +16,7 @@ module Lobot
     property :recipes, :default => ["pivotal_ci::jenkins", "pivotal_ci::limited_travis_ci_environment", "pivotal_ci"]
     property :cookbook_paths, :default => ['./chef/cookbooks/', './chef/travis-cookbooks/ci_environment', './chef/project-cookbooks']
     property :node_attributes, :default => Proc.new { default_node_attributes }
+    property :availability_zone, :default => "us-east-1b"
 
     def initialize(attributes = {})
       super

@@ -130,7 +130,7 @@ describe Lobot::CLI do
           before { cli.lobot_config.instance_size = 'really_big_instance' }
 
           it "launches the instance with the configured instance size" do
-            amazon.should_receive(:launch_server).with(anything, anything, 'really_big_instance')
+            amazon.should_receive(:launch_server).with(anything, anything, 'really_big_instance', 'us-east-1b')
             cli.create
           end
         end
