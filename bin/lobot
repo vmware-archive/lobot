@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 $: << File.expand_path('../../lib', __FILE__)
 
-require "lobot"
-Lobot::CLI.start
+require "ciborg"
+Ciborg::CLI.start
+warn "[DEPRECATION] This gem has been renamed to ciborg and will no longer be supported. Please switch to ciborg as soon as possible."

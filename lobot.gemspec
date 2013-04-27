@@ -14,25 +14,15 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "lobot"
 
-  s.files         = `git ls-files`.split("\n") + `cd chef/travis-cookbooks && git ls-files`.split("\n").map { |f| "chef/travis-cookbooks/#{f}" }
-  s.executables   = `git ls-files -- bin`.split("\n").map{ |f| File.basename(f) }
+  s.files         = "lib/lobot.rb"
+  s.executables   = "lobot"
   s.require_paths = ["lib"]
 
-  s.add_dependency "fog", "~> 1.6"
-  s.add_dependency "ci_reporter", "~> 1.7"
-  s.add_dependency "thor"
-  s.add_dependency "hashie", "~> 2.0.2"
-  s.add_dependency "haddock"
-  s.add_dependency "net-ssh"
-  s.add_dependency "httpclient"
-  s.add_dependency "godot"
+  s.add_dependency "ciborg", "~> 3.0"
 
-  s.add_development_dependency "rspec"
-  s.add_development_dependency "guard-rspec"
-  s.add_development_dependency "guard-bundler"
-  s.add_development_dependency "test-kitchen"
-
-  s.add_development_dependency "terminal-notifier-guard"
-  s.add_development_dependency "rb-fsevent"
-  s.add_development_dependency "vagrant", "~> 1.0"
+  s.post_install_message = <<-MESSAGE
+!    The 'lobot' gem has been deprecated and has been replaced by 'ciborg'.
+!    See: https://rubygems.org/gems/ciborg
+!    And: https://github.com/pivotal/ciborg
+  MESSAGE
 end

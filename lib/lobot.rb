@@ -1,8 +1,1 @@
 require "lobot/version"
-require "lobot/config"
-require "lobot/sobo"
-require "lobot/amazon"
-require "lobot/keychain"
-require "lobot/configuration_wizard"
-require "lobot/cli"
-require "lobot/password"

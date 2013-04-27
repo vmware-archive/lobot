@@ -1,5 +1,7 @@
 # Lobot: Your Chief Administrative Aide on Cloud City
 
+Moved to [ciborg](https://github.com/pivotal/ciborg).
+
 ![Lobot](http://cheffiles.pivotallabs.com/lobot/logo.png)
 
 [![Code Climate](https://codeclimate.com/github/pivotal/lobot.png)](https://codeclimate.com/github/pivotal/lobot)
